@@ -1,0 +1,901 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cotización | Orchestrator ISA</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --cyan: #00E5FF;
+            --green: #00FF88;
+            --dark: #0a0a0f;
+            --darker: #060608;
+            --card: #111118;
+            --card-hover: #181824;
+            --border: #1e1e2e;
+            --text: #e0e0e0;
+            --text-muted: #8888a0;
+            --accent-gradient: linear-gradient(135deg, #00E5FF 0%, #00FF88 100%);
+            --glass: rgba(255,255,255,0.03);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--darker);
+            color: var(--text);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .bg-grid {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-image: 
+                radial-gradient(circle at 20% 50%, rgba(0,229,255,0.08) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(0,255,136,0.06) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .container {
+            position: relative;
+            z-index: 1;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 2rem 1.5rem;
+        }
+
+        .header {
+            text-align: center;
+            padding: 2rem 0 1.5rem;
+        }
+
+        .header h1 {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 2rem;
+            font-weight: 700;
+            background: var(--accent-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .header p {
+            color: var(--text-muted);
+            margin-top: 0.5rem;
+        }
+
+        /* FORM */
+        .form-section {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 2rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .form-section h3 {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.1rem;
+            margin-bottom: 1.25rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.4rem;
+        }
+
+        .form-group label {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        .form-group input, .form-group select {
+            background: var(--darker);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 0.75rem 1rem;
+            color: var(--text);
+            font-family: 'Inter', sans-serif;
+            font-size: 0.9rem;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+
+        .form-group input:focus, .form-group select:focus {
+            border-color: var(--cyan);
+        }
+
+        .form-group input::placeholder {
+            color: #555;
+        }
+
+        /* SELECCIONES */
+        .selections-box {
+            background: linear-gradient(135deg, rgba(0,229,255,0.05) 0%, rgba(0,255,136,0.05) 100%);
+            border: 1px solid rgba(0,229,255,0.2);
+            border-radius: 16px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .selections-box h3 {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1rem;
+            margin-bottom: 1rem;
+            color: var(--cyan);
+        }
+
+        .pack-selected {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1rem 1.25rem;
+            margin-bottom: 0.75rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .pack-selected-info h4 {
+            font-size: 1rem;
+            margin-bottom: 0.2rem;
+        }
+
+        .pack-selected-info p {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        .pack-selected-price {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--cyan);
+        }
+
+        .micros-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .micro-item {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 0.75rem 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.9rem;
+        }
+
+        .micro-item button {
+            background: rgba(255,71,87,0.1);
+            border: 1px solid rgba(255,71,87,0.3);
+            color: #ff4757;
+            padding: 0.3rem 0.6rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.75rem;
+            transition: all 0.2s;
+        }
+
+        .micro-item button:hover {
+            background: rgba(255,71,87,0.2);
+        }
+
+        .empty-state {
+            text-align: center;
+            color: var(--text-muted);
+            padding: 2rem;
+            font-size: 0.9rem;
+        }
+
+        .empty-state a {
+            color: var(--cyan);
+            text-decoration: none;
+        }
+
+        /* RESUMEN */
+        .summary-box {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 2rem;
+            position: sticky;
+            top: 1rem;
+        }
+
+        .summary-box h3 {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.1rem;
+            margin-bottom: 1.25rem;
+        }
+
+        .summary-line {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.6rem 0;
+            border-bottom: 1px solid var(--border);
+            font-size: 0.9rem;
+        }
+
+        .summary-line:last-of-type {
+            border-bottom: none;
+        }
+
+        .summary-line.total {
+            border-top: 2px solid var(--cyan);
+            border-bottom: none;
+            margin-top: 0.5rem;
+            padding-top: 1rem;
+            font-size: 1.1rem;
+            font-weight: 700;
+        }
+
+        .summary-line.total .price {
+            color: var(--cyan);
+            font-size: 1.3rem;
+        }
+
+        .summary-line.mantenimiento {
+            color: var(--green);
+            font-size: 0.85rem;
+        }
+
+        .summary-line.mantenimiento .price {
+            color: var(--green);
+        }
+
+        /* BOTONES */
+        .btn {
+            width: 100%;
+            padding: 1rem;
+            border: none;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: 'Inter', sans-serif;
+            margin-top: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: var(--accent-gradient);
+            color: var(--darker);
+        }
+
+        .btn-primary:hover {
+            transform: scale(1.02);
+            box-shadow: 0 8px 25px rgba(0,229,255,0.3);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--text);
+            margin-top: 0.5rem;
+        }
+
+        .btn-secondary:hover {
+            border-color: var(--cyan);
+            color: var(--cyan);
+        }
+
+        .btn-whatsapp {
+            background: #25D366;
+            color: white;
+            margin-top: 0.5rem;
+        }
+
+        .btn-whatsapp:hover {
+            background: #128C7E;
+            transform: scale(1.02);
+        }
+
+        /* PREVIEW */
+        .preview-section {
+            display: none;
+            margin-top: 2rem;
+        }
+
+        .preview-section.active {
+            display: block;
+        }
+
+        .preview-frame {
+            background: white;
+            border-radius: 16px;
+            overflow: hidden;
+            border: 1px solid var(--border);
+        }
+
+        .preview-toolbar {
+            background: var(--card);
+            padding: 0.75rem 1rem;
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .preview-dot {
+            width: 10px; height: 10px;
+            border-radius: 50%;
+        }
+
+        .preview-content {
+            background: white;
+            color: #333;
+            padding: 2rem;
+            min-height: 400px;
+            font-family: 'Inter', sans-serif;
+        }
+
+        /* LAYOUT */
+        .two-col {
+            display: grid;
+            grid-template-columns: 1fr 320px;
+            gap: 1.5rem;
+            align-items: start;
+        }
+
+        @media (max-width: 768px) {
+            .two-col {
+                grid-template-columns: 1fr;
+            }
+            .header h1 { font-size: 1.5rem; }
+        }
+
+        /* Toast */
+        .toast {
+            position: fixed;
+            bottom: 2rem;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #111118;
+            border: 1px solid #1e1e2e;
+            color: #e0e0e0;
+            padding: 1rem 2rem;
+            border-radius: 12px;
+            font-size: 0.9rem;
+            z-index: 1000;
+            animation: slideUp 0.3s ease;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateX(-50%) translateY(20px); }
+            to { opacity: 1; transform: translateX(-50%) translateY(0); }
+        }
+
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: var(--darker); }
+        ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--cyan); }
+    </style>
+<base target="_blank">
+</head>
+<body>
+    <div class="bg-grid"></div>
+
+    <div class="container">
+        <div class="header">
+            <h1>🚀 Generador de Cotizaciones</h1>
+            <p>Completa los datos del cliente y genera una propuesta profesional en segundos</p>
+        </div>
+
+        <div class="two-col">
+            <div class="main-col">
+                <!-- DATOS CLIENTE -->
+                <div class="form-section">
+                    <h3>👤 Datos del Cliente</h3>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Nombre del Negocio *</label>
+                            <input type="text" id="negocio" placeholder="Ej: Café Al Hizam">
+                        </div>
+                        <div class="form-group">
+                            <label>Tipo de Negocio *</label>
+                            <select id="tipo">
+                                <option value="">Seleccionar...</option>
+                                <option value="restaurante">Restaurante / Café</option>
+                                <option value="belleza">Salón de Belleza / Barbería</option>
+                                <option value="dental">Clínica Dental</option>
+                                <option value="medico">Consultorio Médico</option>
+                                <option value="mecanico">Taller Mecánico</option>
+                                <option value="farmacia">Farmacia</option>
+                                <option value="gimnasio">Gimnasio / Fitness</option>
+                                <option value="academia">Academia de Idiomas</option>
+                                <option value="panaderia">Panadería / Pastelería</option>
+                                <option value="inmobiliaria">Inmobiliaria</option>
+                                <option value="tienda">Tienda / Comercio</option>
+                                <option value="otro">Otro</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Nombre del Dueño</label>
+                            <input type="text" id="dueno" placeholder="Ej: Ahmed Benali">
+                        </div>
+                        <div class="form-group">
+                            <label>Teléfono WhatsApp *</label>
+                            <input type="tel" id="telefono" placeholder="Ej: +212 612 345 678">
+                        </div>
+                        <div class="form-group">
+                            <label>Email</label>
+                            <input type="email" id="email" placeholder="contacto@negocio.ma">
+                        </div>
+                        <div class="form-group">
+                            <label>Ciudad</label>
+                            <input type="text" id="ciudad" placeholder="Ej: Tetouan">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SELECCIONES DEL CATÁLOGO -->
+                <div class="selections-box" id="selectionsBox">
+                    <h3>🛒 Selección desde Catálogo</h3>
+                    <div id="packSelection">
+                        <div class="empty-state">
+                            No hay pack seleccionado.<br>
+                            <a href="portal_catalogos.html">Ir al catálogo →</a>
+                        </div>
+                    </div>
+                    <div id="microsSelection" style="margin-top: 1rem;">
+                        <!-- Micros se cargan aquí -->
+                    </div>
+                </div>
+
+                <!-- NOTAS -->
+                <div class="form-section">
+                    <h3>📝 Notas Adicionales</h3>
+                    <div class="form-group">
+                        <textarea id="notas" rows="3" placeholder="Observaciones especiales, descuentos, condiciones..." 
+                            style="background: var(--darker); border: 1px solid var(--border); border-radius: 10px; padding: 0.75rem 1rem; color: var(--text); font-family: 'Inter', sans-serif; font-size: 0.9rem; width: 100%; resize: vertical; outline: none;"></textarea>
+                    </div>
+                </div>
+
+                <!-- PREVIEW -->
+                <div class="preview-section" id="previewSection">
+                    <h3 style="font-family: 'Space Grotesk', sans-serif; margin-bottom: 1rem;">👁️ Vista Previa</h3>
+                    <div class="preview-frame">
+                        <div class="preview-toolbar">
+                            <div class="preview-dot" style="background: #ff5f57;"></div>
+                            <div class="preview-dot" style="background: #febc2e;"></div>
+                            <div class="preview-dot" style="background: #28c840;"></div>
+                            <span style="margin-left: 0.5rem; font-size: 0.8rem; color: var(--text-muted);">Cotización HTML</span>
+                        </div>
+                        <div class="preview-content" id="previewContent">
+                            <!-- Preview se inyecta aquí -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- RESUMEN LATERAL -->
+            <div class="side-col">
+                <div class="summary-box">
+                    <h3>💰 Resumen</h3>
+
+                    <div class="summary-line">
+                        <span>Pack seleccionado</span>
+                        <span id="resPack">—</span>
+                    </div>
+                    <div class="summary-line">
+                        <span>Precio entrada</span>
+                        <span id="resPackPrice">0 MAD</span>
+                    </div>
+                    <div class="summary-line">
+                        <span>Microservicios</span>
+                        <span id="resMicrosCount">0 items</span>
+                    </div>
+                    <div class="summary-line">
+                        <span>Subtotal micros</span>
+                        <span id="resMicrosPrice">0 MAD</span>
+                    </div>
+
+                    <div class="summary-line total">
+                        <span>TOTAL ENTRADA</span>
+                        <span class="price" id="resTotal">0 MAD</span>
+                    </div>
+
+                    <div class="summary-line mantenimiento">
+                        <span>Mantenimiento mensual</span>
+                        <span class="price" id="resMant">0 MAD/mes</span>
+                    </div>
+
+                    <button class="btn btn-primary" onclick="generarCotizacionBackend()">
+                        ⚡ Generar Cotización
+                    </button>
+                    <button class="btn btn-secondary" onclick="verPreview()">
+                        👁️ Vista Previa
+                    </button>
+                    <button class="btn btn-whatsapp" onclick="enviarWhatsAppBackend()">
+                        📱 Enviar por WhatsApp
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // === CONFIGURACIÓN ===
+        const PACKS = {
+            presencia: { name: 'Pack Presencia', price: 250, mant: 150, desc: 'Google Maps + WA básico + verificación mensual' },
+            whatsapp: { name: 'Pack WhatsApp Pro', price: 400, mant: 200, desc: 'Catálogo + respuestas automáticas + ajustes mensuales' },
+            automatizacion: { name: 'Pack Automatización', price: 800, mant: 350, desc: 'Chatbot IA + flujos + optimización continua' },
+            completo: { name: 'Pack Completo', price: 1200, mant: 500, desc: 'Todo + contenido mensual + SEO local + reportes' }
+        };
+
+        let state = {
+            pack: null,
+            micros: [],
+            cliente: {}
+        };
+
+        // === CARGAR DESDE LOCALSTORAGE (del catálogo) ===
+        function cargarSeleccion() {
+            const packData = localStorage.getItem('isa_selected_pack');
+            const microsData = localStorage.getItem('isa_selected_micros');
+
+            if (packData) {
+                const pack = JSON.parse(packData);
+                state.pack = pack.pack;
+            }
+
+            if (microsData) {
+                state.micros = JSON.parse(microsData);
+            }
+
+            renderSeleccion();
+            calcularTotal();
+        }
+
+        // === RENDER SELECCIÓN ===
+        function renderSeleccion() {
+            const packDiv = document.getElementById('packSelection');
+            const microsDiv = document.getElementById('microsSelection');
+
+            if (state.pack && PACKS[state.pack]) {
+                const p = PACKS[state.pack];
+                packDiv.innerHTML = `
+                    <div class="pack-selected">
+                        <div class="pack-selected-info">
+                            <h4>${p.name}</h4>
+                            <p>${p.desc}</p>
+                        </div>
+                        <div class="pack-selected-price">${p.price} MAD</div>
+                    </div>
+                `;
+            } else {
+                packDiv.innerHTML = `
+                    <div class="empty-state">
+                        No hay pack seleccionado.<br>
+                        <a href="portal_catalogos.html">Ir al catálogo →</a>
+                    </div>
+                `;
+            }
+
+            if (state.micros.length > 0) {
+                microsDiv.innerHTML = `
+                    <h4 style="font-size: 0.9rem; margin-bottom: 0.5rem; color: var(--text-muted);">Microservicios agregados:</h4>
+                    <div class="micros-list">
+                        ${state.micros.map((m, i) => `
+                            <div class="micro-item">
+                                <span>${m.name}</span>
+                                <div style="display:flex; align-items:center; gap:0.75rem;">
+                                    <span style="color: var(--cyan); font-weight: 600;">${m.price} MAD</span>
+                                    <button onclick="removeMicro(${i})">✕</button>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+            } else {
+                microsDiv.innerHTML = '';
+            }
+        }
+
+        function removeMicro(index) {
+            state.micros.splice(index, 1);
+            localStorage.setItem('isa_selected_micros', JSON.stringify(state.micros));
+            renderSeleccion();
+            calcularTotal();
+            showToast('➖ Microservicio removido');
+        }
+
+        // === CALCULAR TOTALES ===
+        function calcularTotal() {
+            let packPrice = 0;
+            let mantPrice = 0;
+            let microsTotal = 0;
+
+            if (state.pack && PACKS[state.pack]) {
+                packPrice = PACKS[state.pack].price;
+                mantPrice = PACKS[state.pack].mant;
+            }
+
+            state.micros.forEach(m => {
+                microsTotal += m.price;
+            });
+
+            const total = packPrice + microsTotal;
+
+            document.getElementById('resPack').textContent = state.pack ? PACKS[state.pack].name : '—';
+            document.getElementById('resPackPrice').textContent = packPrice + ' MAD';
+            document.getElementById('resMicrosCount').textContent = state.micros.length + ' items';
+            document.getElementById('resMicrosPrice').textContent = microsTotal + ' MAD';
+            document.getElementById('resTotal').textContent = total + ' MAD';
+            document.getElementById('resMant').textContent = mantPrice + ' MAD/mes';
+        }
+
+        // === GENERAR HTML DE COTIZACIÓN ===
+        function generarHTMLCotizacion() {
+            const negocio = document.getElementById('negocio').value || 'Tu Negocio';
+            const tipo = document.getElementById('tipo').value || 'negocio local';
+            const dueno = document.getElementById('dueno').value || 'Estimado cliente';
+            const telefono = document.getElementById('telefono').value || '+212 786 120 081';
+            const email = document.getElementById('email').value || 'orchestrator.isa@gmail.com';
+            const ciudad = document.getElementById('ciudad').value || 'Marruecos';
+            const notas = document.getElementById('notas').value || '';
+
+            const fecha = new Date().toLocaleDateString('es-ES', { 
+                day: 'numeric', month: 'long', year: 'numeric' 
+            });
+
+            let packSection = '';
+            let mantenimiento = 0;
+
+            if (state.pack && PACKS[state.pack]) {
+                const p = PACKS[state.pack];
+                mantenimiento = p.mant;
+                packSection = `
+                    <div style="background: linear-gradient(135deg, #00E5FF 0%, #00FF88 100%); color: #0a0a0f; padding: 1.5rem; border-radius: 12px; margin: 1.5rem 0;">
+                        <h3 style="margin: 0 0 0.5rem 0; font-size: 1.3rem;">${p.name}</h3>
+                        <p style="margin: 0; opacity: 0.9;">${p.desc}</p>
+                        <div style="font-size: 2rem; font-weight: 800; margin-top: 0.5rem;">${p.price} MAD</div>
+                    </div>
+                `;
+            }
+
+            let microsSection = '';
+            let microsTotal = 0;
+
+            if (state.micros.length > 0) {
+                microsSection = `
+                    <h3 style="color: #0a0a0f; margin-top: 2rem;">Microservicios Adicionales</h3>
+                    <table style="width: 100%; border-collapse: collapse; margin-top: 1rem;">
+                        ${state.micros.map(m => {
+                            microsTotal += m.price;
+                            return `
+                                <tr style="border-bottom: 1px solid #eee;">
+                                    <td style="padding: 0.75rem 0;">${m.name}</td>
+                                    <td style="padding: 0.75rem 0; text-align: right; font-weight: 600;">${m.price} MAD</td>
+                                </tr>
+                            `;
+                        }).join('')}
+                    </table>
+                `;
+            }
+
+            const packPrice = state.pack ? PACKS[state.pack].price : 0;
+            const totalEntrada = packPrice + microsTotal;
+
+            const html = `
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Propuesta Comercial - ${negocio}</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background: #f5f5f5; color: #333; line-height: 1.6; }
+        .container { max-width: 700px; margin: 0 auto; background: white; }
+        .header { background: linear-gradient(135deg, #0a0a0f 0%, #1a1a2e 100%); color: white; padding: 3rem 2rem; text-align: center; }
+        .header h1 { font-size: 1.8rem; margin-bottom: 0.5rem; }
+        .header p { opacity: 0.8; font-size: 0.95rem; }
+        .badge { display: inline-block; background: linear-gradient(135deg, #00E5FF 0%, #00FF88 100%); color: #0a0a0f; padding: 0.4rem 1rem; border-radius: 100px; font-size: 0.8rem; font-weight: 700; margin-top: 1rem; }
+        .content { padding: 2rem; }
+        .cliente-info { background: #f8f9fa; padding: 1.5rem; border-radius: 12px; margin-bottom: 2rem; }
+        .cliente-info h3 { color: #0a0a0f; margin-bottom: 1rem; font-size: 1.1rem; }
+        .info-row { display: flex; margin-bottom: 0.5rem; font-size: 0.9rem; }
+        .info-row strong { width: 120px; color: #666; }
+        .total-box { background: #0a0a0f; color: white; padding: 2rem; border-radius: 12px; text-align: center; margin: 2rem 0; }
+        .total-box .label { font-size: 0.9rem; opacity: 0.8; }
+        .total-box .amount { font-size: 2.5rem; font-weight: 800; background: linear-gradient(135deg, #00E5FF 0%, #00FF88 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin: 0.5rem 0; }
+        .total-box .mant { color: #00FF88; font-size: 1rem; }
+        .notas { background: #fff3cd; border-left: 4px solid #ffc107; padding: 1rem; border-radius: 0 8px 8px 0; margin: 1.5rem 0; font-size: 0.9rem; }
+        .footer { background: #0a0a0f; color: white; padding: 2rem; text-align: center; }
+        .footer a { color: #00E5FF; text-decoration: none; }
+        .cta { display: inline-block; background: linear-gradient(135deg, #00E5FF 0%, #00FF88 100%); color: #0a0a0f; padding: 1rem 2rem; border-radius: 100px; text-decoration: none; font-weight: 700; margin-top: 1rem; }
+        .garantia { text-align: center; padding: 1.5rem; font-size: 0.85rem; color: #666; border-top: 1px solid #eee; }
+        @media print { .container { max-width: 100%; } body { background: white; } }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚀 ORCHESTRATOR ISA</h1>
+            <p>Propuesta Comercial de Digitalización</p>
+            <div class="badge">Válida por 7 días</div>
+        </div>
+
+        <div class="content">
+            <div class="cliente-info">
+                <h3>📋 Datos del Proyecto</h3>
+                <div class="info-row"><strong>Negocio:</strong> ${negocio}</div>
+                <div class="info-row"><strong>Tipo:</strong> ${tipo}</div>
+                <div class="info-row"><strong>Cliente:</strong> ${dueno}</div>
+                <div class="info-row"><strong>Ciudad:</strong> ${ciudad}</div>
+                <div class="info-row"><strong>Fecha:</strong> ${fecha}</div>
+            </div>
+
+            ${packSection}
+            ${microsSection}
+
+            <div class="total-box">
+                <div class="label">INVERSIÓN TOTAL DE ENTRADA</div>
+                <div class="amount">${totalEntrada} MAD</div>
+                <div class="mant">+ ${mantenimiento} MAD/mes de mantenimiento</div>
+            </div>
+
+            ${notas ? `<div class="notas"><strong>Notas:</strong> ${notas}</div>` : ''}
+
+            <div style="text-align: center; margin: 2rem 0;">
+                <h3 style="margin-bottom: 1rem;">¿Listo para empezar?</h3>
+                <p style="color: #666; margin-bottom: 1.5rem;">Entrega en 24-72 horas. Capacitación incluida.</p>
+                <a href="https://wa.me/${telefono.replace(/\D/g, '')}" class="cta">💬 Confirmar por WhatsApp</a>
+            </div>
+        </div>
+
+        <div class="garantia">
+            🛡️ Garantía: Si no ves el sistema funcionando y probado, no se considera entregado.<br>
+            Capacitación incluida: te enseño a usarlo en 15 minutos.
+        </div>
+
+        <div class="footer">
+            <p style="font-size: 1.2rem; font-weight: 700; margin-bottom: 0.5rem;">ORCHESTRATOR ISA</p>
+            <p>Digitalización Inteligente para Negocios Locales</p>
+            <p style="margin-top: 1rem;">
+                📱 <a href="https://wa.me/212786120081">+212 786 120 081</a> | 
+                📧 <a href="mailto:orchestrator.isa@gmail.com">orchestrator.isa@gmail.com</a>
+            </p>
+        </div>
+    </div>
+</body>
+</html>
+            `;
+
+            return html;
+        }
+
+        // === GENERAR COTIZACIÓN ===
+        function generarCotizacion() {
+            const negocio = document.getElementById('negocio').value;
+            const telefono = document.getElementById('telefono').value;
+
+            if (!negocio || !telefono) {
+                showToast('⚠️ Completá nombre del negocio y teléfono');
+                return;
+            }
+
+            if (!state.pack && state.micros.length === 0) {
+                showToast('⚠️ Seleccioná al menos un pack o microservicio');
+                return;
+            }
+
+            const html = generarHTMLCotizacion();
+
+            // Crear blob y descargar
+            const blob = new Blob([html], { type: 'text/html' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `cotizacion_${negocio.replace(/\s+/g, '_').toLowerCase()}.html`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+
+            // Guardar en localStorage para envío WA
+            localStorage.setItem('isa_cotizacion_html', html);
+            localStorage.setItem('isa_cotizacion_negocio', negocio);
+
+            showToast('✅ Cotización generada y descargada');
+        }
+
+        // === VISTA PREVIA ===
+        function verPreview() {
+            const html = generarHTMLCotizacion();
+            document.getElementById('previewContent').innerHTML = html;
+            document.getElementById('previewSection').classList.add('active');
+            showToast('👁️ Vista previa actualizada');
+        }
+
+        // === ENVIAR WHATSAPP ===
+        function enviarWhatsApp() {
+            const negocio = document.getElementById('negocio').value;
+            const telefono = document.getElementById('telefono').value;
+            const dueno = document.getElementById('dueno').value || 'Estimado';
+
+            if (!telefono) {
+                showToast('⚠️ Ingresá el teléfono del cliente');
+                return;
+            }
+
+            const packName = state.pack ? PACKS[state.pack].name : 'Servicios personalizados';
+            const total = document.getElementById('resTotal').textContent;
+            const mant = document.getElementById('resMant').textContent;
+
+            const mensaje = `Hola ${dueno}! 👋
+
+Soy Isa de Orchestrator ISA. Te preparé la propuesta para *${negocio}*:
+
+📦 ${packName}
+💰 Inversión: ${total}
+🔧 Mantenimiento: ${mant}
+
+✅ Entrega en 24-72 horas
+✅ Capacitación incluida (15 min)
+✅ Garantía: si no funciona, no se considera entregado
+
+¿Te parece bien? Podemos empezar hoy mismo con el 50% de anticipo. 💪`;
+
+            const waUrl = `https://wa.me/${telefono.replace(/\D/g, '')}?text=${encodeURIComponent(mensaje)}`;
+            window.open(waUrl, '_blank');
+
+            showToast('📱 WhatsApp preparado');
+        }
+
+        // === TOAST ===
+        function showToast(msg) {
+            const existing = document.querySelector('.toast');
+            if (existing) existing.remove();
+
+            const toast = document.createElement('div');
+            toast.className = 'toast';
+            toast.textContent = msg;
+            document.body.appendChild(toast);
+
+            setTimeout(() => {
+                toast.style.animation = 'slideUp 0.3s ease reverse';
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        // === LISTENERS ===
+        document.querySelectorAll('input, select, textarea').forEach(el => {
+            el.addEventListener('change', calcularTotal);
+        });
+
+        // === INIT ===
+        document.addEventListener('DOMContentLoaded', () => {
+            cargarSeleccion();
+        });
+    </script>
+    <script src="/static/js/cotizador_client.js"></script>
+</body>
+</html>
+

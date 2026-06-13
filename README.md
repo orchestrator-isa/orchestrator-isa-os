@@ -167,6 +167,28 @@ cd api && uvicorn main:app --reload
 - [ ] Autenticación JWT
 - [ ] Multi-tenant (varios vendedores)
 
+# 🚀 Orchestrator ISA - Sistema Operativo de Ventas
+
+Digitalización inteligente para negocios locales en Marruecos.
+
+## 📊 Estado del Proyecto
+- ✅ Portal de ventas completo
+- ✅ 10 nichos objetivo identificados
+- ✅ Scripts de venta personalizados
+- ✅ Sistema de seguimiento automatizado
+- ⏳ Dashboard de métricas (en desarrollo)
+- ⏳ CRM integrado (en desarrollo)
+
+## 🚀 Quick Start
+```bash
+# Clonar repositorio
+git clone https://github.com/orchestrator-isa/orchestrator-isa-os.git
+
+# Instalar dependencias
+npm install
+
+# Iniciar servidor de desarrollo
+npm run dev
 ---
 
 **Orchestrator ISA v3.0** | De documentos a sistema operativo

@@ -142,5 +142,27 @@
 
         loadDashboard();
     </script>
+    // poddrtal/dashboard.html - Agregar antes de </body>
+    <script>
+      // Métricas simuladas (después conectar a base de datos)
+      const metrics = {
+        leadsTotales: 47,
+        clientesCerrados: 8,
+        enMantenimiento: 5,
+        ingresosMes: 3200,
+        tasaConversion: 17,
+        ticketPromedio: 400
+      };
+    
+      // Actualizar DOM
+      document.getElementById('leadsTotales').textContent = metrics.leadsTotales;
+      document.getElementById('clientesCerrados').textContent = metrics.clientesCerrados;
+      document.getElementById('enMantenimiento').textContent = metrics.enMantenimiento;
+      document.getElementById('ingresosMes').textContent = metrics.ingresosMes + ' MAD';
+      
+      // Calcular y mostrar tasa de conversión
+      const conversionRate = ((metrics.clientesCerrados / metrics.leadsTotales) * 100).toFixed(1);
+      document.getElementById('tasaConversion').textContent = conversionRate + '%';
+    </script>
 </body>
 </html>

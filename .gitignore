@@ -1,0 +1,25 @@
+package-lock.json
+
+# Variables de entorno
+.env
+.env.local
+
+# Logs
+*.log
+npm-debug.log*
+
+# Sistema operativo
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+
+# Build
+dist/
+build/
+
+# Datos sensibles (CRM, leads reales)
+data/leads_real.csv
+data/clientes.json

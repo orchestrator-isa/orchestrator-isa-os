@@ -1,0 +1,19 @@
+{
+  "name": "orchestrator-isa-os",
+  "version": "1.0.0",
+  "description": "Sistema operativo de ventas para Orchestrator ISA",
+  "scripts": {
+    "dev": "live-server public",
+    "build": "echo 'Build completo'",
+    "scraper": "node scripts/scraper_google_maps.js",
+    "follow-up": "node scripts/follow_up_automation.js"
+  },
+  "dependencies": {
+    "puppeteer": "^21.0.0",
+    "axios": "^1.6.0",
+    "cheerio": "^1.0.0-rc.12"
+  },
+  "devDependencies": {
+    "live-server": "^1.2.2"
+  }
+}
