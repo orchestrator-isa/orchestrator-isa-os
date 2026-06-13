@@ -614,7 +614,7 @@ async def portal_main(request: Request):
 @app.get("/portal/{section}", response_class=HTMLResponse)
 async def portal_section(request: Request, section: str):
     """Secciones del portal"""
-    valid_sections = ["catalogos", "scripts", "seguimiento", "landing", "idioma", "speeches", "validador", "leads", "dashboard"]
+    valid_sections = ["catalogos", "scripts", "seguimiento", "landing", "idioma", "speeches", "diagrama", "validador", "leads", "dashboard"]
     if section not in valid_sections:
         raise HTTPException(status_code=404, detail="Sección no encontrada")
     return templates.TemplateResponse(f"portal_{section}.html", {"request": request})

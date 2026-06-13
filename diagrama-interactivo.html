@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Orchestrator ISA - Flujo de Venta Interactivo</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            color: white;
+            min-height: 100vh;
+            padding: 2rem 1rem;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, #00b894, #00cec9);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #94a3b8;
+            margin-bottom: 3rem;
+            font-size: 1.1rem;
+        }
+
+        /* Diagrama de flujo */
+        .flow-diagram {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-bottom: 3rem;
+            position: relative;
+        }
+
+        .moment-node {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #00b894, #00cec9);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 184, 148, 0.3);
+            position: relative;
+            z-index: 2;
+        }
+
+        .moment-node:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 25px rgba(0, 184, 148, 0.5);
+        }
+
+        .moment-node.active {
+            transform: scale(1.15);
+            box-shadow: 0 8px 30px rgba(0, 184, 148, 0.7);
+            background: linear-gradient(135deg, #00cec9, #00b894);
+        }
+
+        .moment-icon {
+            font-size: 2rem;
+            margin-bottom: 0.3rem;
+        }
+
+        .moment-label {
+            font-size: 0.85rem;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        .moment-number {
+            font-size: 0.7rem;
+            opacity: 0.9;
+        }
+
+        /* Flechas conectoras */
+        .arrow {
+            width: 40px;
+            height: 3px;
+            background: linear-gradient(90deg, #00b894, #00cec9);
+            position: relative;
+        }
+
+        .arrow::after {
+            content: '▶';
+            position: absolute;
+            right: -10px;
+            top: -8px;
+            color: #00cec9;
+            font-size: 1rem;
+        }
+
+        /* Panel de detalles */
+        .details-panel {
+            background: rgba(30, 41, 59, 0.8);
+            border-radius: 15px;
+            padding: 2rem;
+            margin-top: 2rem;
+            border: 2px solid #00b894;
+            display: none;
+            animation: slideDown 0.4s ease;
+        }
+
+        .details-panel.active {
+            display: block;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .details-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid #00b894;
+        }
+
+        .details-title {
+            font-size: 1.8rem;
+            color: #00cec9;
+        }
+
+        .close-btn {
+            background: #ef4444;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background 0.3s;
+        }
+
+        .close-btn:hover {
+            background: #dc2626;
+        }
+
+        .details-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .detail-section {
+            background: rgba(15, 23, 42, 0.5);
+            padding: 1.5rem;
+            border-radius: 10px;
+            border-left: 4px solid #00b894;
+        }
+
+        .detail-section h3 {
+            color: #00cec9;
+            margin-bottom: 1rem;
+            font-size: 1.2rem;
+        }
+
+        .detail-section ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .detail-section li {
+            padding: 0.5rem 0;
+            padding-left: 1.5rem;
+            position: relative;
+        }
+
+        .detail-section li::before {
+            content: '✓';
+            position: absolute;
+            left: 0;
+            color: #00b894;
+            font-weight: bold;
+        }
+
+        .speech-box {
+            background: rgba(0, 184, 148, 0.1);
+            padding: 1rem;
+            border-radius: 8px;
+            margin-top: 1rem;
+            border-left: 4px solid #00b894;
+            font-style: italic;
+        }
+
+        .speech-box::before {
+            content: '💬 Speech: ';
+            font-weight: bold;
+            color: #00cec9;
+            font-style: normal;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .flow-diagram {
+                flex-direction: column;
+            }
+
+            .arrow {
+                width: 3px;
+                height: 40px;
+            }
+
+            .arrow::after {
+                content: '▼';
+                right: -8px;
+                top: auto;
+                bottom: -10px;
+            }
+
+            .moment-node {
+                width: 100px;
+                height: 100px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚀 ORCHESTRATOR ISA</h1>
+        <p class="subtitle">Flujo de Venta Interactivo - Haz clic en cada momento para ver detalles</p>
+
+        <!-- Diagrama de flujo -->
+        <div class="flow-diagram">
+            <div class="moment-node" data-moment="0" onclick="showDetails(0)">
+                <div class="moment-icon">📋</div>
+                <div class="moment-label">Preparación</div>
+                <div class="moment-number">M0</div>
+            </div>
+            <div class="arrow"></div>
+            <div class="moment-node" data-moment="1" onclick="showDetails(1)">
+                <div class="moment-icon">👋</div>
+                <div class="moment-label">Apertura</div>
+                <div class="moment-number">M1</div>
+            </div>
+            <div class="arrow"></div>
+            <div class="moment-node" data-moment="2" onclick="showDetails(2)">
+                <div class="moment-icon">💰</div>
+                <div class="moment-label">Objeción Precio</div>
+                <div class="moment-number">M2</div>
+            </div>
+            <div class="arrow"></div>
+            <div class="moment-node" data-moment="3" onclick="showDetails(3)">
+                <div class="moment-icon">🔍</div>
+                <div class="moment-label">Auditoría</div>
+                <div class="moment-number">M3</div>
+            </div>
+            <div class="arrow"></div>
+            <div class="moment-node" data-moment="4" onclick="showDetails(4)">
+                <div class="moment-icon">📊</div>
+                <div class="moment-label">Diagnóstico</div>
+                <div class="moment-number">M4</div>
+            </div>
+            <div class="arrow"></div>
+            <div class="moment-node" data-moment="5" onclick="showDetails(5)">
+                <div class="moment-icon">📦</div>
+                <div class="moment-label">Mostrar Opciones</div>
+                <div class="moment-number">M5</div>
+            </div>
+            <div class="arrow"></div>
+            <div class="moment-node" data-moment="6" onclick="showDetails(6)">
+                <div class="moment-icon"></div>
+                <div class="moment-label">Manejo Dudas</div>
+                <div class="moment-number">M6</div>
+            </div>
+            <div class="arrow"></div>
+            <div class="moment-node" data-moment="7" onclick="showDetails(7)">
+                <div class="moment-icon">✅</div>
+                <div class="moment-label">Cierre</div>
+                <div class="moment-number">M7</div>
+            </div>
+        </div>
+
+        <!-- Panel de detalles -->
+        <div class="details-panel" id="detailsPanel">
+            <div class="details-header">
+                <h2 class="details-title" id="detailsTitle"></h2>
+                <button class="close-btn" onclick="closeDetails()">✕ Cerrar</button>
+            </div>
+            <div class="details-content" id="detailsContent"></div>
+        </div>
+    </div>
+
+    <script>
+        const momentsData = {
+            0: {
+                title: 'M0: Preparación',
+                content: `
+                    <div class="detail-section">
+                        <h3> Objetivo</h3>
+                        <ul>
+                            <li>Observar el negocio desde fuera</li>
+                            <li>Buscar en Google Maps si aparece</li>
+                            <li>Revisar Instagram/WhatsApp</li>
+                            <li>Aplicar checklist mental (30 seg)</li>
+                            <li>Decidir si es cliente potencial (score ≥ 5)</li>
+                        </ul>
+                    </div>
+                    <div class="detail-section">
+                        <h3>📋 Checklist de Validación</h3>
+                        <ul>
+                            <li>No aparece en Google Maps: +2 puntos</li>
+                            <li>WhatsApp normal (no Business): +2 puntos</li>
+                            <li>Instagram sin bio/link: +1 punto</li>
+                            <li>Competidor al lado SÍ tiene presencia: +2 puntos</li>
+                            <li>Dueño joven con smartphone: +2 puntos</li>
+                        </ul>
+                    </div>
+                    <div class="detail-section">
+                        <h3>⏱️ Tiempo</h3>
+                        <ul>
+                            <li>30 segundos por negocio</li>
+                            <li>Anotar 10 negocios con score 5+</li>
+                            <li>No entrar a vender todavía</li>
+                        </ul>
+                    </div>
+                `
+            },
+            1: {
+                title: 'M1: Apertura',
+                content: `
+                    <div class="detail-section">
+                        <h3>🎯 Objetivo</h3>
+                        <ul>
+                            <li>Presentarse con speech profesional</li>
+                            <li>Mencionar observación específica</li>
+                            <li>Ofrecer auditoría gratuita de 5 min</li>
+                            <li>No mostrar catálogo aún</li>
+                        </ul>
+                    </div>
+                    <div class="detail-section">
+                        <h3>💬 Speech de Apertura</h3>
+                        <div class="speech-box">
+                            "Buenos días, soy Isa. Me dedico a ayudar a negocios como el suyo a vender más desde el móvil. Noté que [observación específica: 'no aparece en Google Maps cuando busco restaurante en esta zona' / 'su WhatsApp no tiene catálogo de platos']. ¿Le gustaría que le haga una auditoría gratuita de 5 minutos para ver qué está perdiendo?"
+                        </div>
+                    </div>
+                    <div class="detail-section">
+                        <h3>⏱️ Tiempo</h3>
+                        <ul>
+                            <li>0-2 minutos máximo</li>
+                            <li>Si dice SÍ → Pasar a M3 (Auditoría)</li>
+                            <li>Si dice NO → Agradecer y retirarse</li>
+                            <li>Si pregunta precio → Ir a M2</li>
+                        </ul>
+                    </div>
+                `
+            },
+            2: {
+                title: 'M2: Objeción Precio',
+                content: `
+                    <div class="detail-section">
+                        <h3>🎯 Objetivo</h3>
+                        <ul>
+                            <li>Desviar la pregunta de precio</li>
+                            <li>No dar precios antes de la auditoría</li>
+                            <li>Insistir en hacer la auditoría primero</li>
+                            <li>Si insiste, dar rango mínimo (250 MAD)</li>
+                        </ul>
+                    </div>
+                    <div class="detail-section">
+                        <h3>💬 Frase de Desviación</h3>
+                        <div class="speech-box">
+                            "Depende de lo que necesite. Por eso le propongo la auditoría gratuita: en 5 minutos le digo exactamente qué tiene bien, qué le está haciendo perder clientes, y cuánto cuesta solucionarlo. No hay compromiso."
+                        </div>
+                    </div>
+                    <div class="detail-section">
+                        <h3>💬 Si Insiste en Precio</h3>
+                        <div class="speech-box">
+                            "Desde 250 MAD puede empezar. Pero prefiero que vea primero qué necesita, para no cobrarle de más ni de menos."
+                        </div>
+                    </div>
+                `
+            },
+            3: {
+                title: 'M3: Auditoría Express',
+                content: `
+                    <div class="detail-section">
+                        <h3>🎯 Objetivo</h3>
+                        <ul>
+                            <li>Hacer 5 preguntas clave al dueño</li>
+                            <li>Calificar score final (0-10)</li>
+                            <li>Clasificar pack recomendado</li>
+                            <li>Tú anotas, el cliente no ve nada</li>
+                        </ul>
+                    </div>
+                    <div class="detail-section">
+                        <h3>📋 Las 5 Preguntas</h3>
+                        <ul>
+                            <li>¿Usa WhatsApp para clientes? (Sí activo +2 / Sí poco +1 / No 0)</li>
+                            <li>¿Aparece en Google Maps? (No +2 / Incompleto +1 / Completo 0)</li>
+                            <li>¿+10 consultas al día? (Sí +2 / No 0)</li>
+                            <li>¿Competidores digitalizados? (Sí +2 / No +1)</li>
+                            <li>¿Dueño usa smartphone activamente? (Sí +2 / Básico +1 / No 0)</li>
+                        </ul>
+                    </div>
+                    <div class="detail-section">
+                        <h3>📊 Resultado por Score</h3>
+                        <ul>
+                            <li>8-10 puntos → Pack Completo (1,200 MAD)</li>
+                            <li>5-7 puntos → WhatsApp Pro (400 MAD)</li>
+                            <li>3-4 puntos → Pack Presencia (250 MAD)</li>
+                            <li>0-2 puntos → No es cliente</li>
+                        </ul>
+                    </div>
+                `
+            },
+            4: {
+                title: 'M4: Diagnóstico',
+                content: `
+                    <div class="detail-section">
+                        <h3> Objetivo</h3>
+                        <ul>
+                            <li>Presentar pérdidas estimadas</li>
+                            <li>Comparar con competencia</li>
+                            <li>Proponer solución en 48h</li>
+                            <li>Mencionar rango de inversión</li>
+                        </ul>
+                    </div>
+                    <div class="detail-section">
+                        <h3>💬 Speech de Diagnóstico</h3>
+                        <div class="speech-box">
+                            "Le cuento: usted está perdiendo [X] clientes al mes porque [razón específica]. Sus competidores [nombre si lo sabes] sí aparecen en Google Maps y responden automáticamente. Yo le puedo solucionar eso en 48 horas."
+                        </div>
+                    </div>
+                    <div class="detail-section">
+                        <h3> Si Pregunta "¿Cómo?"</h3>
+                        <div class="speech-box">
+                            "Tengo varios niveles. Desde 250 MAD para empezar, hasta 1,200 MAD para tenerlo todo automatizado. ¿Quiere que le muestre las opciones?"
+                        </div>
+                    </div>
+                `
+            },
+            5: {
+                title: 'M5: Mostrar Opciones',
+                content: `
+                    <div class="detail-section">
+                        <h3>🎯 Objetivo</h3>
+                        <ul>
+                            <li>Entregar Catálogo Cliente (2 páginas)</li>
+                            <li>Recomendar pack específico según score</li>
+                            <li>Explicar inclusión del pack</li>
+                            <li>NO mostrar catálogo v2 interno</li>
+                        </ul>
+                    </div>
+                    <div class="detail-section">
+                        <h3>📦 Los 4 Packs</h3>
+                        <ul>
+                            <li><strong>Presencia (250 MAD):</strong> Google Maps + WhatsApp básico + verificación mensual</li>
+                            <li><strong>WhatsApp Pro (400 MAD):</strong> Catálogo + respuestas automáticas + ajustes mensuales</li>
+                            <li><strong>Automatización (800 MAD):</strong> Chatbot IA + flujos + optimización continua</li>
+                            <li><strong>Completo (1,200 MAD):</strong> Todo + contenido mensual + SEO local + reportes</li>
+                        </ul>
+                    </div>
+                    <div class="detail-section">
+                        <h3>💬 Frase de Recomendación</h3>
+                        <div class="speech-box">
+                            "Aquí tiene. Estos son los packs que tengo. El que más le conviene según la auditoría es el [Pack X]. Incluye [2-3 cosas clave]."
+                        </div>
+                    </div>
+                `
+            },
+            6: {
+                title: 'M6: Manejo de Dudas',
+                content: `
+                    <div class="detail-section">
+                        <h3>🎯 Objetivo</h3>
+                        <ul>
+                            <li>Mostrar ejemplos de inspiración</li>
+                            <li>Comparar precios USA vs local</li>
+                            <li>Reafirmar valor con testimonios</li>
+                            <li>NO mostrar catálogo, solo ejemplos visuales</li>
+                        </ul>
+                    </div>
+                    <div class="detail-section">
+                        <h3>🌐 Ejemplos de Inspiración</h3>
+                        <ul>
+                            <li>Clínica Dental: grandstreetdental.com</li>
+                            <li>Restaurante/Café: onyxcoffeelab.com</li>
+                            <li>Salón Belleza: sirensalonsf.com</li>
+                            <li>Consultorio Médico: onemedical.com</li>
+                            <li>Gimnasio: equinox.com</li>
+                        </ul>
+                    </div>
+                    <div class="detail-section">
+                        <h3>💬 Speech de Comparación</h3>
+                        <div class="speech-box">
+                            "Mire, esto es lo que hacen en Estados Unidos con presupuestos de 10,000 dólares. Yo le traigo la versión para su negocio y su presupuesto. No necesita invertir miles. Empezamos en 250 MAD y escalamos."
+                        </div>
+                    </div>
+                `
+            },
+            7: {
+                title: 'M7: Cierre',
+                content: `
+                    <div class="detail-section">
+                        <h3>🎯 Objetivo</h3>
+                        <ul>
+                            <li>Enviar propuesta personalizada por WhatsApp</li>
+                            <li>Solicitar 50% anticipado</li>
+                            <li>Agendar fecha de inicio</li>
+                            <li>Confirmar datos del cliente</li>
+                        </ul>
+                    </div>
+                    <div class="detail-section">
+                        <h3>📄 Propuesta Personalizada</h3>
+                        <ul>
+                            <li>Nombre del cliente y negocio</li>
+                            <li>Pack recomendado</li>
+                            <li>Precio entrada + mantenimiento</li>
+                            <li>Checklist de lo que incluye</li>
+                            <li>Tiempo de entrega (24-72h)</li>
+                            <li>Garantía 30 días</li>
+                        </ul>
+                    </div>
+                    <div class="detail-section">
+                        <h3>💬 Script de Cierre</h3>
+                        <div class="speech-box">
+                            "Le envío por WhatsApp la propuesta con el precio exacto y lo que incluye. Si le parece, empezamos mañana. Solo necesito 50% adelantado para comenzar y el resto al entregar. ¿Le parece bien?"
+                        </div>
+                    </div>
+                `
+            }
+        };
+
+        function showDetails(momentId) {
+            // Remover active de todos los nodos
+            document.querySelectorAll('.moment-node').forEach(node => {
+                node.classList.remove('active');
+            });
+
+            // Agregar active al nodo clickeado
+            document.querySelector(`[data-moment="${momentId}"]`).classList.add('active');
+
+            // Mostrar panel de detalles
+            const panel = document.getElementById('detailsPanel');
+            const title = document.getElementById('detailsTitle');
+            const content = document.getElementById('detailsContent');
+
+            title.textContent = momentsData[momentId].title;
+            content.innerHTML = momentsData[momentId].content;
+
+            panel.classList.add('active');
+
+            // Scroll suave al panel
+            panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+
+        function closeDetails() {
+            document.getElementById('detailsPanel').classList.remove('active');
+            document.querySelectorAll('.moment-node').forEach(node => {
+                node.classList.remove('active');
+            });
+        }
+    </script>
+</body>
+</html>
