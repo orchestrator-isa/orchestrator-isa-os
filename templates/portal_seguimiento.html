@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema Seguimiento - Orchestrator ISA</title>
+    <link rel="icon" type="image/png" href="/static/icon-192.png">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', system-ui, sans-serif; background: #0f172a; color: white; min-height: 100vh; }
+        .header { background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); border-bottom: 1px solid #334155; padding: 20px 30px; display: flex; justify-content: space-between; align-items: center; }
+        .header h1 { font-size: 1.5rem; background: linear-gradient(90deg, #00E5FF, #00FF88); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+        .header-nav a { color: #94a3b8; text-decoration: none; margin-left: 20px; font-size: 0.9rem; transition: color 0.3s; }
+        .header-nav a:hover { color: #00E5FF; }
+        .container { max-width: 1200px; margin: 0 auto; padding: 30px; }
+        .back-link { color: #00E5FF; text-decoration: none; display: inline-flex; align-items: center; gap: 5px; margin-bottom: 20px; }
+        .section-title { font-size: 1.8rem; margin-bottom: 10px; color: #00E5FF; }
+        .section-subtitle { color: #94a3b8; margin-bottom: 30px; }
+        .pipeline { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 30px; }
+        .pipeline-stage { background: #1e293b; border: 2px solid #334155; border-radius: 12px; padding: 15px 20px; text-align: center; min-width: 120px; }
+        .pipeline-stage.active { border-color: #00E5FF; background: rgba(0, 229, 255, 0.1); }
+        .pipeline-stage.closed { border-color: #00FF88; background: rgba(0, 255, 136, 0.1); }
+        .pipeline-stage.lost { border-color: #ef4444; background: rgba(239, 68, 68, 0.1); }
+        .stage-name { font-weight: 600; font-size: 0.85rem; }
+        .stage-desc { font-size: 0.75rem; color: #94a3b8; margin-top: 5px; }
+        .content-card { background: #1e293b; border: 1px solid #334155; border-radius: 12px; padding: 25px; margin-bottom: 20px; }
+        .content-card h3 { color: #00FF88; margin-bottom: 15px; }
+        .content-card ul { color: #cbd5e1; line-height: 1.8; margin-left: 20px; }
+        .content-card li { margin-bottom: 8px; }
+        .arrow { color: #00E5FF; font-size: 1.5rem; display: flex; align-items: center; }
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #334155; }
+        th { color: #00E5FF; font-weight: 600; }
+        td { color: #cbd5e1; font-size: 0.9rem; }
+        .badge { display: inline-block; padding: 4px 10px; border-radius: 20px; font-size: 0.75rem; }
+        .badge-prospeccion { background: rgba(148, 163, 184, 0.2); color: #94a3b8; }
+        .badge-auditoria { background: rgba(0, 229, 255, 0.2); color: #00E5FF; }
+        .badge-propuesta { background: rgba(234, 179, 8, 0.2); color: #eab308; }
+        .badge-cerrado { background: rgba(0, 255, 136, 0.2); color: #00FF88; }
+        .badge-mantenimiento { background: rgba(168, 85, 247, 0.2); color: #a855f7; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🚀 ORCHESTRATOR ISA</h1>
+        <div class="header-nav">
+            <a href="/portal">🏠 Inicio</a>
+            <a href="/portal/validador">⚡ Validador</a>
+            <a href="/portal/leads">👥 Leads</a>
+            <a href="/portal/dashboard">📊 Dashboard</a>
+        </div>
+    </div>
+    <div class="container">
+        <a href="/portal" class="back-link">← Volver al Portal</a>
+        <h2 class="section-title">📅 Sistema de Seguimiento</h2>
+        <p class="section-subtitle">Pipeline completo de 15 estados desde prospección hasta renovación</p>
+
+        <h3 style="color: #00FF88; margin-bottom: 15px;">🔄 Pipeline de Ventas</h3>
+        <div class="pipeline">
+            <div class="pipeline-stage active">
+                <div class="stage-name">🔍 Prospección</div>
+                <div class="stage-desc">Identificar</div>
+            </div>
+            <div class="arrow">→</div>
+            <div class="pipeline-stage active">
+                <div class="stage-name">📋 Auditoría</div>
+                <div class="stage-desc">5 min</div>
+            </div>
+            <div class="arrow">→</div>
+            <div class="pipeline-stage">
+                <div class="stage-name">❓ Objeción</div>
+                <div class="stage-desc">Resolver</div>
+            </div>
+            <div class="arrow">→</div>
+            <div class="pipeline-stage">
+                <div class="stage-name">📄 Propuesta</div>
+                <div class="stage-desc">Enviar</div>
+            </div>
+            <div class="arrow">→</div>
+            <div class="pipeline-stage">
+                <div class="stage-name">📅 D2</div>
+                <div class="stage-desc">Seguimiento</div>
+            </div>
+            <div class="arrow">→</div>
+            <div class="pipeline-stage">
+                <div class="stage-name">📅 D5</div>
+                <div class="stage-desc">Urgencia</div>
+            </div>
+            <div class="arrow">→</div>
+            <div class="pipeline-stage">
+                <div class="stage-name">📅 D10</div>
+                <div class="stage-desc">Último</div>
+            </div>
+            <div class="arrow">→</div>
+            <div class="pipeline-stage closed">
+                <div class="stage-name">✅ Cerrado</div>
+                <div class="stage-desc">Contrato</div>
+            </div>
+            <div class="arrow">→</div>
+            <div class="pipeline-stage">
+                <div class="stage-name">🚀 Onboarding</div>
+                <div class="stage-desc">Kickoff</div>
+            </div>
+            <div class="arrow">→</div>
+            <div class="pipeline-stage">
+                <div class="stage-name">⚙️ Ejecución</div>
+                <div class="stage-desc">Trabajo</div>
+            </div>
+            <div class="arrow">→</div>
+            <div class="pipeline-stage">
+                <div class="stage-name">📦 Entregado</div>
+                <div class="stage-desc">Listo</div>
+            </div>
+            <div class="arrow">→</div>
+            <div class="pipeline-stage closed">
+                <div class="stage-name">🔧 Mantenimiento</div>
+                <div class="stage-desc">Mensual</div>
+            </div>
+            <div class="arrow">→</div>
+            <div class="pipeline-stage">
+                <div class="stage-name">🔄 Renovación</div>
+                <div class="stage-desc">Año 2</div>
+            </div>
+        </div>
+
+        <div class="content-card">
+            <h3>📊 Estados y Acciones</h3>
+            <table>
+                <tr><th>Estado</th><th>Acción</th><th>Tiempo</th><th>Script</th></tr>
+                <tr><td><span class="badge badge-prospeccion">prospeccion</span></td><td>Identificar negocio, validar score</td><td>Día 0</td><td>Primer contacto</td></tr>
+                <tr><td><span class="badge badge-auditoria">auditoria</span></td><td>Auditoría express 5 min</td><td>Día 0</td><td>Auditoría</td></tr>
+                <tr><td><span class="badge badge-prospeccion">objecion</span></td><td>Resolver dudas, objeciones</td><td>Día 0-1</td><td>Objeciones</td></tr>
+                <tr><td><span class="badge badge-propuesta">propuesta_enviada</span></td><td>Enviar cotización HTML</td><td>Día 1</td><td>Propuesta</td></tr>
+                <tr><td><span class="badge badge-prospeccion">seguimiento_d2</span></td><td>Seguimiento día 2</td><td>Día 2</td><td>D2 Script</td></tr>
+                <tr><td><span class="badge badge-prospeccion">seguimiento_d5</span></td><td>Oferta especial urgencia</td><td>Día 5</td><td>D5 Script</td></tr>
+                <tr><td><span class="badge badge-prospeccion">seguimiento_d10</span></td><td>Último intento + referidos</td><td>Día 10</td><td>D10 Script</td></tr>
+                <tr><td><span class="badge badge-cerrado">cerrado</span></td><td>Contrato + pago entrada</td><td>Día X</td><td>Cierre</td></tr>
+                <tr><td><span class="badge badge-auditoria">onboarding</span></td><td>Kickoff, recibir materiales</td><td>Día 0-1</td><td>Bienvenida</td></tr>
+                <tr><td><span class="badge badge-auditoria">ejecucion</span></td><td>Desarrollo del proyecto</td><td>Día 1-7</td><td>Updates</td></tr>
+                <tr><td><span class="badge badge-auditoria">entregado</span></td><td>Entrega + capacitación</td><td>Día 7</td><td>Capacitación</td></tr>
+                <tr><td><span class="badge badge-mantenimiento">mantenimiento</span></td><td>Soporte mensual, ajustes</td><td>Mensual</td><td>Soporte</td></tr>
+                <tr><td><span class="badge badge-cerrado">renovacion</span></td><td>Renovación anual</td><td>Año 2</td><td>Renovación</td></tr>
+                <tr><td><span class="badge badge-prospeccion">archivado</span></td><td>Guardar para reactivar</td><td>Día 10+</td><td>Archivar</td></tr>
+                <tr><td><span class="badge badge-prospeccion">reactivacion</span></td><td>Contactar después de 30 días</td><td>Día 30+</td><td>Reactivar</td></tr>
+            </table>
+        </div>
+
+        <div class="content-card">
+            <h3>🎯 Reglas de Oro del Seguimiento</h3>
+            <ul>
+                <li><strong>5 minutos:</strong> Responder leads en menos de 5 minutos aumenta conversión 900%</li>
+                <li><strong>D2:</strong> Siempre seguir al día 2, nunca antes (no parecer desesperado)</li>
+                <li><strong>D5:</strong> Crear urgencia con oferta especial limitada</li>
+                <li><strong>D10:</strong> Último intento + sistema de referidos</li>
+                <li><strong>Archivar:</strong> Si no responde en D10, archivar y reactivar en 30 días</li>
+                <li><strong>Mantenimiento:</strong> Contactar clientes activos cada 15 días mínimo</li>
+                <li><strong>Renovación:</strong> Contactar 30 días antes de vencimiento</li>
+            </ul>
+        </div>
+
+        <div class="content-card">
+            <h3>💰 Sistema de Referidos</h3>
+            <ul>
+                <li><strong>Descuento:</strong> 100 MAD de descuento por cada referido que cierre</li>
+                <li><strong>Acumulable:</strong> Sin límite de referidos</li>
+                <li><strong>Aplicación:</strong> Descuento en próximo pago de mantenimiento</li>
+                <li><strong>Tracking:</strong> Código único por cliente referidor</li>
+            </ul>
+        </div>
+    </div>
+</body>
+</html>

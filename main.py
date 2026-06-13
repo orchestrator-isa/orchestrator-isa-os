@@ -1,14 +1,14 @@
 #!/usr/bin/env python3
 """
-Orchestrator ISA OS - API Principal
-Validador de Negocios + Generador de Cotizaciones + CRM
-FastAPI + SQLite (fácil migrar a PostgreSQL)
+Orchestrator ISA OS - Portal Centralizado
+FastAPI + SQLite + PWA
 """
 
-from fastapi import FastAPI, HTTPException, BackgroundTasks
+from fastapi import FastAPI, HTTPException, BackgroundTasks, Request, Form
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
-from fastapi.responses import FileResponse, HTMLResponse
+from fastapi.responses import FileResponse, HTMLResponse, RedirectResponse
+from fastapi.templating import Jinja2Templates
 from pydantic import BaseModel, Field
 from typing import Optional, List
 from datetime import datetime, timedelta
@@ -21,11 +21,19 @@ import uuid
 # ─── CONFIGURACIÓN ─────────────────────────────────────────
 DB_PATH = "orchestrator_isa.db"
 STATIC_DIR = "static"
+TEMPLATES_DIR = "templates"
+
+# Login simple (cambiar en producción)
+ADMIN_USER = os.getenv("ADMIN_USER", "isa")
+ADMIN_PASS = os.getenv("ADMIN_PASS", "orchestrator2024")
+
+def verify_password(username: str, password: str) -> bool:
+    return username == ADMIN_USER and password == ADMIN_PASS
 
 app = FastAPI(
     title="Orchestrator ISA OS",
     description="Sistema Operativo de Ventas y Digitalización",
-    version="2.0.0"
+    version="3.0.0"
 )
 
 app.add_middleware(
@@ -34,6 +42,8 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+templates = Jinja2Templates(directory=TEMPLATES_DIR)
 
 # ─── MODELOS DE DATOS ──────────────────────────────────────
 
@@ -130,7 +140,7 @@ def init_db():
     conn = sqlite3.connect(DB_PATH)
     c = conn.cursor()
 
-    c.execute('''
+    c.execute("""
         CREATE TABLE IF NOT EXISTS leads (
             id TEXT PRIMARY KEY,
             nombre_negocio TEXT NOT NULL,
@@ -151,9 +161,9 @@ def init_db():
             fecha_entrega TEXT,
             fecha_renovacion TEXT
         )
-    ''')
+    """)
 
-    c.execute('''
+    c.execute("""
         CREATE TABLE IF NOT EXISTS cotizaciones (
             id TEXT PRIMARY KEY,
             lead_id TEXT,
@@ -164,9 +174,9 @@ def init_db():
             created_at TEXT,
             FOREIGN KEY (lead_id) REFERENCES leads (id)
         )
-    ''')
+    """)
 
-    c.execute('''
+    c.execute("""
         CREATE TABLE IF NOT EXISTS seguimientos (
             id TEXT PRIMARY KEY,
             lead_id TEXT,
@@ -178,9 +188,9 @@ def init_db():
             created_at TEXT,
             FOREIGN KEY (lead_id) REFERENCES leads (id)
         )
-    ''')
+    """)
 
-    c.execute('''
+    c.execute("""
         CREATE TABLE IF NOT EXISTS actividades (
             id TEXT PRIMARY KEY,
             lead_id TEXT,
@@ -189,7 +199,7 @@ def init_db():
             created_at TEXT,
             FOREIGN KEY (lead_id) REFERENCES leads (id)
         )
-    ''')
+    """)
 
     conn.commit()
     conn.close()
@@ -308,6 +318,8 @@ def generar_cotizacion_html(lead_id: str, pack: str, precio_entrada: int, precio
 
     fecha = datetime.now().strftime("%d/%m/%Y")
 
+    features_html = "".join(f'<li>{f}</li>' for f in features.get(pack, []))
+
     html = f"""<!DOCTYPE html>
 <html lang="es">
 <head>
@@ -356,7 +368,7 @@ def generar_cotizacion_html(lead_id: str, pack: str, precio_entrada: int, precio
             <div class="price-mes">+ {precio_mantenimiento} MAD/mes mantenimiento</div>
         </div>
         <ul class="features">
-            {''.join(f'<li>{f}</li>' for f in features.get(pack, []))}
+            {features_html}
         </ul>
         <div class="guarantee">
             <p>✅ Garantía: Si en 30 días no ve resultados, le devolvemos el 100%</p>
@@ -372,7 +384,7 @@ def generar_cotizacion_html(lead_id: str, pack: str, precio_entrada: int, precio
 </html>"""
     return html
 
-# ─── ENDPOINTS ─────────────────────────────────────────────
+# ─── API ENDPOINTS ─────────────────────────────────────────
 
 @app.post("/api/validar")
 async def validar_negocio(data: ValidacionInput):
@@ -382,12 +394,12 @@ async def validar_negocio(data: ValidacionInput):
 
     conn = sqlite3.connect(DB_PATH)
     c = conn.cursor()
-    c.execute('''
+    c.execute("""
         INSERT INTO leads (id, nombre_negocio, tipo_negocio, nombre_dueno, telefono,
                           direccion, score, pack_recomendado, estado, speech,
                           precio_entrada, precio_mantenimiento, notas, created_at, updated_at)
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-    ''', (lead_id, data.nombre_negocio, data.tipo_negocio.value, data.nombre_dueno,
+    """, (lead_id, data.nombre_negocio, data.tipo_negocio.value, data.nombre_dueno,
           data.telefono, data.direccion, resultado["score"], resultado["pack"],
           "prospeccion", resultado["speech"], resultado["precio_entrada"],
           resultado["precio_mantenimiento"], data.notas, now, now))
@@ -396,10 +408,10 @@ async def validar_negocio(data: ValidacionInput):
 
     conn = sqlite3.connect(DB_PATH)
     c = conn.cursor()
-    c.execute('''
+    c.execute("""
         INSERT INTO actividades (id, lead_id, tipo, descripcion, created_at)
         VALUES (?, ?, ?, ?, ?)
-    ''', (str(uuid.uuid4())[:8], lead_id, "validacion", f"Score: {resultado['score']}/10", now))
+    """, (str(uuid.uuid4())[:8], lead_id, "validacion", f"Score: {resultado['score']}/10", now))
     conn.commit()
     conn.close()
 
@@ -439,13 +451,13 @@ async def generar_cotizacion(data: CotizacionInput):
 
     conn = sqlite3.connect(DB_PATH)
     c = conn.cursor()
-    c.execute('''
+    c.execute("""
         INSERT INTO cotizaciones (id, lead_id, pack, precio_entrada, precio_mantenimiento, created_at)
         VALUES (?, ?, ?, ?, ?, ?)
-    ''', (cotizacion_id, data.lead_id, pack, precio_entrada, precio_mantenimiento, now))
-    c.execute('''
+    """, (cotizacion_id, data.lead_id, pack, precio_entrada, precio_mantenimiento, now))
+    c.execute("""
         UPDATE leads SET estado = ?, updated_at = ? WHERE id = ?
-    ''', ("propuesta_enviada", now, data.lead_id))
+    """, ("propuesta_enviada", now, data.lead_id))
     conn.commit()
     conn.close()
 
@@ -501,11 +513,11 @@ async def cambiar_estado(lead_id: str, nuevo_estado: str):
     if not lead:
         conn.close()
         raise HTTPException(status_code=404, detail="Lead no encontrado")
-    c.execute('UPDATE leads SET estado = ?, updated_at = ? WHERE id = ?', (nuevo_estado, now, lead_id))
-    c.execute('''
+    c.execute("UPDATE leads SET estado = ?, updated_at = ? WHERE id = ?", (nuevo_estado, now, lead_id))
+    c.execute("""
         INSERT INTO actividades (id, lead_id, tipo, descripcion, created_at)
         VALUES (?, ?, ?, ?, ?)
-    ''', (str(uuid.uuid4())[:8], lead_id, "cambio_estado", f"{lead[8]} → {nuevo_estado}", now))
+    """, (str(uuid.uuid4())[:8], lead_id, "cambio_estado", f"{lead[8]} -> {nuevo_estado}", now))
     conn.commit()
     conn.close()
     return {"lead_id": lead_id, "estado_anterior": lead[8], "estado_nuevo": nuevo_estado}
@@ -516,10 +528,10 @@ async def registrar_seguimiento(data: SeguimientoInput):
     now = datetime.now().isoformat()
     conn = sqlite3.connect(DB_PATH)
     c = conn.cursor()
-    c.execute('''
+    c.execute("""
         INSERT INTO seguimientos (id, lead_id, tipo, mensaje, canal, enviado, fecha_envio, created_at)
         VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-    ''', (seg_id, data.lead_id, data.tipo, data.mensaje, data.canal, 0, None, now))
+    """, (seg_id, data.lead_id, data.tipo, data.mensaje, data.canal, 0, None, now))
     conn.commit()
     conn.close()
     return {"seguimiento_id": seg_id, "lead_id": data.lead_id, "tipo": data.tipo, "estado": "programado"}
@@ -570,24 +582,44 @@ async def seguimientos_pendientes():
     conn = sqlite3.connect(DB_PATH)
     conn.row_factory = sqlite3.Row
     c = conn.cursor()
-    c.execute('''
+    c.execute("""
         SELECT s.*, l.nombre_negocio, l.nombre_dueno, l.telefono
         FROM seguimientos s
         JOIN leads l ON s.lead_id = l.id
         WHERE s.enviado = 0
         ORDER BY s.created_at DESC
-    ''')
+    """)
     pendientes = [dict(row) for row in c.fetchall()]
     conn.close()
     return {"total": len(pendientes), "pendientes": pendientes}
 
+# ─── PORTAL WEB CON LOGIN ──────────────────────────────────
+
 @app.get("/", response_class=HTMLResponse)
-async def web_interface():
-    html_path = os.path.join("web", "index.html")
-    if os.path.exists(html_path):
-        with open(html_path, "r", encoding="utf-8") as f:
-            return f.read()
-    return "<h1>Orchestrator ISA OS</h1><p>API activa. Acceda a /docs para documentación.</p>"
+async def portal_login(request: Request):
+    """Página de login del portal"""
+    return templates.TemplateResponse("login.html", {"request": request})
+
+@app.post("/login")
+async def do_login(request: Request, username: str = Form(...), password: str = Form(...)):
+    if verify_password(username, password):
+        return RedirectResponse(url="/portal", status_code=302)
+    return templates.TemplateResponse("login.html", {"request": request, "error": "Credenciales incorrectas"})
+
+@app.get("/portal", response_class=HTMLResponse)
+async def portal_main(request: Request):
+    """Portal principal con diagrama interactivo"""
+    return templates.TemplateResponse("portal.html", {"request": request})
+
+@app.get("/portal/{section}", response_class=HTMLResponse)
+async def portal_section(request: Request, section: str):
+    """Secciones del portal"""
+    valid_sections = ["catalogos", "scripts", "seguimiento", "landing", "idioma", "speeches", "validador", "leads", "dashboard"]
+    if section not in valid_sections:
+        raise HTTPException(status_code=404, detail="Sección no encontrada")
+    return templates.TemplateResponse(f"portal_{section}.html", {"request": request})
+
+# ─── MONTAR ESTÁTICOS ────────────────────────────────────
 
 os.makedirs(os.path.join(STATIC_DIR, "cotizaciones"), exist_ok=True)
 app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")

@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#0f172a">
+    <title>Validador - Orchestrator ISA</title>
+    <link rel="manifest" href="/static/manifest.json">
+    <link rel="icon" type="image/png" href="/static/icon-192.png">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body { font-family: 'Segoe UI', system-ui, sans-serif; background: #0f172a; color: white; min-height: 100vh; padding-bottom: 80px; }
+        .header { background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); border-bottom: 1px solid #334155; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; }
+        .header h1 { font-size: 1.2rem; background: linear-gradient(90deg, #00E5FF, #00FF88); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+        .header-nav a { color: #94a3b8; text-decoration: none; margin-left: 15px; font-size: 0.8rem; }
+        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+        .back-link { color: #00E5FF; text-decoration: none; display: inline-flex; align-items: center; gap: 5px; margin-bottom: 15px; font-size: 0.9rem; }
+        .section-title { font-size: 1.5rem; margin-bottom: 8px; color: #00E5FF; }
+        .section-subtitle { color: #94a3b8; margin-bottom: 20px; font-size: 0.9rem; }
+        .form-group { margin-bottom: 18px; }
+        .form-group label { display: block; margin-bottom: 6px; color: #cbd5e1; font-size: 0.9rem; font-weight: 500; }
+        .form-group input, .form-group select { width: 100%; padding: 12px 14px; background: #1e293b; border: 1px solid #334155; border-radius: 10px; color: white; font-size: 1rem; }
+        .form-group input:focus, .form-group select:focus { outline: none; border-color: #00E5FF; }
+        .radio-group { display: flex; gap: 10px; flex-wrap: wrap; }
+        .radio-option { flex: 1; min-width: 80px; }
+        .radio-option input { display: none; }
+        .radio-option label { display: block; padding: 12px; background: #1e293b; border: 2px solid #334155; border-radius: 10px; text-align: center; cursor: pointer; font-size: 0.85rem; transition: all 0.3s; }
+        .radio-option input:checked + label { border-color: #00E5FF; background: rgba(0, 229, 255, 0.1); color: #00E5FF; }
+        .btn-submit { width: 100%; padding: 16px; background: linear-gradient(90deg, #00E5FF, #00FF88); border: none; border-radius: 12px; color: #0f172a; font-size: 1.1rem; font-weight: 700; cursor: pointer; margin-top: 10px; }
+        .result-card { background: #1e293b; border: 1px solid #334155; border-radius: 12px; padding: 20px; margin-top: 20px; display: none; }
+        .result-card.show { display: block; }
+        .score-big { font-size: 3rem; font-weight: 700; text-align: center; margin: 10px 0; }
+        .score-label { text-align: center; color: #94a3b8; font-size: 0.9rem; }
+        .pack-name { text-align: center; font-size: 1.3rem; color: #00FF88; font-weight: 600; margin: 10px 0; }
+        .price-row { display: flex; justify-content: space-around; margin: 15px 0; }
+        .price-item { text-align: center; }
+        .price-value { font-size: 1.5rem; font-weight: 700; color: #00E5FF; }
+        .price-label { font-size: 0.8rem; color: #94a3b8; }
+        .speech-box { background: #0f172a; border-left: 3px solid #00FF88; padding: 15px; border-radius: 0 8px 8px 0; margin: 15px 0; color: #cbd5e1; line-height: 1.6; font-size: 0.9rem; }
+        .action-box { background: rgba(0, 255, 136, 0.1); border: 1px solid #00FF88; padding: 15px; border-radius: 10px; margin: 15px 0; text-align: center; }
+        .action-box p { color: #00FF88; font-weight: 600; }
+        .btn-cotizar { width: 100%; padding: 14px; background: #00FF88; border: none; border-radius: 10px; color: #0f172a; font-size: 1rem; font-weight: 700; cursor: pointer; margin-top: 10px; }
+        .loading { text-align: center; padding: 40px; color: #00E5FF; }
+        .error { background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); color: #ef4444; padding: 12px; border-radius: 10px; margin-top: 15px; text-align: center; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🚀 ISA</h1>
+        <div class="header-nav">
+            <a href="/portal">🏠</a>
+            <a href="/portal/leads">👥</a>
+            <a href="/portal/dashboard">📊</a>
+        </div>
+    </div>
+    <div class="container">
+        <a href="/portal" class="back-link">← Portal</a>
+        <h2 class="section-title">⚡ Validador de Negocio</h2>
+        <p class="section-subtitle">Evalúa un negocio en 2 minutos y obtén score + pack recomendado</p>
+
+        <form id="validarForm">
+            <div class="form-group">
+                <label>Nombre del Negocio</label>
+                <input type="text" id="nombre_negocio" required placeholder="Ej: Café Al Hizam">
+            </div>
+            <div class="form-group">
+                <label>Tipo de Negocio</label>
+                <select id="tipo_negocio" required>
+                    <option value="">Seleccionar...</option>
+                    <option value="clinica_dental">🦷 Clínica Dental</option>
+                    <option value="salon_belleza">💇 Salón de Belleza</option>
+                    <option value="restaurante">🍽️ Restaurante</option>
+                    <option value="cafe">☕ Café</option>
+                    <option value="consultorio_medico">🏥 Consultorio Médico</option>
+                    <option value="taller_mecanico">🔧 Taller Mecánico</option>
+                    <option value="farmacia">💊 Farmacia</option>
+                    <option value="gimnasio">🏋️ Gimnasio</option>
+                    <option value="academia_idiomas">📚 Academia de Idiomas</option>
+                    <option value="panaderia">🥖 Panadería</option>
+                    <option value="inmobiliaria">🏠 Inmobiliaria</option>
+                    <option value="otro">📦 Otro</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Nombre del Dueño (opcional)</label>
+                <input type="text" id="nombre_dueno" placeholder="Ej: Ahmed">
+            </div>
+            <div class="form-group">
+                <label>Teléfono WhatsApp (opcional)</label>
+                <input type="text" id="telefono" placeholder="+212 6XX XXX XXX">
+            </div>
+            <div class="form-group">
+                <label>¿Usa WhatsApp Business?</label>
+                <div class="radio-group">
+                    <div class="radio-option">
+                        <input type="radio" name="usa_whatsapp" id="wa0" value="0" required>
+                        <label for="wa0">❌ No</label>
+                    </div>
+                    <div class="radio-option">
+                        <input type="radio" name="usa_whatsapp" id="wa1" value="1">
+                        <label for="wa1">⚠️ Parcial</label>
+                    </div>
+                    <div class="radio-option">
+                        <input type="radio" name="usa_whatsapp" id="wa2" value="2">
+                        <label for="wa2">✅ Sí</label>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label>¿Está en Google Maps?</label>
+                <div class="radio-group">
+                    <div class="radio-option">
+                        <input type="radio" name="en_google_maps" id="gm0" value="0" required>
+                        <label for="gm0">❌ No</label>
+                    </div>
+                    <div class="radio-option">
+                        <input type="radio" name="en_google_maps" id="gm1" value="1">
+                        <label for="gm1">⚠️ Parcial</label>
+                    </div>
+                    <div class="radio-option">
+                        <input type="radio" name="en_google_maps" id="gm2" value="2">
+                        <label for="gm2">✅ Sí</label>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label>¿10+ consultas diarias?</label>
+                <div class="radio-group">
+                    <div class="radio-option">
+                        <input type="radio" name="consultas_diarias" id="qd0" value="0" required>
+                        <label for="qd0">❌ No</label>
+                    </div>
+                    <div class="radio-option">
+                        <input type="radio" name="consultas_diarias" id="qd1" value="1">
+                        <label for="qd1">✅ Sí</label>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label>¿Competidores digitalizados?</label>
+                <div class="radio-group">
+                    <div class="radio-option">
+                        <input type="radio" name="competidores_digitalizados" id="cd0" value="0" required>
+                        <label for="cd0">❌ No</label>
+                    </div>
+                    <div class="radio-option">
+                        <input type="radio" name="competidores_digitalizados" id="cd1" value="1">
+                        <label for="cd1">✅ Sí</label>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label>¿Dueño usa smartphone activamente?</label>
+                <div class="radio-group">
+                    <div class="radio-option">
+                        <input type="radio" name="dueno_smartphone" id="ds0" value="0" required>
+                        <label for="ds0">❌ No</label>
+                    </div>
+                    <div class="radio-option">
+                        <input type="radio" name="dueno_smartphone" id="ds1" value="1">
+                        <label for="ds1">⚠️ Básico</label>
+                    </div>
+                    <div class="radio-option">
+                        <input type="radio" name="dueno_smartphone" id="ds2" value="2">
+                        <label for="ds2">✅ Activo</label>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Notas (opcional)</label>
+                <input type="text" id="notas" placeholder="Observaciones del vendedor...">
+            </div>
+            <button type="submit" class="btn-submit">⚡ Validar Negocio</button>
+        </form>
+
+        <div id="resultado" class="result-card">
+            <div class="score-label">Score de Oportunidad</div>
+            <div class="score-big" id="scoreValue">-</div>
+            <div class="pack-name" id="packName">-</div>
+            <div class="price-row">
+                <div class="price-item">
+                    <div class="price-value" id="precioEntrada">-</div>
+                    <div class="price-label">Entrada</div>
+                </div>
+                <div class="price-item">
+                    <div class="price-value" id="precioMes">-</div>
+                    <div class="price-label">/mes</div>
+                </div>
+            </div>
+            <div class="speech-box" id="speechBox"></div>
+            <div class="action-box">
+                <p id="accionText"></p>
+            </div>
+            <button class="btn-cotizar" onclick="generarCotizacion()">📄 Generar Cotización</button>
+        </div>
+        <div id="errorMsg" class="error" style="display:none;"></div>
+    </div>
+
+    <script>
+        let currentLeadId = null;
+        let currentPack = null;
+
+        document.getElementById('validarForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            document.getElementById('errorMsg').style.display = 'none';
+
+            const data = {
+                nombre_negocio: document.getElementById('nombre_negocio').value,
+                tipo_negocio: document.getElementById('tipo_negocio').value,
+                nombre_dueno: document.getElementById('nombre_dueno').value || null,
+                telefono: document.getElementById('telefono').value || null,
+                usa_whatsapp: parseInt(document.querySelector('input[name="usa_whatsapp"]:checked').value),
+                en_google_maps: parseInt(document.querySelector('input[name="en_google_maps"]:checked').value),
+                consultas_diarias: parseInt(document.querySelector('input[name="consultas_diarias"]:checked').value),
+                competidores_digitalizados: parseInt(document.querySelector('input[name="competidores_digitalizados"]:checked').value),
+                dueno_smartphone: parseInt(document.querySelector('input[name="dueno_smartphone"]:checked').value),
+                notas: document.getElementById('notas').value || null
+            };
+
+            try {
+                const res = await fetch('/api/validar', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                const result = await res.json();
+
+                if (!res.ok) throw new Error(result.detail || 'Error');
+
+                currentLeadId = result.lead_id;
+                currentPack = result.pack;
+
+                document.getElementById('scoreValue').textContent = result.score + '/10';
+                document.getElementById('scoreValue').style.color = result.score >= 8 ? '#00FF88' : result.score >= 5 ? '#00E5FF' : result.score >= 3 ? '#eab308' : '#ef4444';
+                document.getElementById('packName').textContent = result.pack_nombre;
+                document.getElementById('precioEntrada').textContent = result.precio_entrada + ' MAD';
+                document.getElementById('precioMes').textContent = result.precio_mantenimiento + ' MAD';
+                document.getElementById('speechBox').textContent = result.speech;
+                document.getElementById('accionText').textContent = result.accion;
+                document.getElementById('resultado').classList.add('show');
+
+            } catch (err) {
+                document.getElementById('errorMsg').textContent = err.message;
+                document.getElementById('errorMsg').style.display = 'block';
+            }
+        });
+
+        async function generarCotizacion() {
+            if (!currentLeadId || !currentPack) return;
+            try {
+                const res = await fetch('/api/cotizar', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ lead_id: currentLeadId, pack: currentPack })
+                });
+                const result = await res.json();
+                if (!res.ok) throw new Error(result.detail);
+                window.open(result.url_html, '_blank');
+            } catch (err) {
+                alert('Error: ' + err.message);
+            }
+        }
+    </script>
+</body>
+</html>

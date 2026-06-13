@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Leads - Orchestrator ISA</title>
+    <link rel="icon" type="image/png" href="/static/icon-192.png">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', system-ui, sans-serif; background: #0f172a; color: white; min-height: 100vh; }
+        .header { background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); border-bottom: 1px solid #334155; padding: 20px 30px; display: flex; justify-content: space-between; align-items: center; }
+        .header h1 { font-size: 1.5rem; background: linear-gradient(90deg, #00E5FF, #00FF88); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+        .header-nav a { color: #94a3b8; text-decoration: none; margin-left: 20px; font-size: 0.9rem; transition: color 0.3s; }
+        .header-nav a:hover { color: #00E5FF; }
+        .container { max-width: 1200px; margin: 0 auto; padding: 30px; }
+        .back-link { color: #00E5FF; text-decoration: none; display: inline-flex; align-items: center; gap: 5px; margin-bottom: 20px; }
+        .section-title { font-size: 1.8rem; margin-bottom: 10px; color: #00E5FF; }
+        .section-subtitle { color: #94a3b8; margin-bottom: 20px; }
+        .filter-bar { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
+        .filter-btn { background: #1e293b; border: 1px solid #334155; color: #94a3b8; padding: 8px 16px; border-radius: 8px; cursor: pointer; font-size: 0.85rem; }
+        .filter-btn.active { background: linear-gradient(90deg, #00E5FF, #00FF88); color: #0f172a; font-weight: 600; border-color: transparent; }
+        .leads-grid { display: grid; gap: 15px; }
+        .lead-card { background: #1e293b; border: 1px solid #334155; border-radius: 12px; padding: 20px; display: grid; grid-template-columns: 1fr auto; gap: 15px; align-items: start; }
+        .lead-info h4 { color: #00E5FF; margin-bottom: 5px; }
+        .lead-meta { color: #94a3b8; font-size: 0.85rem; line-height: 1.6; }
+        .lead-score { font-size: 1.5rem; font-weight: 700; text-align: center; }
+        .lead-score.high { color: #00FF88; }
+        .lead-score.medium { color: #00E5FF; }
+        .lead-score.low { color: #eab308; }
+        .lead-score.reject { color: #ef4444; }
+        .badge { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 0.75rem; margin-top: 8px; }
+        .badge-prospeccion { background: rgba(148, 163, 184, 0.2); color: #94a3b8; }
+        .badge-auditoria { background: rgba(0, 229, 255, 0.2); color: #00E5FF; }
+        .badge-cerrado { background: rgba(0, 255, 136, 0.2); color: #00FF88; }
+        .badge-mantenimiento { background: rgba(168, 85, 247, 0.2); color: #a855f7; }
+        .loading { text-align: center; padding: 40px; color: #00E5FF; }
+        .empty { text-align: center; padding: 40px; color: #64748b; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🚀 ORCHESTRATOR ISA</h1>
+        <div class="header-nav">
+            <a href="/portal">🏠 Inicio</a>
+            <a href="/portal/validador">⚡ Validador</a>
+            <a href="/portal/dashboard">📊 Dashboard</a>
+        </div>
+    </div>
+    <div class="container">
+        <a href="/portal" class="back-link">← Volver al Portal</a>
+        <h2 class="section-title">👥 Mis Leads</h2>
+        <p class="section-subtitle">Todos los negocios validados</p>
+
+        <div class="filter-bar">
+            <button class="filter-btn active" onclick="filterLeads('all')">Todos</button>
+            <button class="filter-btn" onclick="filterLeads('prospeccion')">Prospección</button>
+            <button class="filter-btn" onclick="filterLeads('auditoria')">Auditoría</button>
+            <button class="filter-btn" onclick="filterLeads('propuesta_enviada')">Propuesta</button>
+            <button class="filter-btn" onclick="filterLeads('cerrado')">Cerrados</button>
+            <button class="filter-btn" onclick="filterLeads('mantenimiento')">Activos</button>
+        </div>
+
+        <div id="leadsContainer" class="leads-grid">
+            <div class="loading">Cargando leads...</div>
+        </div>
+    </div>
+
+    <script>
+        let allLeads = [];
+
+        async function loadLeads() {
+            try {
+                const res = await fetch('/api/leads');
+                const data = await res.json();
+                allLeads = data.leads || [];
+                renderLeads(allLeads);
+            } catch (err) {
+                document.getElementById('leadsContainer').innerHTML = '<div class="empty">Error cargando leads: ' + err.message + '</div>';
+            }
+        }
+
+        function renderLeads(leads) {
+            const container = document.getElementById('leadsContainer');
+            if (!leads.length) {
+                container.innerHTML = '<div class="empty">No hay leads aún. Usa el validador para agregar uno.</div>';
+                return;
+            }
+            container.innerHTML = leads.map(l => {
+                const scoreClass = l.score >= 8 ? 'high' : l.score >= 5 ? 'medium' : l.score >= 3 ? 'low' : 'reject';
+                const estadoClass = 'badge-' + l.estado;
+                return `
+                    <div class="lead-card">
+                        <div class="lead-info">
+                            <h4>${l.nombre_negocio}</h4>
+                            <div class="lead-meta">
+                                👤 ${l.nombre_dueno || 'Sin nombre'} | 📱 ${l.telefono || 'Sin teléfono'}<br>
+                                🏷️ ${l.tipo_negocio} | 📅 ${new Date(l.created_at).toLocaleDateString('es-ES')}<br>
+                                💰 ${l.pack_recomendado} | ${l.precio_entrada} MAD entrada
+                            </div>
+                            <span class="badge ${estadoClass}">${l.estado}</span>
+                        </div>
+                        <div class="lead-score ${scoreClass}">${l.score}<span style="font-size:0.8rem;color:#64748b">/10</span></div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function filterLeads(estado) {
+            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+            event.target.classList.add('active');
+            if (estado === 'all') renderLeads(allLeads);
+            else renderLeads(allLeads.filter(l => l.estado === estado));
+        }
+
+        loadLeads();
+    </script>
+</body>
+</html>

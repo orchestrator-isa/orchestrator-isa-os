@@ -4,10 +4,11 @@ services:
     runtime: python
     plan: free
     buildCommand: "pip install -r requirements.txt"
-    startCommand: "cd api && uvicorn main:app --host 0.0.0.0 --port $PORT"
+    startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT
     envVars:
       - key: PYTHON_VERSION
-        value: 3.11.0
-      - key: DATABASE_URL
-        value: sqlite:///./orchestrator_isa.db
-    healthCheckPath: /api/health
+        value: 3.11.11
+      - key: ADMIN_USER
+        value: isa
+      - key: ADMIN_PASS
+        value: orchestrator2024

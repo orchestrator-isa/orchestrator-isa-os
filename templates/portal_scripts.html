@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scripts - Orchestrator ISA</title>
+    <link rel="icon" type="image/png" href="/static/icon-192.png">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', system-ui, sans-serif; background: #0f172a; color: white; min-height: 100vh; }
+        .header { background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); border-bottom: 1px solid #334155; padding: 20px 30px; display: flex; justify-content: space-between; align-items: center; }
+        .header h1 { font-size: 1.5rem; background: linear-gradient(90deg, #00E5FF, #00FF88); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+        .header-nav a { color: #94a3b8; text-decoration: none; margin-left: 20px; font-size: 0.9rem; transition: color 0.3s; }
+        .header-nav a:hover { color: #00E5FF; }
+        .container { max-width: 1200px; margin: 0 auto; padding: 30px; }
+        .back-link { color: #00E5FF; text-decoration: none; display: inline-flex; align-items: center; gap: 5px; margin-bottom: 20px; }
+        .section-title { font-size: 1.8rem; margin-bottom: 10px; color: #00E5FF; }
+        .section-subtitle { color: #94a3b8; margin-bottom: 30px; }
+        .script-card { background: #1e293b; border: 1px solid #334155; border-radius: 12px; padding: 25px; margin-bottom: 20px; }
+        .script-card h3 { color: #00FF88; margin-bottom: 15px; font-size: 1.1rem; }
+        .script-content { background: #0f172a; padding: 20px; border-radius: 8px; border-left: 3px solid #00E5FF; color: #cbd5e1; line-height: 1.8; white-space: pre-line; font-size: 0.95rem; }
+        .script-meta { display: flex; gap: 10px; margin-top: 15px; flex-wrap: wrap; }
+        .meta-tag { background: rgba(0, 229, 255, 0.1); color: #00E5FF; padding: 4px 12px; border-radius: 20px; font-size: 0.8rem; }
+        .copy-btn { background: #334155; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 0.85rem; transition: all 0.3s; }
+        .copy-btn:hover { background: #00E5FF; color: #0f172a; }
+        .tabs { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
+        .tab { background: #1e293b; border: 1px solid #334155; color: #94a3b8; padding: 10px 20px; border-radius: 8px; cursor: pointer; transition: all 0.3s; }
+        .tab.active { background: linear-gradient(90deg, #00E5FF, #00FF88); color: #0f172a; font-weight: 600; }
+        .tab:hover:not(.active) { border-color: #00E5FF; color: #00E5FF; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🚀 ORCHESTRATOR ISA</h1>
+        <div class="header-nav">
+            <a href="/portal">🏠 Inicio</a>
+            <a href="/portal/validador">⚡ Validador</a>
+            <a href="/portal/leads">👥 Leads</a>
+            <a href="/portal/dashboard">📊 Dashboard</a>
+        </div>
+    </div>
+    <div class="container">
+        <a href="/portal" class="back-link">← Volver al Portal</a>
+        <h2 class="section-title">📜 Scripts de Venta</h2>
+        <p class="section-subtitle">Scripts listos para copiar y enviar por WhatsApp o usar en llamadas</p>
+
+        <div class="tabs">
+            <div class="tab active" onclick="showTab('whatsapp')">💬 WhatsApp</div>
+            <div class="tab" onclick="showTab('llamada')">📞 Llamada</div>
+            <div class="tab" onclick="showTab('seguimiento')">📅 Seguimiento</div>
+            <div class="tab" onclick="showTab('cierre')">💰 Cierre</div>
+            <div class="tab" onclick="showTab('onboarding')">🚀 Onboarding</div>
+        </div>
+
+        <div id="tab-whatsapp" class="tab-content active">
+            <div class="script-card">
+                <h3>👋 Primer Contacto WhatsApp</h3>
+                <div class="script-content" id="script-wa-1">
+Hola [Nombre]! Soy [Tu Nombre] de Orchestrator ISA 👋
+
+Estoy ayudando a negocios de [sector] en Tetuán a conseguir más clientes por WhatsApp y Google Maps.
+
+Vi que [Nombre Negocio] tiene mucho potencial 💪 pero podría aparecer mucho más en internet.
+
+¿Tiene 5 minutos para una auditoría GRATUITA? Le digo exactamente qué está perdiendo y cómo recuperarlo.
+
+No es un costo, es una inversión que se paga sola con el primer cliente nuevo 🎯
+                </div>
+                <div class="script-meta">
+                    <span class="meta-tag">Primer contacto</span>
+                    <span class="meta-tag">WhatsApp</span>
+                    <button class="copy-btn" onclick="copyText('script-wa-1')">📋 Copiar</button>
+                </div>
+            </div>
+
+            <div class="script-card">
+                <h3>📋 Respuesta a "Cuánto cuesta?"</h3>
+                <div class="script-content" id="script-wa-2">
+Buena pregunta [Nombre]! 💰
+
+Depende de lo que necesite. Tenemos 4 opciones:
+
+1️⃣ Pack Presencia - 250 MAD (aparecer en Google Maps)
+2️⃣ WhatsApp Pro - 400 MAD (catálogo digital + auto-respuestas)
+3️⃣ Automatización - 800 MAD (chatbot IA completo)
+4️⃣ Pack Completo - 1,200 MAD (todo incluido + redes + SEO)
+
+Cada uno tiene mantenimiento mensual desde 150 MAD.
+
+¿Le mando una propuesta personalizada con los detalles de cada uno? Es gratis y sin compromiso 📄
+                </div>
+                <div class="script-meta">
+                    <span class="meta-tag">Objeción precio</span>
+                    <span class="meta-tag">WhatsApp</span>
+                    <button class="copy-btn" onclick="copyText('script-wa-2')">📋 Copiar</button>
+                </div>
+            </div>
+
+            <div class="script-card">
+                <h3>🤔 Respuesta a "Lo pienso"</h3>
+                <div class="script-content" id="script-wa-3">
+Claro que sí [Nombre], es una decisión importante 🤔
+
+Solo le pregunto: ¿cuántos clientes cree que está perdiendo ESTA SEMANA por no aparecer en Google?
+
+Si son solo 2 clientes al mes, ya se pagó la inversión.
+
+Le propongo algo: empiece con el Pack Presencia (250 MAD). Si en 30 días no ve resultados, le devolvemos el 100%.
+
+¿Le parece justo? ✅
+                </div>
+                <div class="script-meta">
+                    <span class="meta-tag">Objeción "lo pienso"</span>
+                    <span class="meta-tag">WhatsApp</span>
+                    <button class="copy-btn" onclick="copyText('script-wa-3')">📋 Copiar</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="tab-llamada" class="tab-content">
+            <div class="script-card">
+                <h3>📞 Script de Llamada Fría</h3>
+                <div class="script-content" id="script-call-1">
+"Buenos días, ¿hablo con [Nombre], dueño de [Negocio]?"
+
+"Soy [Tu Nombre] de Orchestrator ISA, una agencia que ayuda a negocios de [sector] a conseguir más clientes por internet."
+
+"Le llamo porque vi su negocio en [zona] y noté que tiene potencial pero podría aparecer mucho más en Google y WhatsApp."
+
+"¿Sabe cuántas personas buscan '[sector] cerca de mí' en Google cada día en Tetuán?"
+
+[PAUSA]
+
+"Exacto, muchas. Y si su negocio no aparece en los primeros resultados, esas personas van a su competencia."
+
+"Le propongo una auditoría gratuita de 5 minutos. Le digo exactamente qué está perdiendo y cómo recuperarlo. No le cuesta nada y puede ganar mucho."
+
+"¿Tiene 5 minutos ahora o prefiere que le llame mañana?"
+                </div>
+                <div class="script-meta">
+                    <span class="meta-tag">Llamada fría</span>
+                    <span class="meta-tag">5 minutos</span>
+                    <button class="copy-btn" onclick="copyText('script-call-1')">📋 Copiar</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="tab-seguimiento" class="tab-content">
+            <div class="script-card">
+                <h3>📅 Seguimiento D2 (Día 2)</h3>
+                <div class="script-content" id="script-d2">
+Hola [Nombre]! 👋
+
+Solo le escribo para saber si tuvo chance de revisar la propuesta que le envié.
+
+Tengo una pregunta rápida: ¿cuántos clientes nuevos cree que está perdiendo esta semana por no aparecer en Google Maps?
+
+Si son solo 2 al mes, la inversión ya se pagó sola 💰
+
+¿Le gustaría que agendemos una llamada de 10 minutos para resolver cualquier duda?
+                </div>
+                <div class="script-meta">
+                    <span class="meta-tag">Día 2</span>
+                    <span class="meta-tag">Seguimiento</span>
+                    <button class="copy-btn" onclick="copyText('script-d2')">📋 Copiar</button>
+                </div>
+            </div>
+
+            <div class="script-card">
+                <h3>📅 Seguimiento D5 (Día 5)</h3>
+                <div class="script-content" id="script-d5">
+Hola [Nombre]! 🚀
+
+Le escribo porque tengo una oferta especial esta semana:
+
+Si contrata antes del viernes, le incluyo GRATIS la landing page personalizada (valor 300 MAD) en cualquier pack.
+
+Solo 3 cupos disponibles. ¿Le interesa aprovecharlo?
+                </div>
+                <div class="script-meta">
+                    <span class="meta-tag">Día 5</span>
+                    <span class="meta-tag">Urgencia</span>
+                    <button class="copy-btn" onclick="copyText('script-d5')">📋 Copiar</button>
+                </div>
+            </div>
+
+            <div class="script-card">
+                <h3>📅 Seguimiento D10 (Día 10)</h3>
+                <div class="script-content" id="script-d10">
+Hola [Nombre]! 👋
+
+Entiendo que ahora no es el momento. Sin problema.
+
+Le voy a enviar un recordatorio en 30 días por si cambia de opinión.
+
+Mientras tanto, si conoce a alguien que sí esté interesado, le regalo 100 MAD de descuento en su próximo servicio por cada referido que cierre.
+
+¡Que tenga un buen día! 🙏
+                </div>
+                <div class="script-meta">
+                    <span class="meta-tag">Día 10</span>
+                    <span class="meta-tag">Archivar</span>
+                    <button class="copy-btn" onclick="copyText('script-d10')">📋 Copiar</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="tab-cierre" class="tab-content">
+            <div class="script-card">
+                <h3>💰 Script de Cierre</h3>
+                <div class="script-content" id="script-cierre">
+[Nombre], veo que está listo para crecer 🚀
+
+Le propongo empezar con el Pack [X] hoy mismo:
+
+✅ Pago de entrada: [precio] MAD
+✅ Mantenimiento mensual: [precio] MAD
+✅ Entrega en 48-72 horas
+✅ Capacitación de 15 min incluida
+✅ Garantía 30 días o devolución del 100%
+
+¿Le mando el contrato por WhatsApp ahora mismo? Solo necesito confirmar estos datos:
+
+1. Nombre completo
+2. Nombre del negocio
+3. Teléfono WhatsApp
+4. Dirección
+
+¡Empezamos hoy! 💪
+                </div>
+                <div class="script-meta">
+                    <span class="meta-tag">Cierre</span>
+                    <span class="meta-tag">Contrato</span>
+                    <button class="copy-btn" onclick="copyText('script-cierre')">📋 Copiar</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="tab-onboarding" class="tab-content">
+            <div class="script-card">
+                <h3>🚀 Script de Bienvenida (Onboarding)</h3>
+                <div class="script-content" id="script-onboarding">
+🎉 ¡Bienvenido a Orchestrator ISA, [Nombre]!
+
+Gracias por confiar en nosotros. Estos son los siguientes pasos:
+
+📋 **HOY:**
+- Le envío el contrato digital para firmar
+- Recibo el pago de entrada
+- Agendo la reunión de kickoff
+
+📸 **DÍA 1-2:**
+- Usted me envía: fotos del local, logo, lista de productos/servicios, horarios
+- Yo preparo el catálogo digital y configuro WhatsApp Business
+
+🚀 **DÍA 3:**
+- Entrega del catálogo digital
+- Capacitación de 15 min por videollamada
+- Prueba en vivo con un pedido de ejemplo
+
+📊 **DÍA 7:**
+- Primera revisión de métricas
+- Ajustes según feedback
+
+¿Listo para empezar? ¡Envíeme esos materiales y arrancamos! 🚀
+                </div>
+                <div class="script-meta">
+                    <span class="meta-tag">Onboarding</span>
+                    <span class="meta-tag">Bienvenida</span>
+                    <button class="copy-btn" onclick="copyText('script-onboarding')">📋 Copiar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function showTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.tab').forEach(el => el.classList.remove('active'));
+            document.getElementById('tab-' + tabName).classList.add('active');
+            event.target.classList.add('active');
+        }
+        function copyText(id) {
+            const text = document.getElementById(id).innerText;
+            navigator.clipboard.writeText(text).then(() => {
+                alert('Script copiado al portapapeles');
+            });
+        }
+    </script>
+</body>
+</html>

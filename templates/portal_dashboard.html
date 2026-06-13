@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Orchestrator ISA</title>
+    <link rel="icon" type="image/png" href="/static/icon-192.png">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', system-ui, sans-serif; background: #0f172a; color: white; min-height: 100vh; }
+        .header { background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); border-bottom: 1px solid #334155; padding: 20px 30px; display: flex; justify-content: space-between; align-items: center; }
+        .header h1 { font-size: 1.5rem; background: linear-gradient(90deg, #00E5FF, #00FF88); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+        .header-nav a { color: #94a3b8; text-decoration: none; margin-left: 20px; font-size: 0.9rem; transition: color 0.3s; }
+        .header-nav a:hover { color: #00E5FF; }
+        .container { max-width: 1200px; margin: 0 auto; padding: 30px; }
+        .back-link { color: #00E5FF; text-decoration: none; display: inline-flex; align-items: center; gap: 5px; margin-bottom: 20px; }
+        .section-title { font-size: 1.8rem; margin-bottom: 10px; color: #00E5FF; }
+        .section-subtitle { color: #94a3b8; margin-bottom: 30px; }
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 30px; }
+        .stat-card { background: #1e293b; border: 1px solid #334155; border-radius: 12px; padding: 25px; text-align: center; }
+        .stat-value { font-size: 2.5rem; font-weight: 700; color: #00E5FF; }
+        .stat-label { color: #94a3b8; font-size: 0.9rem; margin-top: 5px; }
+        .stat-card.highlight { border-color: #00FF88; background: rgba(0, 255, 136, 0.05); }
+        .stat-card.highlight .stat-value { color: #00FF88; }
+        .chart-card { background: #1e293b; border: 1px solid #334155; border-radius: 12px; padding: 25px; margin-bottom: 20px; }
+        .chart-card h3 { color: #00FF88; margin-bottom: 20px; }
+        .progress-bar { background: #0f172a; border-radius: 10px; height: 30px; margin: 10px 0; overflow: hidden; }
+        .progress-fill { height: 100%; border-radius: 10px; display: flex; align-items: center; justify-content: flex-end; padding-right: 10px; font-size: 0.8rem; font-weight: 600; transition: width 1s ease; }
+        .progress-label { display: flex; justify-content: space-between; margin-bottom: 5px; font-size: 0.9rem; }
+        .estados-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; }
+        .estado-item { background: #0f172a; border: 1px solid #334155; border-radius: 8px; padding: 15px; text-align: center; }
+        .estado-count { font-size: 1.5rem; font-weight: 700; color: #00E5FF; }
+        .estado-name { color: #94a3b8; font-size: 0.8rem; margin-top: 5px; }
+        .loading { text-align: center; padding: 40px; color: #00E5FF; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🚀 ORCHESTRATOR ISA</h1>
+        <div class="header-nav">
+            <a href="/portal">🏠 Inicio</a>
+            <a href="/portal/validador">⚡ Validador</a>
+            <a href="/portal/leads">👥 Leads</a>
+        </div>
+    </div>
+    <div class="container">
+        <a href="/portal" class="back-link">← Volver al Portal</a>
+        <h2 class="section-title">📊 Dashboard</h2>
+        <p class="section-subtitle">Métricas y KPIs del negocio</p>
+
+        <div id="dashboardContent">
+            <div class="loading">Cargando dashboard...</div>
+        </div>
+    </div>
+
+    <script>
+        async function loadDashboard() {
+            try {
+                const res = await fetch('/api/dashboard');
+                const data = await res.json();
+
+                const kpi = data.kpi;
+                const meta = data.meta_mes_6;
+                const estados = data.por_estado;
+
+                let estadosHtml = '';
+                for (const [estado, count] of Object.entries(estados)) {
+                    estadosHtml += `
+                        <div class="estado-item">
+                            <div class="estado-count">${count}</div>
+                            <div class="estado-name">${estado}</div>
+                        </div>
+                    `;
+                }
+                if (!estadosHtml) estadosHtml = '<div style="color:#64748b;text-align:center;padding:20px;">Sin datos de estados</div>';
+
+                document.getElementById('dashboardContent').innerHTML = `
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-value">${kpi.total_leads}</div>
+                            <div class="stat-label">Leads Totales</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value">${kpi.leads_este_mes}</div>
+                            <div class="stat-label">Leads Este Mes</div>
+                        </div>
+                        <div class="stat-card highlight">
+                            <div class="stat-value">${kpi.clientes_cerrados}</div>
+                            <div class="stat-label">Clientes Cerrados</div>
+                        </div>
+                        <div class="stat-card highlight">
+                            <div class="stat-value">${kpi.clientes_activos}</div>
+                            <div class="stat-label">Clientes Activos</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value">${kpi.tasa_cierre_porciento}%</div>
+                            <div class="stat-label">Tasa de Cierre</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value">${kpi.ingresos_entrada_total} MAD</div>
+                            <div class="stat-label">Ingresos Entrada</div>
+                        </div>
+                        <div class="stat-card highlight">
+                            <div class="stat-value">${kpi.ingresos_recurrentes_mes} MAD</div>
+                            <div class="stat-label">Recurrentes/Mes</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value">${kpi.ingresos_anual_proyectado} MAD</div>
+                            <div class="stat-label">Proyección Anual</div>
+                        </div>
+                    </div>
+
+                    <div class="chart-card">
+                        <h3>🎯 Meta Mes 6: 40 Clientes / 10,000 MAD/mes</h3>
+                        <div class="progress-label">
+                            <span>Clientes Activos</span>
+                            <span>${meta.progreso_clientes}% (${kpi.clientes_activos}/40)</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: ${Math.min(meta.progreso_clientes, 100)}%; background: linear-gradient(90deg, #00E5FF, #00FF88);">${meta.progreso_clientes}%</div>
+                        </div>
+                        <div class="progress-label" style="margin-top:15px;">
+                            <span>Ingresos Recurrentes</span>
+                            <span>${meta.progreso_ingresos}% (${kpi.ingresos_recurrentes_mes}/10,000 MAD)</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: ${Math.min(meta.progreso_ingresos, 100)}%; background: linear-gradient(90deg, #a855f7, #00E5FF);">${meta.progreso_ingresos}%</div>
+                        </div>
+                    </div>
+
+                    <div class="chart-card">
+                        <h3>📋 Leads por Estado</h3>
+                        <div class="estados-grid">
+                            ${estadosHtml}
+                        </div>
+                    </div>
+                `;
+            } catch (err) {
+                document.getElementById('dashboardContent').innerHTML = '<div class="loading">Error cargando dashboard: ' + err.message + '</div>';
+            }
+        }
+
+        loadDashboard();
+    </script>
+</body>
+</html>

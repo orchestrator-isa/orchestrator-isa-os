@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Orchestrator ISA - Portal</title>
+    <link rel="icon" type="image/png" href="/static/icon-192.png">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: #0f172a;
+            color: white;
+            min-height: 100vh;
+        }
+        .header {
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+            border-bottom: 1px solid #334155;
+            padding: 20px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .header h1 {
+            font-size: 1.5rem;
+            background: linear-gradient(90deg, #00E5FF, #00FF88);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .header-nav a {
+            color: #94a3b8;
+            text-decoration: none;
+            margin-left: 20px;
+            font-size: 0.9rem;
+            transition: color 0.3s;
+        }
+        .header-nav a:hover { color: #00E5FF; }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 30px;
+        }
+        .section-title {
+            font-size: 1.8rem;
+            margin-bottom: 10px;
+            color: #00E5FF;
+        }
+        .section-subtitle {
+            color: #94a3b8;
+            margin-bottom: 30px;
+        }
+        .diagram-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+        .diagram-card {
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+            border: 1px solid #334155;
+            border-radius: 16px;
+            padding: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            color: white;
+            display: block;
+            position: relative;
+            overflow: hidden;
+        }
+        .diagram-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #00E5FF, #00FF88);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        .diagram-card:hover::before { opacity: 1; }
+        .diagram-card:hover {
+            transform: translateY(-5px);
+            border-color: #00E5FF;
+            box-shadow: 0 20px 40px rgba(0, 229, 255, 0.1);
+        }
+        .card-icon {
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+        }
+        .card-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+        .card-desc {
+            color: #94a3b8;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+        .card-tags {
+            display: flex;
+            gap: 8px;
+            margin-top: 15px;
+            flex-wrap: wrap;
+        }
+        .tag {
+            background: rgba(0, 229, 255, 0.1);
+            color: #00E5FF;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+        }
+        .quick-actions {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 30px;
+        }
+        .quick-btn {
+            background: #1e293b;
+            border: 1px solid #334155;
+            border-radius: 12px;
+            padding: 15px 20px;
+            color: white;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.3s;
+        }
+        .quick-btn:hover {
+            background: #334155;
+            border-color: #00E5FF;
+        }
+        .quick-btn .icon { font-size: 1.3rem; }
+        .stats-bar {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+        .stat-item {
+            background: #1e293b;
+            border: 1px solid #334155;
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+        }
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #00E5FF;
+        }
+        .stat-label {
+            color: #94a3b8;
+            font-size: 0.85rem;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🚀 ORCHESTRATOR ISA</h1>
+        <div class="header-nav">
+            <a href="/portal">🏠 Inicio</a>
+            <a href="/portal/validador">⚡ Validador</a>
+            <a href="/portal/leads">👥 Leads</a>
+            <a href="/portal/dashboard">📊 Dashboard</a>
+        </div>
+    </div>
+
+    <div class="container">
+        <h2 class="section-title">Portal de Consulta Rápida</h2>
+        <p class="section-subtitle">Todo tu material de ventas en un solo lugar. Haz clic en cualquier sección.</p>
+
+        <div class="stats-bar">
+            <div class="stat-item">
+                <div class="stat-value" id="stat-leads">-</div>
+                <div class="stat-label">Leads Totales</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value" id="stat-cerrados">-</div>
+                <div class="stat-label">Clientes Cerrados</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value" id="stat-activos">-</div>
+                <div class="stat-label">En Mantenimiento</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value" id="stat-ingresos">-</div>
+                <div class="stat-label">Ingresos Mes (MAD)</div>
+            </div>
+        </div>
+
+        <h3 style="color: #00FF88; margin-bottom: 15px;">📚 Material de Ventas</h3>
+        <div class="diagram-grid">
+            <a href="/portal/catalogos" class="diagram-card">
+                <div class="card-icon">📋</div>
+                <div class="card-title">Catálogos de Cliente</div>
+                <div class="card-desc">Catálogo completo v3, catálogo cliente, especificaciones técnicas y requerimientos.</div>
+                <div class="card-tags">
+                    <span class="tag">PDF</span>
+                    <span class="tag">HTML</span>
+                    <span class="tag">v3.0</span>
+                </div>
+            </a>
+
+            <a href="/portal/speeches" class="diagram-card">
+                <div class="card-icon">🎤</div>
+                <div class="card-title">Speeches & Audio Venta</div>
+                <div class="card-desc">Scripts de venta por tipo de negocio, audio de venta, objeciones y respuestas.</div>
+                <div class="card-tags">
+                    <span class="tag">12 sectores</span>
+                    <span class="tag">Audio</span>
+                    <span class="tag">Scripts</span>
+                </div>
+            </a>
+
+            <a href="/portal/scripts" class="diagram-card">
+                <div class="card-icon">📜</div>
+                <div class="card-title">Scripts de Venta</div>
+                <div class="card-desc">Scripts para WhatsApp, llamadas, seguimiento D2/D5/D10, cierre y onboarding.</div>
+                <div class="card-tags">
+                    <span class="tag">WhatsApp</span>
+                    <span class="tag">Llamadas</span>
+                    <span class="tag">Seguimiento</span>
+                </div>
+            </a>
+
+            <a href="/portal/seguimiento" class="diagram-card">
+                <div class="card-icon">📅</div>
+                <div class="card-title">Sistema de Seguimiento</div>
+                <div class="card-desc">Flujo de estados, recordatorios automáticos, pipeline de ventas y reactivación.</div>
+                <div class="card-tags">
+                    <span class="tag">Pipeline</span>
+                    <span class="tag">15 estados</span>
+                    <span class="tag">Auto</span>
+                </div>
+            </a>
+
+            <a href="/portal/landing" class="diagram-card">
+                <div class="card-icon">🌐</div>
+                <div class="card-title">Landing Pages</div>
+                <div class="card-desc">Landing pages por pack, páginas de captación, formularios y páginas de gracias.</div>
+                <div class="card-tags">
+                    <span class="tag">4 packs</span>
+                    <span class="tag">Responsive</span>
+                    <span class="tag">PWA</span>
+                </div>
+            </a>
+
+            <a href="/portal/idioma" class="diagram-card">
+                <div class="card-icon">🌍</div>
+                <div class="card-title">Solución por Idioma</div>
+                <div class="card-desc">Material en español, árabe (Darija), francés e inglés. Bot multilingüe.</div>
+                <div class="card-tags">
+                    <span class="tag">ES</span>
+                    <span class="tag">AR</span>
+                    <span class="tag">FR</span>
+                    <span class="tag">EN</span>
+                </div>
+            </a>
+        </div>
+
+        <h3 style="color: #00FF88; margin: 30px 0 15px 0;">⚡ Acciones Rápidas</h3>
+        <div class="quick-actions">
+            <a href="/portal/validador" class="quick-btn">
+                <span class="icon">⚡</span>
+                <span>Validar Negocio</span>
+            </a>
+            <a href="/portal/leads" class="quick-btn">
+                <span class="icon">👥</span>
+                <span>Ver Leads</span>
+            </a>
+            <a href="/portal/dashboard" class="quick-btn">
+                <span class="icon">📊</span>
+                <span>Dashboard</span>
+            </a>
+            <a href="/docs" class="quick-btn" target="_blank">
+                <span class="icon">📖</span>
+                <span>API Docs</span>
+            </a>
+        </div>
+    </div>
+
+    <script>
+        // Cargar stats del dashboard
+        fetch('/api/dashboard')
+            .then(r => r.json())
+            .then(data => {
+                document.getElementById('stat-leads').textContent = data.kpi.total_leads;
+                document.getElementById('stat-cerrados').textContent = data.kpi.clientes_cerrados;
+                document.getElementById('stat-activos').textContent = data.kpi.clientes_activos;
+                document.getElementById('stat-ingresos').textContent = data.kpi.ingresos_recurrentes_mes + ' MAD';
+            })
+            .catch(() => {
+                document.getElementById('stat-leads').textContent = '0';
+                document.getElementById('stat-cerrados').textContent = '0';
+                document.getElementById('stat-activos').textContent = '0';
+                document.getElementById('stat-ingresos').textContent = '0 MAD';
+            });
+    </script>
+</body>
+</html>

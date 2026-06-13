@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Catálogos - Orchestrator ISA</title>
+    <link rel="icon" type="image/png" href="/static/icon-192.png">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', system-ui, sans-serif; background: #0f172a; color: white; min-height: 100vh; }
+        .header { background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); border-bottom: 1px solid #334155; padding: 20px 30px; display: flex; justify-content: space-between; align-items: center; }
+        .header h1 { font-size: 1.5rem; background: linear-gradient(90deg, #00E5FF, #00FF88); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+        .header-nav a { color: #94a3b8; text-decoration: none; margin-left: 20px; font-size: 0.9rem; transition: color 0.3s; }
+        .header-nav a:hover { color: #00E5FF; }
+        .container { max-width: 1200px; margin: 0 auto; padding: 30px; }
+        .back-link { color: #00E5FF; text-decoration: none; display: inline-flex; align-items: center; gap: 5px; margin-bottom: 20px; }
+        .section-title { font-size: 1.8rem; margin-bottom: 10px; color: #00E5FF; }
+        .section-subtitle { color: #94a3b8; margin-bottom: 30px; }
+        .content-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
+        .content-card { background: #1e293b; border: 1px solid #334155; border-radius: 12px; padding: 25px; }
+        .content-card h3 { color: #00FF88; margin-bottom: 15px; font-size: 1.1rem; }
+        .content-card p { color: #94a3b8; font-size: 0.9rem; line-height: 1.6; margin-bottom: 15px; }
+        .content-card ul { color: #cbd5e1; font-size: 0.9rem; line-height: 1.8; margin-left: 20px; }
+        .content-card li { margin-bottom: 5px; }
+        .badge { display: inline-block; background: rgba(0, 229, 255, 0.1); color: #00E5FF; padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; margin-right: 5px; margin-bottom: 5px; }
+        .highlight { background: rgba(0, 255, 136, 0.1); border-left: 3px solid #00FF88; padding: 15px; border-radius: 0 8px 8px 0; margin: 15px 0; }
+        .highlight p { color: #00FF88; margin: 0; }
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #334155; }
+        th { color: #00E5FF; font-weight: 600; }
+        td { color: #cbd5e1; font-size: 0.9rem; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🚀 ORCHESTRATOR ISA</h1>
+        <div class="header-nav">
+            <a href="/portal">🏠 Inicio</a>
+            <a href="/portal/validador">⚡ Validador</a>
+            <a href="/portal/leads">👥 Leads</a>
+            <a href="/portal/dashboard">📊 Dashboard</a>
+        </div>
+    </div>
+    <div class="container">
+        <a href="/portal" class="back-link">← Volver al Portal</a>
+        <h2 class="section-title">📋 Catálogos de Cliente</h2>
+        <p class="section-subtitle">Todo el material de catálogos y requerimientos para presentaciones</p>
+
+        <div class="content-grid">
+            <div class="content-card">
+                <h3>📦 Pack Presencia (250 MAD)</h3>
+                <span class="badge">Entrada</span>
+                <span class="badge">150 MAD/mes</span>
+                <ul>
+                    <li>Google Maps optimizado con fotos profesionales</li>
+                    <li>WhatsApp Business configurado</li>
+                    <li>Ficha básica en directorios locales</li>
+                    <li>Verificación mensual de funcionamiento</li>
+                    <li>Capacitación de 15 minutos incluida</li>
+                </ul>
+                <div class="highlight"><p>Ideal para: Negocios que NO aparecen en Google Maps</p></div>
+            </div>
+
+            <div class="content-card">
+                <h3>💬 WhatsApp Pro (400 MAD)</h3>
+                <span class="badge">Entrada</span>
+                <span class="badge">200 MAD/mes</span>
+                <ul>
+                    <li>Catálogo de productos/servicios con fotos</li>
+                    <li>Respuestas automáticas 24/7</li>
+                    <li>10 respuestas rápidas personalizadas</li>
+                    <li>Etiquetas y organización de chats</li>
+                    <li>Ajustes mensuales según temporada</li>
+                </ul>
+                <div class="highlight"><p>Ideal para: Negocios con 10+ consultas diarias por WhatsApp</p></div>
+            </div>
+
+            <div class="content-card">
+                <h3>🤖 Automatización (800 MAD)</h3>
+                <span class="badge">Entrada</span>
+                <span class="badge">350 MAD/mes</span>
+                <ul>
+                    <li>Chatbot con IA que entiende a tus clientes</li>
+                    <li>Flujos automáticos: pedido → confirmación → entrega</li>
+                    <li>Integración con base de datos</li>
+                    <li>Optimización continua según conversaciones</li>
+                    <li>Reporte mensual de conversaciones y conversiones</li>
+                </ul>
+                <div class="highlight"><p>Ideal para: Restaurantes, farmacias, talleres con alto volumen</p></div>
+            </div>
+
+            <div class="content-card">
+                <h3>⭐ Pack Completo (1,200 MAD)</h3>
+                <span class="badge">Entrada</span>
+                <span class="badge">500 MAD/mes</span>
+                <ul>
+                    <li>Todo lo anterior incluido</li>
+                    <li>Contenido mensual para redes sociales</li>
+                    <li>SEO local para aparecer primero en tu zona</li>
+                    <li>Landing page personalizada</li>
+                    <li>Reporte mensual con métricas de crecimiento</li>
+                    <li>Soporte prioritario WhatsApp</li>
+                </ul>
+                <div class="highlight"><p>Ideal para: Clientes que quieren dominar su zona digitalmente</p></div>
+            </div>
+        </div>
+
+        <h3 style="color: #00FF88; margin: 30px 0 15px 0;">📊 Comparativa de Packs</h3>
+        <div class="content-card">
+            <table>
+                <tr><th>Feature</th><th>Presencia</th><th>WhatsApp Pro</th><th>Automatización</th><th>Completo</th></tr>
+                <tr><td>Google Maps</td><td>✅</td><td>✅</td><td>✅</td><td>✅</td></tr>
+                <tr><td>WhatsApp Business</td><td>✅</td><td>✅</td><td>✅</td><td>✅</td></tr>
+                <tr><td>Catálogo digital</td><td>❌</td><td>✅</td><td>✅</td><td>✅</td></tr>
+                <tr><td>Respuestas automáticas</td><td>❌</td><td>✅</td><td>✅</td><td>✅</td></tr>
+                <tr><td>Chatbot IA</td><td>❌</td><td>❌</td><td>✅</td><td>✅</td></tr>
+                <tr><td>Contenido redes</td><td>❌</td><td>❌</td><td>❌</td><td>✅</td></tr>
+                <tr><td>SEO local</td><td>❌</td><td>❌</td><td>❌</td><td>✅</td></tr>
+                <tr><td>Landing page</td><td>❌</td><td>❌</td><td>❌</td><td>✅</td></tr>
+            </table>
+        </div>
+
+        <h3 style="color: #00FF88; margin: 30px 0 15px 0;">🎯 Requerimientos del Cliente</h3>
+        <div class="content-grid">
+            <div class="content-card">
+                <h3>📱 Datos Necesarios</h3>
+                <ul>
+                    <li>Nombre del negocio y del dueño</li>
+                    <li>Teléfono WhatsApp activo</li>
+                    <li>Dirección completa</li>
+                    <li>Horarios de atención</li>
+                    <li>Fotos del local/productos (mínimo 5)</li>
+                    <li>Lista de productos/servicios con precios</li>
+                    <li>Logo en alta resolución</li>
+                </ul>
+            </div>
+            <div class="content-card">
+                <h3>⏱️ Tiempos de Entrega</h3>
+                <ul>
+                    <li><strong>Pack Presencia:</strong> 24-48 horas</li>
+                    <li><strong>WhatsApp Pro:</strong> 48-72 horas</li>
+                    <li><strong>Automatización:</strong> 3-5 días</li>
+                    <li><strong>Pack Completo:</strong> 5-7 días</li>
+                </ul>
+                <div class="highlight"><p>Capacitación de 15 min incluida en todos los packs</p></div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
