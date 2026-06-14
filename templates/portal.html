@@ -1,28 +1,90 @@
 <!DOCTYPE html>
 <html lang="es">
-<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Orchestrator ISA</title>
-<style>
-*{margin:0;padding:0;box-sizing:border-box}
-body{font-family:'Segoe UI',sans-serif;background:linear-gradient(135deg,#0f172a,#1a1a2e);color:#fff;min-height:100vh;display:flex;align-items:center;justify-content:center}
-.container{text-align:center;padding:2rem}
-h1{font-size:3rem;background:linear-gradient(135deg,#00E5FF,#00FF88);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:1rem}
-.nav{display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;margin-top:2rem}
-.nav a{color:#fff;text-decoration:none;padding:1rem 2rem;background:rgba(0,229,255,0.15);border-radius:12px;border:1px solid rgba(0,229,255,0.2);transition:all .3s}
-.nav a:hover{background:#00E5FF;color:#0f172a}
-</style>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🏠 Portal | IA Boost Prufer</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🚀</text></svg>">
+    <style>
+        :root { --bg: #0B1120; --card: #151E32; --cyan: #00E5FF; --verde: #00FF88; --texto: #FFFFFF; --texto-sec: #94A3B8; --alerta: #EF4444; --border: rgba(0, 229, 255, 0.08); }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--bg); color: var(--texto); min-height: 100vh; }
+        .header { background: var(--card); border-bottom: 1px solid var(--border); padding: 0.75rem 1.5rem; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; }
+        .header-left { display: flex; align-items: center; gap: 0.75rem; }
+        .header-rocket { font-size: 1.5rem; }
+        .header-brand { font-size: 1.1rem; font-weight: 700; }
+        .header-brand .prufer { color: var(--cyan); }
+        .header-right { display: flex; align-items: center; gap: 1rem; }
+        .user-badge { display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; color: var(--texto-sec); }
+        .user-badge .rol { background: rgba(0, 229, 255, 0.1); color: var(--cyan); padding: 0.15rem 0.5rem; border-radius: 4px; font-size: 0.7rem; text-transform: uppercase; font-weight: 600; }
+        .btn-logout { background: transparent; border: 1px solid rgba(239, 68, 68, 0.3); color: var(--alerta); padding: 0.4rem 0.8rem; border-radius: 6px; font-size: 0.8rem; cursor: pointer; }
+        .container { max-width: 1000px; margin: 0 auto; padding: 1.5rem; }
+        .welcome { text-align: center; margin-bottom: 2rem; }
+        .welcome h1 { font-size: 1.8rem; margin-bottom: 0.5rem; }
+        .welcome p { color: var(--texto-sec); }
+        .menu-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem; }
+        .menu-card {
+            background: var(--card); border: 1px solid var(--border); border-radius: 12px;
+            padding: 1.5rem; text-decoration: none; color: var(--texto);
+            transition: all 0.2s; display: flex; flex-direction: column; align-items: center;
+            text-align: center; cursor: pointer;
+        }
+        .menu-card:hover { transform: translateY(-3px); border-color: var(--cyan); box-shadow: 0 10px 30px rgba(0, 229, 255, 0.1); }
+        .menu-icon { font-size: 2.5rem; margin-bottom: 0.75rem; }
+        .menu-title { font-size: 1.1rem; font-weight: 700; margin-bottom: 0.5rem; }
+        .menu-desc { font-size: 0.85rem; color: var(--texto-sec); }
+        .menu-card.destacado { border-color: var(--verde); background: rgba(0, 255, 136, 0.03); }
+        .menu-card.destacado:hover { border-color: var(--verde); box-shadow: 0 10px 30px rgba(0, 255, 136, 0.1); }
+        .version { text-align: center; color: #475569; font-size: 0.75rem; margin-top: 2rem; }
+    </style>
 </head>
 <body>
-<div class="container">
-<h1>🚀 Orchestrator ISA</h1>
-<p>Sistema de gestión de leads y cotizaciones para Marruecos</p>
-<div class="nav">
-<a href="/portal/dashboard">📊 Dashboard</a>
-<a href="/portal/leads">👥 Leads</a>
-<a href="/portal/validador">⚡ Validador</a>
-<a href="/portal/cotizador">💰 Cotizador</a>
-<a href="/portal/diagrama">📐 Diagrama</a>
-</div>
-</div>
+    <header class="header">
+        <div class="header-left">
+            <span class="header-rocket">🚀</span>
+            <div class="header-brand">IA Boost <span class="prufer">Prufer</span></div>
+        </div>
+        <div class="header-right">
+            <div class="user-badge">
+                <span>👤 {{ user.nombre_display }}</span>
+                <span class="rol">{{ user.rol }}</span>
+            </div>
+            <form method="POST" action="/auth/logout" style="margin:0">
+                <button type="submit" class="btn-logout">Salir</button>
+            </form>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="welcome">
+            <h1>👋 ¡Hola, {{ user.nombre_display }}!</h1>
+            <p>¿Qué vamos a hacer hoy?</p>
+        </div>
+
+        <div class="menu-grid">
+            <a href="/portal/validador" class="menu-card destacado">
+                <div class="menu-icon">⚡</div>
+                <div class="menu-title">Validador Rápido</div>
+                <div class="menu-desc">Prospecta en la calle. Formulario rápido → WhatsApp listo.</div>
+            </a>
+            <a href="/vendedor/venta" class="menu-card">
+                <div class="menu-icon">🎯</div>
+                <div class="menu-title">Flujo de Venta M0-M7</div>
+                <div class="menu-desc">Seguimiento completo del lead desde contacto hasta cierre.</div>
+            </a>
+            <a href="/portal/leads" class="menu-card">
+                <div class="menu-icon">👥</div>
+                <div class="menu-title">Mis Leads</div>
+                <div class="menu-desc">Lista completa de todos los leads registrados en el CRM.</div>
+            </a>
+            <a href="/portal/dashboard" class="menu-card">
+                <div class="menu-icon">📊</div>
+                <div class="menu-title">Dashboard</div>
+                <div class="menu-desc">Métricas de ventas, ingresos y rendimiento.</div>
+            </a>
+        </div>
+
+        <div class="version">Orchestrator ISA v13.4.1 · FastAPI · Neon PostgreSQL · Render</div>
+    </div>
 </body>
 </html>

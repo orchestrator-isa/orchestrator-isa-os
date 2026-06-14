@@ -3,351 +3,99 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard - Orchestrator ISA</title>
-    <link rel="manifest" href="/static/manifest.json">
+    <title>📊 Dashboard | IA Boost Prufer</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🚀</text></svg>">
     <style>
+        :root { --bg: #0B1120; --card: #151E32; --cyan: #00E5FF; --verde: #00FF88; --texto: #FFFFFF; --texto-sec: #94A3B8; --alerta: #EF4444; --border: rgba(0, 229, 255, 0.08); }
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        :root {
-            --cyan: #00E5FF;
-            --green: #00FF88;
-            --dark: #0f172a;
-            --card: #1e293b;
-            --text: #cbd5e1;
-        }
-        body {
-            font-family: 'Segoe UI', system-ui, sans-serif;
-            background: linear-gradient(135deg, var(--dark) 0%, #1a1a2e 100%);
-            color: white;
-            min-height: 100vh;
-            padding: 1.5rem;
-        }
-        .container { max-width: 1400px; margin: 0 auto; }
-        header {
-            background: rgba(0, 229, 255, 0.08);
-            padding: 1.5rem;
-            border-radius: 16px;
-            margin-bottom: 1.5rem;
-            border-left: 4px solid var(--cyan);
-        }
-        h1 { color: var(--cyan); margin-bottom: 0.5rem; font-size: 1.8rem; }
-        header p { color: var(--text); }
-        .nav {
-            display: flex;
-            gap: 0.75rem;
-            margin-bottom: 1.5rem;
-            flex-wrap: wrap;
-        }
-        .nav a {
-            color: white;
-            text-decoration: none;
-            padding: 0.6rem 1.2rem;
-            background: rgba(0, 229, 255, 0.15);
-            border-radius: 8px;
-            transition: all 0.3s;
-            font-size: 0.9rem;
-            border: 1px solid rgba(0, 229, 255, 0.2);
-        }
-        .nav a:hover { background: var(--cyan); color: var(--dark); }
-
-        .metrics-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-            gap: 1.25rem;
-            margin-bottom: 2rem;
-        }
-        .metric-card {
-            background: rgba(30, 41, 59, 0.7);
-            backdrop-filter: blur(10px);
-            border-radius: 16px;
-            padding: 1.75rem;
-            text-align: center;
-            border: 1px solid rgba(255,255,255,0.05);
-            border-top: 4px solid var(--cyan);
-            transition: all 0.3s;
-        }
-        .metric-card:hover { transform: translateY(-4px); box-shadow: 0 10px 40px rgba(0,229,255,0.1); }
-        .metric-icon { font-size: 2.5rem; margin-bottom: 0.5rem; }
-        .metric-value {
-            font-size: 2.5rem;
-            font-weight: 800;
-            background: linear-gradient(135deg, var(--cyan), var(--green));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            margin: 0.5rem 0;
-        }
-        .metric-label {
-            color: #94a3b8;
-            font-size: 0.9rem;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-        .metric-card.green { border-top-color: var(--green); }
-        .metric-card.purple { border-top-color: #a78bfa; }
-        .metric-card.orange { border-top-color: #fbbf24; }
-        .metric-card.red { border-top-color: #f87171; }
-
-        .charts-row {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
-            gap: 1.25rem;
-            margin-bottom: 2rem;
-        }
-        .chart-card {
-            background: rgba(30, 41, 59, 0.7);
-            backdrop-filter: blur(10px);
-            border-radius: 16px;
-            padding: 1.5rem;
-            border: 1px solid rgba(255,255,255,0.05);
-        }
-        .chart-title {
-            color: var(--cyan);
-            font-size: 1.1rem;
-            margin-bottom: 1.25rem;
-            font-weight: 600;
-        }
-
-        .bar-chart { display: flex; flex-direction: column; gap: 0.75rem; }
-        .bar-item { display: flex; align-items: center; gap: 0.75rem; }
-        .bar-label { min-width: 120px; font-size: 0.85rem; color: var(--text); }
-        .bar-track { flex: 1; height: 28px; background: rgba(255,255,255,0.05); border-radius: 8px; overflow: hidden; position: relative; }
-        .bar-fill { height: 100%; border-radius: 8px; transition: width 1s ease; display: flex; align-items: center; justify-content: flex-end; padding-right: 0.5rem; font-size: 0.75rem; font-weight: 700; color: var(--dark); }
-        .bar-fill.cyan { background: linear-gradient(90deg, var(--cyan), #0891b2); }
-        .bar-fill.green { background: linear-gradient(90deg, var(--green), #059669); }
-        .bar-fill.purple { background: linear-gradient(90deg, #a78bfa, #7c3aed); }
-        .bar-fill.orange { background: linear-gradient(90deg, #fbbf24, #d97706); }
-        .bar-fill.red { background: linear-gradient(90deg, #f87171, #dc2626); }
-        .bar-value { min-width: 40px; text-align: right; font-weight: 700; color: white; font-size: 0.9rem; }
-
-        .funnel-chart { display: flex; flex-direction: column; gap: 0.5rem; }
-        .funnel-item {
-            display: flex;
-            align-items: center;
-            padding: 0.75rem 1rem;
-            border-radius: 10px;
-            color: white;
-            font-weight: 600;
-            transition: all 0.3s;
-        }
-        .funnel-item:hover { transform: translateX(5px); }
-        .funnel-prospeccion { background: rgba(251, 191, 36, 0.2); border-left: 4px solid #fbbf24; }
-        .funnel-auditoria { background: rgba(59, 130, 246, 0.2); border-left: 4px solid #60a5fa; }
-        .funnel-propuesta { background: rgba(139, 92, 246, 0.2); border-left: 4px solid #a78bfa; }
-        .funnel-cerrado { background: rgba(0, 255, 136, 0.2); border-left: 4px solid var(--green); }
-        .funnel-mantenimiento { background: rgba(0, 229, 255, 0.2); border-left: 4px solid var(--cyan); }
-        .funnel-count { margin-left: auto; font-size: 1.2rem; }
-
-        .loading {
-            text-align: center;
-            padding: 3rem;
-            color: var(--cyan);
-        }
-        .last-update {
-            text-align: right;
-            color: #64748b;
-            font-size: 0.8rem;
-            margin-bottom: 1rem;
-        }
-
-        @media (max-width: 768px) {
-            .charts-row { grid-template-columns: 1fr; }
-            .metrics-grid { grid-template-columns: repeat(2, 1fr); }
-            .bar-label { min-width: 90px; font-size: 0.75rem; }
-        }
+        body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--bg); color: var(--texto); min-height: 100vh; }
+        .header { background: var(--card); border-bottom: 1px solid var(--border); padding: 0.75rem 1.5rem; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; }
+        .header-left { display: flex; align-items: center; gap: 0.75rem; }
+        .header-rocket { font-size: 1.5rem; }
+        .header-brand { font-size: 1.1rem; font-weight: 700; }
+        .header-brand .prufer { color: var(--cyan); }
+        .header-right { display: flex; align-items: center; gap: 1rem; }
+        .user-badge { display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; color: var(--texto-sec); }
+        .user-badge .rol { background: rgba(0, 229, 255, 0.1); color: var(--cyan); padding: 0.15rem 0.5rem; border-radius: 4px; font-size: 0.7rem; text-transform: uppercase; font-weight: 600; }
+        .btn-logout { background: transparent; border: 1px solid rgba(239, 68, 68, 0.3); color: var(--alerta); padding: 0.4rem 0.8rem; border-radius: 6px; font-size: 0.8rem; cursor: pointer; }
+        .container { max-width: 1200px; margin: 0 auto; padding: 1.5rem; }
+        .nav { display: flex; gap: 0.5rem; margin-bottom: 1.5rem; flex-wrap: wrap; }
+        .nav a { color: var(--texto); text-decoration: none; padding: 0.5rem 1rem; background: var(--card); border: 1px solid var(--border); border-radius: 8px; font-size: 0.9rem; transition: all 0.2s; }
+        .nav a:hover, .nav a.active { background: var(--cyan); color: var(--bg); }
+        .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 1.5rem; }
+        .kpi-card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 1.25rem; text-align: center; }
+        .kpi-value { font-size: 2rem; font-weight: 800; color: var(--cyan); }
+        .kpi-label { color: var(--texto-sec); font-size: 0.85rem; margin-top: 0.25rem; }
+        .kpi-card.verde .kpi-value { color: var(--verde); }
+        .kpi-card.alerta .kpi-value { color: var(--alerta); }
+        .section { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 1.25rem; margin-bottom: 1rem; }
+        .section h2 { color: var(--cyan); margin-bottom: 1rem; font-size: 1.2rem; }
+        .loading { text-align: center; padding: 2rem; color: var(--cyan); }
+        .error { text-align: center; padding: 2rem; color: var(--alerta); }
+        @media (max-width: 768px) { .kpi-grid { grid-template-columns: repeat(2, 1fr); } }
     </style>
 </head>
 <body>
+    <header class="header">
+        <div class="header-left">
+            <span class="header-rocket">🚀</span>
+            <div class="header-brand">IA Boost <span class="prufer">Prufer</span></div>
+        </div>
+        <div class="header-right">
+            <div class="user-badge">
+                <span>👤 {{ user.nombre_display }}</span>
+                <span class="rol">{{ user.rol }}</span>
+            </div>
+            <form method="POST" action="/auth/logout" style="margin:0">
+                <button type="submit" class="btn-logout">Salir</button>
+            </form>
+        </div>
+    </header>
+
     <div class="container">
-        <header>
-            <h1>📊 Dashboard</h1>
-            <p>Métricas y KPIs del negocio en tiempo real</p>
-        </header>
-
-        <nav class="nav">
+        <div class="nav">
             <a href="/portal">🏠 Inicio</a>
-            <a href="/portal/validador">⚡ Validador</a>
             <a href="/portal/leads">👥 Leads</a>
-            <a href="/portal/cotizador">💰 Cotizador</a>
-        </nav>
-
-        <div class="last-update" id="lastUpdate">Actualizando...</div>
-
-        <div id="metricsContainer" class="metrics-grid">
-            <div class="loading">⏳ Cargando métricas...</div>
+            <a href="/portal/dashboard" class="active">📊 Dashboard</a>
+            <a href="/portal/validador">⚡ Validador</a>
+            <a href="/vendedor/venta">🎯 Venta</a>
         </div>
 
-        <div class="charts-row">
-            <div class="chart-card">
-                <h2 class="chart-title">📈 Distribución por Estado</h2>
-                <div id="estadoChart" class="bar-chart">
-                    <div class="loading">Cargando...</div>
-                </div>
-            </div>
-
-            <div class="chart-card">
-                <h2 class="chart-title">🎯 Embudo de Conversión</h2>
-                <div id="funnelChart" class="funnel-chart">
-                    <div class="loading">Cargando...</div>
-                </div>
-            </div>
+        <div class="kpi-grid" id="kpiGrid">
+            <div class="kpi-card"><div class="kpi-value" id="kpiTotal">—</div><div class="kpi-label">Total Leads</div></div>
+            <div class="kpi-card"><div class="kpi-value" id="kpiNuevos">—</div><div class="kpi-label">Nuevos</div></div>
+            <div class="kpi-card verde"><div class="kpi-value" id="kpiCerrados">—</div><div class="kpi-label">Ventas Cerradas</div></div>
+            <div class="kpi-card alerta"><div class="kpi-value" id="kpiRenovaciones">—</div><div class="kpi-label">Renovaciones 7d</div></div>
+            <div class="kpi-card"><div class="kpi-value" id="kpiPotencial">—</div><div class="kpi-label">Ingresos Potenciales (MAD)</div></div>
+            <div class="kpi-card verde"><div class="kpi-value" id="kpiCerradosMAD">—</div><div class="kpi-label">Ingresos Cerrados (MAD)</div></div>
         </div>
 
-        <div class="charts-row">
-            <div class="chart-card">
-                <h2 class="chart-title">🌍 Leads por Ciudad</h2>
-                <div id="ciudadChart" class="bar-chart">
-                    <div class="loading">Cargando...</div>
-                </div>
-            </div>
-
-            <div class="chart-card">
-                <h2 class="chart-title">📦 Distribución por Pack</h2>
-                <div id="packChart" class="bar-chart">
-                    <div class="loading">Cargando...</div>
-                </div>
-            </div>
+        <div class="section">
+            <h2>📈 Rendimiento</h2>
+            <div id="loading" class="loading">⏳ Cargando métricas...</div>
+            <div id="error" class="error" style="display:none">❌ Error cargando datos</div>
         </div>
     </div>
 
     <script>
-        let dashboardData = null;
-
-        async function loadDashboard() {
+        async function cargarDashboard() {
             try {
-                const response = await fetch('/api/dashboard');
-                dashboardData = await response.json();
-
-                renderMetrics();
-                renderEstadoChart();
-                renderFunnel();
-                renderCiudadChart();
-                renderPackChart();
-
-                document.getElementById('lastUpdate').textContent = 
-                    '🕐 Actualizado: ' + new Date().toLocaleTimeString('es-MA');
-            } catch (error) {
-                console.error('Error cargando dashboard:', error);
-                document.getElementById('metricsContainer').innerHTML = 
-                    '<div class="loading">❌ Error de conexión</div>';
+                const res = await fetch('/api/dashboard');
+                if (!res.ok) throw new Error('HTTP ' + res.status);
+                const data = await res.json();
+                document.getElementById('kpiTotal').textContent = data.total_leads || 0;
+                document.getElementById('kpiNuevos').textContent = data.leads_nuevos || 0;
+                document.getElementById('kpiCerrados').textContent = data.leads_cerrados || 0;
+                document.getElementById('kpiRenovaciones').textContent = data.renovaciones_7d || 0;
+                document.getElementById('kpiPotencial').textContent = (data.ingresos_potenciales || 0).toLocaleString();
+                document.getElementById('kpiCerradosMAD').textContent = (data.ingresos_cerrados || 0).toLocaleString();
+                document.getElementById('loading').style.display = 'none';
+            } catch (e) {
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('error').style.display = 'block';
             }
         }
-
-        function renderMetrics() {
-            const d = dashboardData;
-            const metrics = [
-                { label: 'Leads Totales', value: d.leads_totales || 0, icon: '👥', color: '' },
-                { label: 'Nuevos (7d)', value: d.nuevos_ultimos_7_dias || 0, icon: '🆕', color: 'green' },
-                { label: 'Clientes Cerrados', value: d.clientes_cerrados || 0, icon: '✅', color: 'green' },
-                { label: 'En Mantenimiento', value: d.en_mantenimiento || 0, icon: '🔄', color: 'purple' },
-                { label: 'En Propuesta', value: d.en_propuesta || 0, icon: '📄', color: 'orange' },
-                { label: 'Ingresos Mes', value: (d.ingresos_mes || 0) + ' MAD', icon: '💰', color: 'green' },
-            ];
-
-            document.getElementById('metricsContainer').innerHTML = metrics.map(m => `
-                <div class="metric-card ${m.color}">
-                    <div class="metric-icon">${m.icon}</div>
-                    <div class="metric-value">${m.value}</div>
-                    <div class="metric-label">${m.label}</div>
-                </div>
-            `).join('');
-        }
-
-        function renderEstadoChart() {
-            const d = dashboardData;
-            const estados = [
-                { key: 'en_prospeccion', label: 'Prospección', color: 'orange' },
-                { key: 'en_auditoria', label: 'Auditoría', color: 'purple' },
-                { key: 'en_propuesta', label: 'Propuesta', color: 'cyan' },
-                { key: 'clientes_cerrados', label: 'Cerrados', color: 'green' },
-                { key: 'en_mantenimiento', label: 'Mantenimiento', color: 'cyan' },
-            ];
-            const total = d.leads_totales || 1;
-
-            document.getElementById('estadoChart').innerHTML = estados.map(e => {
-                const count = d[e.key] || 0;
-                const pct = Math.round((count / total) * 100);
-                return `
-                    <div class="bar-item">
-                        <div class="bar-label">${e.label}</div>
-                        <div class="bar-track">
-                            <div class="bar-fill ${e.color}" style="width: ${pct}%">${pct > 15 ? pct + '%' : ''}</div>
-                        </div>
-                        <div class="bar-value">${count}</div>
-                    </div>
-                `;
-            }).join('');
-        }
-
-        function renderFunnel() {
-            const d = dashboardData;
-            const funnel = [
-                { key: 'en_prospeccion', label: '🔍 Prospección', class: 'funnel-prospeccion' },
-                { key: 'en_auditoria', label: '📋 Auditoría', class: 'funnel-auditoria' },
-                { key: 'en_propuesta', label: '📄 Propuesta', class: 'funnel-propuesta' },
-                { key: 'clientes_cerrados', label: '✅ Cerrado', class: 'funnel-cerrado' },
-                { key: 'en_mantenimiento', label: '🔄 Mantenimiento', class: 'funnel-mantenimiento' },
-            ];
-
-            document.getElementById('funnelChart').innerHTML = funnel.map(f => `
-                <div class="funnel-item ${f.class}">
-                    ${f.label}
-                    <span class="funnel-count">${d[f.key] || 0}</span>
-                </div>
-            `).join('');
-        }
-
-        function renderCiudadChart() {
-            const porCiudad = dashboardData.por_ciudad || {};
-            const entries = Object.entries(porCiudad).sort((a, b) => b[1] - a[1]);
-            const total = entries.reduce((a, b) => a + b[1], 0) || 1;
-            const colors = ['cyan', 'green', 'purple', 'orange', 'red'];
-
-            if (entries.length === 0) {
-                document.getElementById('ciudadChart').innerHTML = '<p style="color:#64748b;text-align:center">Sin datos</p>';
-                return;
-            }
-
-            document.getElementById('ciudadChart').innerHTML = entries.map((e, i) => {
-                const pct = Math.round((e[1] / total) * 100);
-                return `
-                    <div class="bar-item">
-                        <div class="bar-label">${e[0].charAt(0).toUpperCase() + e[0].slice(1)}</div>
-                        <div class="bar-track">
-                            <div class="bar-fill ${colors[i % colors.length]}" style="width: ${pct}%">${pct > 15 ? pct + '%' : ''}</div>
-                        </div>
-                        <div class="bar-value">${e[1]}</div>
-                    </div>
-                `;
-            }).join('');
-        }
-
-        function renderPackChart() {
-            const porPack = dashboardData.por_pack || {};
-            const entries = Object.entries(porPack).sort((a, b) => b[1] - a[1]);
-            const total = entries.reduce((a, b) => a + b[1], 0) || 1;
-            const colors = ['green', 'cyan', 'purple', 'orange'];
-
-            if (entries.length === 0) {
-                document.getElementById('packChart').innerHTML = '<p style="color:#64748b;text-align:center">Sin datos</p>';
-                return;
-            }
-
-            document.getElementById('packChart').innerHTML = entries.map((e, i) => {
-                const pct = Math.round((e[1] / total) * 100);
-                return `
-                    <div class="bar-item">
-                        <div class="bar-label">${e[0]}</div>
-                        <div class="bar-track">
-                            <div class="bar-fill ${colors[i % colors.length]}" style="width: ${pct}%">${pct > 15 ? pct + '%' : ''}</div>
-                        </div>
-                        <div class="bar-value">${e[1]}</div>
-                    </div>
-                `;
-            }).join('');
-        }
-
-        loadDashboard();
-        setInterval(loadDashboard, 30000);
+        document.addEventListener('DOMContentLoaded', cargarDashboard);
     </script>
 </body>
 </html>
