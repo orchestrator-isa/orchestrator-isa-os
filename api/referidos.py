@@ -1,69 +1,159 @@
-#!/usr/bin/env python3
-"""
-Orchestrator ISA - Sistema de Referidos
-Tracking de referencias + descuentos automáticos
-"""
+from fastapi import APIRouter, HTTPException, Request
+from pydantic import BaseModel, Field
+from typing import Optional, List
+from datetime import datetime, timedelta
+import secrets
+import hashlib
 
-import sqlite3
-import uuid
-from datetime import datetime
+router = APIRouter(prefix="/api/referidos", tags=["referidos"])
 
-class SistemaReferidos:
-    DESCUENTO_REFERIDO = 100
+class ReferidoCreate(BaseModel):
+    nombre_referidor: str = Field(..., min_length=2)
+    telefono_referidor: str = Field(..., pattern="^\+?[0-9\s\-]{8,20}$")
+    nombre_referido: str = Field(..., min_length=2)
+    telefono_referido: str = Field(..., pattern="^\+?[0-9\s\-]{8,20}$")
+    tipo_negocio_referido: str
+    email_referidor: Optional[str] = None
+    notas: Optional[str] = None
 
-    @staticmethod
-    def registrar_referido(referente_id, referido_nombre, referido_telefono, db_path="orchestrator_isa.db"):
-        codigo = f"REF-{referente_id[:4]}-{str(uuid.uuid4())[:4].upper()}"
-        now = datetime.now().isoformat()
+class ReferidoUpdate(BaseModel):
+    estado: Optional[str] = Field(None, pattern="^(pendiente|contactado|propuesta_enviada|cerrado|pagado|rechazado)$")
+    comision_pagada: Optional[int] = None
+    notas: Optional[str] = None
 
-        conn = sqlite3.connect(db_path)
-        c = conn.cursor()
-        c.execute('''
-            CREATE TABLE IF NOT EXISTS referidos (
-                id TEXT PRIMARY KEY,
-                referente_id TEXT,
-                referido_nombre TEXT,
-                referido_telefono TEXT,
-                codigo TEXT UNIQUE,
-                estado TEXT DEFAULT 'pendiente',
-                descuento_aplicado INTEGER DEFAULT 0,
-                fecha_registro TEXT,
-                fecha_cierre TEXT
+COMISIONES = {
+    "presencia": 50,
+    "whatsapp_pro": 100,
+    "automatizacion": 200,
+    "completo": 300
+}
+
+def generar_codigo_referido(telefono: str) -> str:
+    """Genera un código único de referido basado en el teléfono."""
+    hash_base = hashlib.sha256(telefono.encode()).hexdigest()[:8]
+    return f"ISA-{hash_base.upper()}"
+
+@router.post("/")
+async def crear_referido(data: ReferidoCreate, request: Request):
+    db = request.app.state.db
+    codigo = generar_codigo_referido(data.telefono_referidor)
+
+    async with db.acquire() as conn:
+        # Verificar si ya existe referido con ese teléfono
+        existing = await conn.fetchval(
+            "SELECT id FROM referidos WHERE telefono_referido = $1",
+            data.telefono_referido
+        )
+        if existing:
+            raise HTTPException(status_code=400, detail="Este negocio ya fue referido anteriormente")
+
+        row = await conn.fetchrow(
+            """INSERT INTO referidos 
+               (codigo, nombre_referidor, telefono_referidor, email_referidor,
+                nombre_referido, telefono_referido, tipo_negocio_referido, notas, estado)
+               VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+               RETURNING id, codigo, fecha_creacion""",
+            codigo, data.nombre_referidor, data.telefono_referidor, data.email_referidor,
+            data.nombre_referido, data.telefono_referido, data.tipo_negocio_referido,
+            data.notas, "pendiente"
+        )
+
+    return {
+        "status": "success",
+        "referido_id": row["id"],
+        "codigo": row["codigo"],
+        "fecha_creacion": row["fecha_creacion"].isoformat(),
+        "mensaje": f"Referido registrado. Código: {row['codigo']}"
+    }
+
+@router.get("/")
+async def listar_referidos(request: Request, estado: Optional[str] = None, limit: int = 100, offset: int = 0):
+    db = request.app.state.db
+    async with db.acquire() as conn:
+        if estado:
+            rows = await conn.fetch(
+                "SELECT * FROM referidos WHERE estado = $1 ORDER BY fecha_creacion DESC LIMIT $2 OFFSET $3",
+                estado, limit, offset
             )
-        ''')
+            total = await conn.fetchval("SELECT COUNT(*) FROM referidos WHERE estado = $1", estado)
+        else:
+            rows = await conn.fetch(
+                "SELECT * FROM referidos ORDER BY fecha_creacion DESC LIMIT $1 OFFSET $2",
+                limit, offset
+            )
+            total = await conn.fetchval("SELECT COUNT(*) FROM referidos")
 
-        ref_id = str(uuid.uuid4())[:8]
-        c.execute('''INSERT INTO referidos VALUES (?,?,?,?,?,?,?,?,?)''',
-                  (ref_id, referente_id, referido_nombre, referido_telefono, 
-                   codigo, 'pendiente', 0, now, None))
-        conn.commit()
-        conn.close()
+    return {
+        "referidos": [dict(r) for r in rows],
+        "total": total,
+        "comisiones_disponibles": COMISIONES
+    }
 
-        return {
-            "referido_id": ref_id,
-            "codigo": codigo,
-            "estado": "pendiente",
-            "mensaje": f"Referido registrado. Descuento de {SistemaReferidos.DESCUENTO_REFERIDO} MAD al cerrar."
-        }
+@router.get("/{referido_id}")
+async def obtener_referido(referido_id: int, request: Request):
+    db = request.app.state.db
+    async with db.acquire() as conn:
+        row = await conn.fetchrow("SELECT * FROM referidos WHERE id = $1", referido_id)
+    if not row:
+        raise HTTPException(status_code=404, detail="Referido no encontrado")
+    return dict(row)
 
-    @staticmethod
-    def cerrar_referido(codigo, db_path="orchestrator_isa.db"):
-        now = datetime.now().isoformat()
-        conn = sqlite3.connect(db_path)
-        c = conn.cursor()
-        c.execute("SELECT * FROM referidos WHERE codigo = ?", (codigo,))
-        referido = c.fetchone()
-        if not referido:
-            conn.close()
-            return {"error": "Codigo no encontrado"}
-        c.execute("UPDATE referidos SET estado=?, descuento_aplicado=?, fecha_cierre=? WHERE codigo=?",
-                  ('cerrado', SistemaReferidos.DESCUENTO_REFERIDO, now, codigo))
-        conn.commit()
-        conn.close()
-        return {"codigo": codigo, "descuento": SistemaReferidos.DESCUENTO_REFERIDO, "estado": "cerrado"}
+@router.patch("/{referido_id}")
+async def actualizar_referido(referido_id: int, data: ReferidoUpdate, request: Request):
+    db = request.app.state.db
+    fields = {k: v for k, v in data.dict(exclude_unset=True).items() if v is not None}
+    if not fields:
+        raise HTTPException(status_code=400, detail="No hay campos para actualizar")
 
-SPEECH_REFERIDOS = """Hola [Nombre], Espero que todo vaya bien. Vi que ya recibio mensajes gracias al sistema. 
-¿Conoce otros dueños de negocio que pierdan clientes? Si me recomienda y cierra, le descuento 100 MAD."""
+    set_clause = ", ".join([f"{k} = ${i+2}" for i, k in enumerate(fields.keys())])
 
-if __name__ == "__main__":
-    print("Sistema de Referidos - Descuento:", SistemaReferidos.DESCUENTO_REFERIDO, "MAD")
+    async with db.acquire() as conn:
+        await conn.execute(
+            f"UPDATE referidos SET {set_clause}, fecha_actualizacion = NOW() WHERE id = $1",
+            referido_id, *fields.values()
+        )
+        row = await conn.fetchrow("SELECT * FROM referidos WHERE id = $1", referido_id)
+
+    return dict(row)
+
+@router.get("/estadisticas/resumen")
+async def estadisticas_referidos(request: Request):
+    db = request.app.state.db
+    async with db.acquire() as conn:
+        total = await conn.fetchval("SELECT COUNT(*) FROM referidos")
+        pendientes = await conn.fetchval("SELECT COUNT(*) FROM referidos WHERE estado = 'pendiente'")
+        contactados = await conn.fetchval("SELECT COUNT(*) FROM referidos WHERE estado = 'contactado'")
+        cerrados = await conn.fetchval("SELECT COUNT(*) FROM referidos WHERE estado = 'cerrado'")
+        pagados = await conn.fetchval("SELECT COUNT(*) FROM referidos WHERE estado = 'pagado'")
+        comision_total = await conn.fetchval("SELECT COALESCE(SUM(comision_pagada), 0) FROM referidos")
+
+        # Top referidores
+        top = await conn.fetch(
+            """SELECT nombre_referidor, telefono_referidor, COUNT(*) as total, SUM(comision_pagada) as comision
+               FROM referidos GROUP BY nombre_referidor, telefono_referidor ORDER BY total DESC LIMIT 10"""
+        )
+
+    return {
+        "total_referidos": total,
+        "pendientes": pendientes,
+        "contactados": contactados,
+        "cerrados": cerrados,
+        "pagados": pagados,
+        "comision_total_pagada": comision_total,
+        "tasa_conversion": round(cerrados / total, 3) if total > 0 else 0,
+        "top_referidores": [dict(r) for r in top]
+    }
+
+@router.get("/codigo/{codigo}")
+async def verificar_codigo(codigo: str, request: Request):
+    db = request.app.state.db
+    async with db.acquire() as conn:
+        row = await conn.fetchrow("SELECT * FROM referidos WHERE codigo = $1", codigo)
+    if not row:
+        raise HTTPException(status_code=404, detail="Código no válido")
+    return {
+        "valido": True,
+        "referidor": row["nombre_referidor"],
+        "estado": row["estado"],
+        "comision": COMISIONES.get(row.get("pack_contratado", ""), 0)
+    }

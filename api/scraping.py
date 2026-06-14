@@ -1,140 +1,220 @@
-#!/usr/bin/env python3
-"""
-Orchestrator ISA - Módulo de Scraping (FASE 0)
-Radar de Leads: Extrae negocios de Google Maps y los clasifica
-"""
-
-import csv
+from fastapi import APIRouter, HTTPException, Request, BackgroundTasks
+from pydantic import BaseModel, Field
+from typing import Optional, List
+from datetime import datetime
+import subprocess
+import os
 import json
-import re
-from typing import List, Dict
-from enum import Enum
 
-class CasoNegocio(str, Enum):
-    FANTASMA = "A"           # Sin web, sin RRSS, sin WhatsApp
-    INFLUENCER_COJO = "B"    # Solo RRSS, sin web
-    DESACTUALIZADO = "C"     # Web vieja/mala
-    WHATSAPP_CAOTICO = "D"   # WA sin catálogo, sin estructura
-    MINA_ORO = "E"           # +40 reseñas, sin web
-    DIGITALIZADO = "F"       # Ya tiene todo (upsell)
-    CLIENTE_ISA = "G"        # Ya es cliente
+router = APIRouter(prefix="/api/scraping", tags=["scraping"])
 
-class LeadScraper:
-    """Clasifica negocios según su presencia digital"""
+class ScrapingJob(BaseModel):
+    location: str = Field("tetouan", pattern="^(tetouan|tanger|chefchaouen|asilah|larache|marrakech|casablanca|rabat)$")
+    query: str = Field("restaurantes", min_length=2)
+    max_results: int = Field(50, ge=10, le=200)
+    categoria: Optional[str] = None
 
-    @staticmethod
-    def clasificar(nombre: str, tiene_web: bool, tiene_rrss: bool, 
-                   tiene_whatsapp: bool, tiene_catalogo: bool,
-                   reseñas: int, web_vieja: bool = False) -> Dict:
-        """
-        Clasifica un negocio en casos A-G
+class ScrapingStatus(BaseModel):
+    job_id: str
+    estado: str  # pendiente, ejecutando, completado, error
+    location: str
+    query: str
+    resultados: Optional[int] = None
+    archivo_csv: Optional[str] = None
+    archivo_json: Optional[str] = None
+    error: Optional[str] = None
+    fecha_inicio: datetime
+    fecha_fin: Optional[datetime] = None
 
-        Returns:
-            dict con caso, prioridad, speech_recomendado, pack_sugerido
-        """
+# Almacenamiento en memoria de jobs (en producción usar Redis o DB)
+jobs = {}
 
-        # Lógica de clasificación
-        if reseñas >= 40 and not tiene_web:
-            caso = CasoNegocio.MINA_ORO
-            prioridad = "🔴 URGENTE"
-            speech = f"{nombre} tiene {reseñas} reseñas en Google. Eso significa que la gente YA lo busca y lo encuentra. Pero cuando quieren más información... no hay web. Está perdiendo clientes que ya lo eligieron."
-            pack = "completo"
+def generar_job_id() -> str:
+    return f"job_{datetime.now().strftime('%Y%m%d_%H%M%S')}_{os.urandom(4).hex()}"
 
-        elif not tiene_web and not tiene_rrss and not tiene_whatsapp:
-            caso = CasoNegocio.FANTASMA
-            prioridad = "🔴 URGENTE"
-            speech = f"{nombre} no existe en internet. Su competencia se lo está comiendo. Empecemos con lo básico: Google Maps + WhatsApp Business."
-            pack = "presencia"
+@router.post("/ejecutar")
+async def ejecutar_scraping(job: ScrapingJob, background_tasks: BackgroundTasks, request: Request):
+    job_id = generar_job_id()
+    data_dir = os.getenv("DATA_DIR", "./data")
 
-        elif tiene_rrss and not tiene_web:
-            caso = CasoNegocio.INFLUENCER_COJO
-            prioridad = "🔴 URGENTE"
-            speech = f"{nombre} tiene comunidad en redes, pero depende 100% de Mark Zuckerberg. Si le cierran la cuenta, pierde todo. Necesita su 'local propio' en internet."
-            pack = "whatsapp_pro"
+    jobs[job_id] = {
+        "job_id": job_id,
+        "estado": "pendiente",
+        "location": job.location,
+        "query": job.query,
+        "resultados": None,
+        "archivo_csv": None,
+        "archivo_json": None,
+        "error": None,
+        "fecha_inicio": datetime.now(),
+        "fecha_fin": None
+    }
 
-        elif tiene_web and web_vieja:
-            caso = CasoNegocio.DESACTUALIZADO
-            prioridad = "🟠 MEDIO"
-            speech = f"{nombre} tiene web pero parece de 2015. No es responsive, no tiene HTTPS. Eso espanta clientes. Rediseño completo hacia el Pack Orgánico."
-            pack = "completo"
+    # Ejecutar en background
+    background_tasks.add_task(
+        _ejecutar_scraper,
+        job_id=job_id,
+        location=job.location,
+        query=job.query,
+        max_results=job.max_results,
+        data_dir=data_dir
+    )
 
-        elif tiene_whatsapp and not tiene_catalogo:
-            caso = CasoNegocio.WHATSAPP_CAOTICO
-            prioridad = "🟠 MEDIO"
-            speech = f"{nombre} usa WhatsApp pero responde los mismos mensajes todos los días. Pierde 2-3 horas diarias. Automatice el 80% con catálogo y respuestas rápidas."
-            pack = "whatsapp_pro"
+    return {
+        "status": "accepted",
+        "job_id": job_id,
+        "mensaje": f"Scraping iniciado para '{job.query}' en {job.location}",
+        "check_status": f"/api/scraping/status/{job_id}"
+    }
 
-        elif tiene_web and tiene_rrss and tiene_whatsapp and tiene_catalogo:
-            caso = CasoNegocio.DIGITALIZADO
-            prioridad = "🟢 UPSELL"
-            speech = f"{nombre} ya está digitalizado. Ahora escalemos: automatización con IA, SEO local, contenido mensual."
-            pack = "automatizacion"
+async def _ejecutar_scraper(job_id: str, location: str, query: str, max_results: int, data_dir: str):
+    jobs[job_id]["estado"] = "ejecutando"
 
-        else:
-            caso = CasoNegocio.FANTASMA
-            prioridad = "🔴 URGENTE"
-            speech = f"{nombre} necesita presencia digital urgente."
-            pack = "presencia"
+    try:
+        # Asegurar directorio de datos
+        os.makedirs(data_dir, exist_ok=True)
 
-        return {
-            "caso": caso.value,
-            "nombre": caso.name.replace("_", " ").title(),
-            "prioridad": prioridad,
-            "speech": speech,
-            "pack_sugerido": pack,
-            "score_potencial": 10 if caso in [CasoNegocio.MINA_ORO, CasoNegocio.FANTASMA] else 
-                              7 if caso in [CasoNegocio.INFLUENCER_COJO, CasoNegocio.WHATSAPP_CAOTICO] else
-                              5 if caso == CasoNegocio.DESACTUALIZADO else 3
-        }
+        # Ejecutar scraper Node.js
+        result = subprocess.run(
+            [
+                "node", "scripts/scraper.js",
+                "--location", location,
+                "--query", query,
+                "--max-results", str(max_results),
+                "--output-dir", data_dir,
+                "--headless", "true"
+            ],
+            capture_output=True,
+            text=True,
+            timeout=300  # 5 minutos máximo
+        )
 
-    @staticmethod
-    def procesar_csv(filepath: str) -> List[Dict]:
-        """Procesa CSV de Google Maps y clasifica cada negocio"""
-        resultados = []
+        if result.returncode != 0:
+            jobs[job_id]["estado"] = "error"
+            jobs[job_id]["error"] = result.stderr
+            jobs[job_id]["fecha_fin"] = datetime.now()
+            return
 
-        with open(filepath, 'r', encoding='utf-8') as f:
-            reader = csv.DictReader(f)
-            for row in reader:
-                # Detectar campos del CSV
-                nombre = row.get('title', row.get('name', 'Desconocido'))
-                telefono = row.get('phone', '')
-                web = row.get('website', '')
-                reseñas = int(row.get('reviews', '0').replace(',', '')) if row.get('reviews') else 0
+        # Buscar archivos generados
+        timestamp = datetime.now().strftime("%Y%m%d")
+        csv_files = [f for f in os.listdir(data_dir) if f.startswith(f"leads_{query}_{location}_") and f.endswith(".csv")]
+        json_files = [f for f in os.listdir(data_dir) if f.startswith(f"leads_{query}_{location}_") and f.endswith(".json")]
 
-                # Inferir presencia digital
-                tiene_web = bool(web and web != '')
-                tiene_rrss = bool(row.get('facebook', '') or row.get('instagram', ''))
-                tiene_whatsapp = telefono.startswith('+212 6') or telefono.startswith('+212 7')
-                tiene_catalogo = False  # Requiere verificación manual
+        if csv_files:
+            csv_files.sort(key=lambda x: os.path.getmtime(os.path.join(data_dir, x)), reverse=True)
+            jobs[job_id]["archivo_csv"] = csv_files[0]
 
-                clasificacion = LeadScraper.clasificar(
-                    nombre, tiene_web, tiene_rrss, tiene_whatsapp, 
-                    tiene_catalogo, reseñas
-                )
+        if json_files:
+            json_files.sort(key=lambda x: os.path.getmtime(os.path.join(data_dir, x)), reverse=True)
+            jobs[job_id]["archivo_json"] = json_files[0]
 
-                resultados.append({
-                    "nombre": nombre,
-                    "telefono": telefono,
-                    "direccion": row.get('address', ''),
-                    "clasificacion": clasificacion,
-                    "raw_data": row
+            # Contar resultados
+            try:
+                with open(os.path.join(data_dir, json_files[0]), 'r') as f:
+                    data = json.load(f)
+                    jobs[job_id]["resultados"] = len(data)
+            except:
+                pass
+
+        jobs[job_id]["estado"] = "completado"
+        jobs[job_id]["fecha_fin"] = datetime.now()
+
+    except subprocess.TimeoutExpired:
+        jobs[job_id]["estado"] = "error"
+        jobs[job_id]["error"] = "Timeout: El scraping tardó más de 5 minutos"
+        jobs[job_id]["fecha_fin"] = datetime.now()
+    except Exception as e:
+        jobs[job_id]["estado"] = "error"
+        jobs[job_id]["error"] = str(e)
+        jobs[job_id]["fecha_fin"] = datetime.now()
+
+@router.get("/status/{job_id}")
+async def obtener_status(job_id: str):
+    if job_id not in jobs:
+        raise HTTPException(status_code=404, detail="Job no encontrado")
+    return jobs[job_id]
+
+@router.get("/jobs")
+async def listar_jobs(estado: Optional[str] = None, limit: int = 20):
+    lista = list(jobs.values())
+    if estado:
+        lista = [j for j in lista if j["estado"] == estado]
+    lista.sort(key=lambda x: x["fecha_inicio"], reverse=True)
+    return {"jobs": lista[:limit], "total": len(lista)}
+
+@router.get("/resultados/{job_id}")
+async def obtener_resultados(job_id: str):
+    if job_id not in jobs:
+        raise HTTPException(status_code=404, detail="Job no encontrado")
+
+    job = jobs[job_id]
+    if job["estado"] != "completado":
+        raise HTTPException(status_code=400, detail="Job no completado aún")
+
+    data_dir = os.getenv("DATA_DIR", "./data")
+
+    # Leer JSON si existe
+    if job.get("archivo_json"):
+        json_path = os.path.join(data_dir, job["archivo_json"])
+        try:
+            with open(json_path, 'r') as f:
+                resultados = json.load(f)
+            return {
+                "job_id": job_id,
+                "total_resultados": len(resultados),
+                "resultados": resultados
+            }
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=f"Error leyendo resultados: {str(e)}")
+
+    raise HTTPException(status_code=404, detail="No hay archivo de resultados")
+
+@router.get("/archivos")
+async def listar_archivos(request: Request):
+    data_dir = os.getenv("DATA_DIR", "./data")
+    try:
+        archivos = []
+        for f in os.listdir(data_dir):
+            if f.startswith("leads_") and (f.endswith(".csv") or f.endswith(".json")):
+                stat = os.stat(os.path.join(data_dir, f))
+                archivos.append({
+                    "nombre": f,
+                    "tipo": "csv" if f.endswith(".csv") else "json",
+                    "tamano_kb": round(stat.st_size / 1024, 2),
+                    "fecha": datetime.fromtimestamp(stat.st_mtime).isoformat(),
+                    "location": f.split("_")[2] if len(f.split("_")) > 2 else "unknown",
+                    "query": f.split("_")[1] if len(f.split("_")) > 1 else "unknown"
                 })
 
-        # Ordenar por prioridad
-        prioridad_order = {"🔴 URGENTE": 0, "🟠 MEDIO": 1, "🟢 UPSELL": 2}
-        resultados.sort(key=lambda x: prioridad_order.get(x["clasificacion"]["prioridad"], 3))
+        archivos.sort(key=lambda x: x["fecha"], reverse=True)
+        return {"archivos": archivos, "total": len(archivos)}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
-        return resultados
+@router.delete("/archivos/{nombre}")
+async def eliminar_archivo(nombre: str):
+    data_dir = os.getenv("DATA_DIR", "./data")
+    filepath = os.path.join(data_dir, nombre)
 
-# ─── EJEMPLO DE USO ────────────────────────────────────────
-if __name__ == "__main__":
-    # Ejemplo manual
-    resultado = LeadScraper.clasificar(
-        nombre="Panadería Al Hizam",
-        tiene_web=False,
-        tiene_rrss=True,
-        tiene_whatsapp=True,
-        tiene_catalogo=False,
-        reseñas=52
-    )
-    print(json.dumps(resultado, indent=2, ensure_ascii=False))
+    # Seguridad: verificar que está en el directorio de datos
+    if not os.path.abspath(filepath).startswith(os.path.abspath(data_dir)):
+        raise HTTPException(status_code=403, detail="Ruta no permitida")
+
+    if not os.path.exists(filepath):
+        raise HTTPException(status_code=404, detail="Archivo no encontrado")
+
+    os.remove(filepath)
+    return {"status": "deleted", "archivo": nombre}
+
+@router.get("/config")
+async def obtener_config():
+    return {
+        "locations_disponibles": ["tetouan", "tanger", "chefchaouen", "asilah", "larache", "marrakech", "casablanca", "rabat"],
+        "queries_sugeridos": [
+            "restaurantes", "cafés", "salón de belleza", "barbería", "tienda de ropa",
+            "farmacia", "clínica dental", "gimnasio", "hotel", "riads"
+        ],
+        "max_results_default": 50,
+        "max_results_maximo": 200,
+        "timeout_segundos": 300
+    }

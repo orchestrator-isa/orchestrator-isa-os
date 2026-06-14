@@ -1,174 +1,31 @@
 <!DOCTYPE html>
 <html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Speeches - Orchestrator ISA</title>
-    <link rel="icon" type="image/png" href="/static/icon-192.png">
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Segoe UI', system-ui, sans-serif; background: #0f172a; color: white; min-height: 100vh; }
-        .header { background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); border-bottom: 1px solid #334155; padding: 20px 30px; display: flex; justify-content: space-between; align-items: center; }
-        .header h1 { font-size: 1.5rem; background: linear-gradient(90deg, #00E5FF, #00FF88); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
-        .header-nav a { color: #94a3b8; text-decoration: none; margin-left: 20px; font-size: 0.9rem; transition: color 0.3s; }
-        .header-nav a:hover { color: #00E5FF; }
-        .container { max-width: 1200px; margin: 0 auto; padding: 30px; }
-        .back-link { color: #00E5FF; text-decoration: none; display: inline-flex; align-items: center; gap: 5px; margin-bottom: 20px; }
-        .section-title { font-size: 1.8rem; margin-bottom: 10px; color: #00E5FF; }
-        .section-subtitle { color: #94a3b8; margin-bottom: 30px; }
-        .speech-card { background: #1e293b; border: 1px solid #334155; border-radius: 12px; padding: 25px; margin-bottom: 20px; }
-        .speech-card h3 { color: #00FF88; margin-bottom: 15px; font-size: 1.2rem; display: flex; align-items: center; gap: 10px; }
-        .speech-text { color: #cbd5e1; font-size: 1rem; line-height: 1.8; background: #0f172a; padding: 20px; border-radius: 8px; border-left: 3px solid #00E5FF; }
-        .speech-meta { display: flex; gap: 15px; margin-top: 15px; flex-wrap: wrap; }
-        .meta-tag { background: rgba(0, 229, 255, 0.1); color: #00E5FF; padding: 5px 12px; border-radius: 20px; font-size: 0.8rem; }
-        .copy-btn { background: #334155; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 0.85rem; transition: all 0.3s; }
-        .copy-btn:hover { background: #00E5FF; color: #0f172a; }
-        .audio-section { background: #1e293b; border: 1px solid #334155; border-radius: 12px; padding: 25px; margin-bottom: 20px; }
-        .audio-section h3 { color: #00FF88; margin-bottom: 15px; }
-        .audio-script { color: #cbd5e1; line-height: 1.8; white-space: pre-line; background: #0f172a; padding: 20px; border-radius: 8px; }
-    </style>
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Speeches - Orchestrator ISA</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',sans-serif;background:linear-gradient(135deg,#0f172a,#1a1a2e);color:#fff;min-height:100vh;padding:2rem}
+.container{max-width:1200px;margin:0 auto}
+header{background:rgba(0,229,255,0.08);padding:1.5rem;border-radius:16px;margin-bottom:1.5rem;border-left:4px solid #00E5FF}
+h1{color:#00E5FF}
+.nav{display:flex;gap:0.75rem;margin-bottom:2rem;flex-wrap:wrap}
+.nav a{color:#fff;text-decoration:none;padding:0.6rem 1.2rem;background:rgba(0,229,255,0.15);border-radius:8px;border:1px solid rgba(0,229,255,0.2);transition:all .3s}
+.nav a:hover{background:#00E5FF;color:#0f172a}
+.content{background:rgba(30,41,59,0.7);padding:3rem;border-radius:16px;text-align:center;color:#94a3b8}
+</style>
 </head>
 <body>
-    <div class="header">
-        <h1>🚀 ORCHESTRATOR ISA</h1>
-        <div class="header-nav">
-            <a href="/portal">🏠 Inicio</a>
-            <a href="/portal/validador">⚡ Validador</a>
-            <a href="/portal/leads">👥 Leads</a>
-            <a href="/portal/dashboard">📊 Dashboard</a>
-        </div>
-    </div>
-    <div class="container">
-        <a href="/portal" class="back-link">← Volver al Portal</a>
-        <h2 class="section-title">🎤 Speeches por Tipo de Negocio</h2>
-        <p class="section-subtitle">Copia y pega estos speeches personalizados para cada sector</p>
-
-        <div class="speech-card">
-            <h3>🦷 Clínica Dental</h3>
-            <div class="speech-text" id="speech-dental">
-"El 60% de pacientes nuevos buscan 'dentista cerca de mí' en Google. Si no aparece en Maps con fotos reales de su consultorio, esos pacientes van a su competencia. Con nuestro Pack Presencia, en 24 horas estará visible. Con WhatsApp Pro, sus pacientes podrán agendar citas automáticamente a cualquier hora."
-            </div>
-            <div class="speech-meta">
-                <span class="meta-tag">Score: 5-7</span>
-                <span class="meta-tag">Pack: WhatsApp Pro</span>
-                <button class="copy-btn" onclick="copyText('speech-dental')">📋 Copiar</button>
-            </div>
-        </div>
-
-        <div class="speech-card">
-            <h3>💇 Salón de Belleza</h3>
-            <div class="speech-text" id="speech-belleza">
-"Sus clientas le escriben a las 11pm preguntando precios. A las 8am ya encontraron otra peluquería que respondió. Con WhatsApp Pro, responde automáticamente 24/7 con precios, disponibilidad y promociones. Nunca más pierda una clienta por no responder a tiempo."
-            </div>
-            <div class="speech-meta">
-                <span class="meta-tag">Score: 5-7</span>
-                <span class="meta-tag">Pack: WhatsApp Pro</span>
-                <button class="copy-btn" onclick="copyText('speech-belleza')">📋 Copiar</button>
-            </div>
-        </div>
-
-        <div class="speech-card">
-            <h3>🍽️ Restaurante</h3>
-            <div class="speech-text" id="speech-restaurante">
-"El 70% de los pedidos empiezan por WhatsApp. Si tarda más de 5 minutos en responder, el cliente ya pidió en otro lado. Con nuestro catálogo digital + respuestas automáticas, sus clientes ven el menú con fotos, hacen el pedido y reciben confirmación instantánea. El Pack Completo incluye contenido mensual para Instagram para que nunca se quede sin clientes."
-            </div>
-            <div class="speech-meta">
-                <span class="meta-tag">Score: 8-10</span>
-                <span class="meta-tag">Pack: Completo</span>
-                <button class="copy-btn" onclick="copyText('speech-restaurante')">📋 Copiar</button>
-            </div>
-        </div>
-
-        <div class="speech-card">
-            <h3>☕ Café</h3>
-            <div class="speech-text" id="speech-cafe">
-"Los clientes buscan cafeterías en Google Maps a toda hora. Sin ficha optimizada con fotos de sus pasteles y horarios actualizados, aparece su competencia primero. Con Pack Presencia, en 24 horas estará visible. Con WhatsApp Pro, reciba pedidos para llevar automáticamente."
-            </div>
-            <div class="speech-meta">
-                <span class="meta-tag">Score: 3-7</span>
-                <span class="meta-tag">Pack: Presencia / WhatsApp Pro</span>
-                <button class="copy-btn" onclick="copyText('speech-cafe')">📋 Copiar</button>
-            </div>
-        </div>
-
-        <div class="speech-card">
-            <h3>🏥 Consultorio Médico</h3>
-            <div class="speech-text" id="speech-medico">
-"Un paciente con dolor busca 'médico urgente Tetuán' a las 2am. Si no aparece en Google o su WhatsApp está apagado, pierde esa consulta. Con Pack Presencia + WhatsApp Pro, estará disponible 24/7 para captar pacientes nuevos."
-            </div>
-            <div class="speech-meta">
-                <span class="meta-tag">Score: 5-7</span>
-                <span class="meta-tag">Pack: WhatsApp Pro</span>
-                <button class="copy-btn" onclick="copyText('speech-medico')">📋 Copiar</button>
-            </div>
-        </div>
-
-        <div class="speech-card">
-            <h3>🔧 Taller Mecánico</h3>
-            <div class="speech-text" id="speech-taller">
-"Los talleres con web y WhatsApp profesional cobran 20% más porque generan confianza desde el primer mensaje. Tarjeta digital + catálogo de servicios con precios transparentes = más clientes que confían desde el primer contacto."
-            </div>
-            <div class="speech-meta">
-                <span class="meta-tag">Score: 5-7</span>
-                <span class="meta-tag">Pack: WhatsApp Pro</span>
-                <button class="copy-btn" onclick="copyText('speech-taller')">📋 Copiar</button>
-            </div>
-        </div>
-
-        <div class="speech-card">
-            <h3>💊 Farmacia</h3>
-            <div class="speech-text" id="speech-farmacia">
-"La gente busca medicamentos por WhatsApp a toda hora. Sin respuesta automática, van a la farmacia de la esquina. Con WhatsApp Pro, responda automáticamente con disponibilidad, precios y alternativas. Catálogo de productos más consultados siempre actualizado."
-            </div>
-            <div class="speech-meta">
-                <span class="meta-tag">Score: 5-7</span>
-                <span class="meta-tag">Pack: WhatsApp Pro</span>
-                <button class="copy-btn" onclick="copyText('speech-farmacia')">📋 Copiar</button>
-            </div>
-        </div>
-
-        <div class="speech-card">
-            <h3>🏋️ Gimnasio</h3>
-            <div class="speech-text" id="speech-gimnasio">
-"Enero es su mes dorado: todo el mundo quiere inscribirse. Pero si su WhatsApp se satura o no responde en 5 minutos, pierde 3 de cada 10 inscripciones. Con Automatización, el bot captura leads, responde preguntas frecuentes y agenda visitas automáticamente."
-            </div>
-            <div class="speech-meta">
-                <span class="meta-tag">Score: 8-10</span>
-                <span class="meta-tag">Pack: Automatización / Completo</span>
-                <button class="copy-btn" onclick="copyText('speech-gimnasio')">📋 Copiar</button>
-            </div>
-        </div>
-
-        <h3 style="color: #00FF88; margin: 30px 0 15px 0;">🎙️ Script de Audio de Venta (30 segundos)</h3>
-        <div class="audio-section">
-            <h3>🎯 Script General de Apertura</h3>
-            <div class="audio-script">
-"Buenos días, soy [Tu Nombre] de Orchestrator ISA. Estoy ayudando a negocios de [sector] en Tetuán a conseguir más clientes por WhatsApp y Google. Vi que [nombre negocio] tiene potencial pero podría aparecer mucho más en internet. ¿Tiene 5 minutos para una auditoría gratuita? Le digo exactamente qué está perdiendo y cómo recuperarlo. No es un costo, es una inversión que se paga sola en el primer cliente nuevo."
-            </div>
-        </div>
-
-        <div class="audio-section">
-            <h3>📞 Script de Seguimiento D2</h3>
-            <div class="audio-script">
-"Hola [nombre], le escribo para saber si revisó la propuesta que le envié. Tengo una pregunta: ¿cuántos clientes nuevos cree que está perdiendo esta semana por no aparecer en Google? Solo necesito un sí para empezar hoy mismo."
-            </div>
-        </div>
-
-        <div class="audio-section">
-            <h3>💰 Script de Cierre</h3>
-            <div class="audio-script">
-"[Nombre], veo que está listo para crecer. Le propongo empezar con el Pack [X] hoy mismo. En 48 horas tendrá su catálogo digital funcionando. El primer cliente que le llegue por WhatsApp ya paga la inversión. ¿Le mando el contrato por WhatsApp ahora mismo?"
-            </div>
-        </div>
-    </div>
-
-    <script>
-        function copyText(id) {
-            const text = document.getElementById(id).innerText;
-            navigator.clipboard.writeText(text).then(() => {
-                alert('Speech copiado al portapapeles');
-            });
-        }
-    </script>
+<div class="container">
+<header><h1>🔧 Speeches</h1><p>Módulo en desarrollo</p></header>
+<nav class="nav">
+<a href="/portal">🏠 Inicio</a>
+<a href="/portal/dashboard">📊 Dashboard</a>
+<a href="/portal/leads">👥 Leads</a>
+</nav>
+<div class="content">
+<h2>🚧 En construcción</h2>
+<p>Este módulo está siendo desarrollado. Vuelve pronto.</p>
+</div>
+</div>
 </body>
 </html>

@@ -1,158 +1,31 @@
 <!DOCTYPE html>
 <html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Landing Pages - Orchestrator ISA</title>
-    <link rel="icon" type="image/png" href="/static/icon-192.png">
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Segoe UI', system-ui, sans-serif; background: #0f172a; color: white; min-height: 100vh; }
-        .header { background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); border-bottom: 1px solid #334155; padding: 20px 30px; display: flex; justify-content: space-between; align-items: center; }
-        .header h1 { font-size: 1.5rem; background: linear-gradient(90deg, #00E5FF, #00FF88); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
-        .header-nav a { color: #94a3b8; text-decoration: none; margin-left: 20px; font-size: 0.9rem; transition: color 0.3s; }
-        .header-nav a:hover { color: #00E5FF; }
-        .container { max-width: 1200px; margin: 0 auto; padding: 30px; }
-        .back-link { color: #00E5FF; text-decoration: none; display: inline-flex; align-items: center; gap: 5px; margin-bottom: 20px; }
-        .section-title { font-size: 1.8rem; margin-bottom: 10px; color: #00E5FF; }
-        .section-subtitle { color: #94a3b8; margin-bottom: 30px; }
-        .landing-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
-        .landing-card { background: #1e293b; border: 1px solid #334155; border-radius: 12px; padding: 25px; }
-        .landing-card h3 { color: #00FF88; margin-bottom: 15px; }
-        .landing-card p { color: #94a3b8; font-size: 0.9rem; line-height: 1.6; margin-bottom: 15px; }
-        .landing-card ul { color: #cbd5e1; font-size: 0.9rem; line-height: 1.8; margin-left: 20px; }
-        .landing-preview { background: #0f172a; border: 1px solid #334155; border-radius: 8px; padding: 15px; margin-top: 15px; }
-        .preview-title { color: #00E5FF; font-size: 0.85rem; margin-bottom: 10px; }
-        .preview-text { color: #94a3b8; font-size: 0.8rem; line-height: 1.6; }
-        .badge { display: inline-block; background: rgba(0, 229, 255, 0.1); color: #00E5FF; padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; margin-right: 5px; }
-        .price-tag { font-size: 1.3rem; color: #00FF88; font-weight: 700; margin: 10px 0; }
-        .price-tag span { color: #94a3b8; font-size: 0.9rem; font-weight: 400; }
-    </style>
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Landing - Orchestrator ISA</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',sans-serif;background:linear-gradient(135deg,#0f172a,#1a1a2e);color:#fff;min-height:100vh;padding:2rem}
+.container{max-width:1200px;margin:0 auto}
+header{background:rgba(0,229,255,0.08);padding:1.5rem;border-radius:16px;margin-bottom:1.5rem;border-left:4px solid #00E5FF}
+h1{color:#00E5FF}
+.nav{display:flex;gap:0.75rem;margin-bottom:2rem;flex-wrap:wrap}
+.nav a{color:#fff;text-decoration:none;padding:0.6rem 1.2rem;background:rgba(0,229,255,0.15);border-radius:8px;border:1px solid rgba(0,229,255,0.2);transition:all .3s}
+.nav a:hover{background:#00E5FF;color:#0f172a}
+.content{background:rgba(30,41,59,0.7);padding:3rem;border-radius:16px;text-align:center;color:#94a3b8}
+</style>
 </head>
 <body>
-    <div class="header">
-        <h1>🚀 ORCHESTRATOR ISA</h1>
-        <div class="header-nav">
-            <a href="/portal">🏠 Inicio</a>
-            <a href="/portal/validador">⚡ Validador</a>
-            <a href="/portal/leads">👥 Leads</a>
-            <a href="/portal/dashboard">📊 Dashboard</a>
-        </div>
-    </div>
-    <div class="container">
-        <a href="/portal" class="back-link">← Volver al Portal</a>
-        <h2 class="section-title">🌐 Landing Pages</h2>
-        <p class="section-subtitle">Landing pages por pack y propósito de captación</p>
-
-        <div class="landing-grid">
-            <div class="landing-card">
-                <h3>📦 Landing Pack Presencia</h3>
-                <span class="badge">Google Maps</span>
-                <span class="badge">WhatsApp Basic</span>
-                <div class="price-tag">250 MAD <span>+ 150 MAD/mes</span></div>
-                <p>Para negocios que no aparecen en Google. Enfocada en la urgencia de ser encontrado.</p>
-                <ul>
-                    <li>Headline: "¿Sus clientes no lo encuentran en Google?"</li>
-                    <li>Beneficio principal: Aparecer en Maps en 24h</li>
-                    <li>CTA: "Auditoría gratuita de 5 min"</li>
-                    <li>Social proof: "+50 negocios en Tetuán ya confían"</li>
-                </ul>
-                <div class="landing-preview">
-                    <div class="preview-title">Preview Estructura:</div>
-                    <div class="preview-text">
-Hero: "¿Sus clientes buscan '[sector] Tetuán' y no lo encuentran?"<br>
-Problem: 80% busca en Google Maps antes de visitar<br>
-Solution: Pack Presencia - 250 MAD entrada, visible en 24h<br>
-CTA: WhatsApp directo "Auditoría gratis"
-                    </div>
-                </div>
-            </div>
-
-            <div class="landing-card">
-                <h3>💬 Landing WhatsApp Pro</h3>
-                <span class="badge">Catálogo</span>
-                <span class="badge">Auto-respuestas</span>
-                <div class="price-tag">400 MAD <span>+ 200 MAD/mes</span></div>
-                <p>Para negocios con alto volumen de consultas por WhatsApp.</p>
-                <ul>
-                    <li>Headline: "Responda clientes mientras duerme"</li>
-                    <li>Beneficio principal: Catálogo digital 24/7</li>
-                    <li>CTA: "Ver demo del catálogo"</li>
-                    <li>Demo interactivo: Catálogo de ejemplo</li>
-                </ul>
-                <div class="landing-preview">
-                    <div class="preview-title">Preview Estructura:</div>
-                    <div class="preview-text">
-Hero: "El 70% de pedidos empiezan por WhatsApp"<br>
-Problem: "Si tarda 5 min, el cliente ya pidió en otro lado"<br>
-Solution: Catálogo con fotos + respuestas automáticas - 400 MAD<br>
-CTA: "Ver catálogo de ejemplo" → WhatsApp demo
-                    </div>
-                </div>
-            </div>
-
-            <div class="landing-card">
-                <h3>🤖 Landing Automatización</h3>
-                <span class="badge">Chatbot IA</span>
-                <span class="badge">Flujos</span>
-                <div class="price-tag">800 MAD <span>+ 350 MAD/mes</span></div>
-                <p>Para negocios que quieren escalar sin contratar más personal.</p>
-                <ul>
-                    <li>Headline: "Un empleado digital que nunca descansa"</li>
-                    <li>Beneficio principal: Atención 24/7 con IA</li>
-                    <li>CTA: "Pruebe el bot ahora"</li>
-                    <li>Demo: Chatbot funcional en la página</li>
-                </ul>
-                <div class="landing-preview">
-                    <div class="preview-title">Preview Estructura:</div>
-                    <div class="preview-text">
-Hero: "Su negocio atiende clientes 24/7 sin contratar"<br>
-Problem: "Cada consulta no respondida = cliente perdido"<br>
-Solution: Chatbot IA que entiende, responde y vende - 800 MAD<br>
-CTA: "Conversar con el bot de demo"
-                    </div>
-                </div>
-            </div>
-
-            <div class="landing-card">
-                <h3>⭐ Landing Pack Completo</h3>
-                <span class="badge">Todo incluido</span>
-                <span class="badge">SEO</span>
-                <span class="badge">Redes</span>
-                <div class="price-tag">1,200 MAD <span>+ 500 MAD/mes</span></div>
-                <p>Para negocios ambiciosos que quieren dominar su zona.</p>
-                <ul>
-                    <li>Headline: "Domine su zona digitalmente"</li>
-                    <li>Beneficio principal: Presencia total</li>
-                    <li>CTA: "Auditoría gratuita + propuesta"</li>
-                    <li>Case studies: Resultados de clientes anteriores</li>
-                </ul>
-                <div class="landing-preview">
-                    <div class="preview-title">Preview Estructura:</div>
-                    <div class="preview-text">
-Hero: "Sea el #1 en Google Maps de su zona"<br>
-Problem: Competidores aparecen primero<br>
-Solution: Todo en uno: Maps + WhatsApp + Bot + Redes + SEO - 1,200 MAD<br>
-CTA: "Auditoría gratis de 5 min"
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <h3 style="color: #00FF88; margin: 30px 0 15px 0;">📋 Elementos Comunes de Todas las Landings</h3>
-        <div class="landing-card">
-            <ul>
-                <li><strong>Header:</strong> Logo + WhatsApp flotante</li>
-                <li><strong>Hero:</strong> Headline impactante + subheadline + CTA principal</li>
-                <li><strong>Problem:</strong> El dolor que resuelve (con estadísticas)</li>
-                <li><strong>Solution:</strong> Cómo lo resuelve (con features)</li>
-                <li><strong>Social Proof:</strong> Testimonios, logos de clientes, números</li>
-                <li><strong>Pricing:</strong> Tabla de precios clara</li>
-                <li><strong>FAQ:</strong> 5 preguntas frecuentes</li>
-                <li><strong>CTA Final:</strong> WhatsApp + formulario</li>
-                <li><strong>Footer:</strong> Contacto, redes, legal</li>
-            </ul>
-        </div>
-    </div>
+<div class="container">
+<header><h1>🔧 Landing</h1><p>Módulo en desarrollo</p></header>
+<nav class="nav">
+<a href="/portal">🏠 Inicio</a>
+<a href="/portal/dashboard">📊 Dashboard</a>
+<a href="/portal/leads">👥 Leads</a>
+</nav>
+<div class="content">
+<h2>🚧 En construcción</h2>
+<p>Este módulo está siendo desarrollado. Vuelve pronto.</p>
+</div>
+</div>
 </body>
 </html>

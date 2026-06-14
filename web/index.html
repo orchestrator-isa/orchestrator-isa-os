@@ -704,5 +704,16 @@
             window.open(`${API_URL}/api/leads/${id}`, '_blank');
         }
     </script>
+    // portal/index.html - Agregar al inicio
+    <script>
+      // Autenticación simple (mejorar con JWT en producción)
+      const username = prompt('Usuario:');
+      const password = prompt('Contraseña:');
+      
+      if (username !== 'isa' || password !== 'orchestrator2026') {
+        alert('Acceso denegado');
+        window.location.href = '/';
+      }
+    </script>
 </body>
 </html>

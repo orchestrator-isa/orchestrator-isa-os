@@ -1,125 +1,226 @@
-#!/usr/bin/env python3
-"""
-Orchestrator ISA - Generador de Reportes Mensuales
-Crea reportes HTML para enviar a clientes automáticamente
-"""
-
+from fastapi import APIRouter, HTTPException, Request
+from typing import Optional, List
 from datetime import datetime, timedelta
-import random
 
-def generar_reporte_mensual(nombre_negocio, mes, datos_simulados=None):
-    """
-    Genera un reporte mensual en HTML listo para enviar por WhatsApp
+router = APIRouter(prefix="/api/reportes", tags=["reportes"])
 
-    Args:
-        nombre_negocio: Nombre del negocio del cliente
-        mes: Nombre del mes (ej: "Junio 2026")
-        datos_simulados: Dict con datos reales (opcional, si no usa simulación)
+@router.get("/leads")
+async def reporte_leads(
+    request: Request,
+    desde: Optional[str] = None,
+    hasta: Optional[str] = None,
+    agrupar: Optional[str] = "estado"  # estado, ciudad, tipo_negocio, pack, semana
+):
+    db = request.app.state.db
 
-    Returns:
-        str: HTML del reporte
-    """
+    # Parsear fechas
+    fecha_desde = datetime.strptime(desde, "%Y-%m-%d") if desde else datetime.now() - timedelta(days=30)
+    fecha_hasta = datetime.strptime(hasta, "%Y-%m-%d") if hasta else datetime.now()
 
-    # Datos simulados para demo (en producción vendrían de la API de WhatsApp/Google)
-    if not datos_simulados:
-        datos_simulados = {
-            "busquedas_maps": random.randint(200, 500),
-            "llamadas_maps": random.randint(30, 90),
-            "mensajes_wa": random.randint(100, 300),
-            "respuestas_auto": random.randint(80, 250),
-            "tiempo_respuesta": random.randint(2, 8),
-            "nuevos_seguidores": random.randint(5, 25),
-        }
+    async with db.acquire() as conn:
+        # Leads en rango de fechas
+        leads = await conn.fetch(
+            """SELECT * FROM leads 
+               WHERE fecha_creacion BETWEEN $1 AND $2
+               ORDER BY fecha_creacion DESC""",
+            fecha_desde, fecha_hasta
+        )
 
-    # Calcular métricas derivadas
-    tasa_conversion_llamadas = round(datos_simulados["llamadas_maps"] / max(datos_simulados["busquedas_maps"], 1) * 100, 1)
-    tasa_respuesta_auto = round(datos_simulados["respuestas_auto"] / max(datos_simulados["mensajes_wa"], 1) * 100, 1)
+        # Agrupaciones
+        if agrupar == "estado":
+            agrupado = await conn.fetch(
+                """SELECT estado, COUNT(*) as cantidad, AVG(score) as score_promedio
+                   FROM leads WHERE fecha_creacion BETWEEN $1 AND $2
+                   GROUP BY estado ORDER BY cantidad DESC""",
+                fecha_desde, fecha_hasta
+            )
+        elif agrupar == "ciudad":
+            agrupado = await conn.fetch(
+                """SELECT ciudad, COUNT(*) as cantidad, AVG(score) as score_promedio
+                   FROM leads WHERE fecha_creacion BETWEEN $1 AND $2
+                   GROUP BY ciudad ORDER BY cantidad DESC""",
+                fecha_desde, fecha_hasta
+            )
+        elif agrupar == "tipo_negocio":
+            agrupado = await conn.fetch(
+                """SELECT tipo_negocio, COUNT(*) as cantidad, AVG(score) as score_promedio
+                   FROM leads WHERE fecha_creacion BETWEEN $1 AND $2
+                   GROUP BY tipo_negocio ORDER BY cantidad DESC""",
+                fecha_desde, fecha_hasta
+            )
+        elif agrupar == "pack":
+            agrupado = await conn.fetch(
+                """SELECT pack_recomendado, COUNT(*) as cantidad
+                   FROM leads WHERE fecha_creacion BETWEEN $1 AND $2 AND pack_recomendado IS NOT NULL
+                   GROUP BY pack_recomendado ORDER BY cantidad DESC""",
+                fecha_desde, fecha_hasta
+            )
+        elif agrupar == "semana":
+            agrupado = await conn.fetch(
+                """SELECT DATE_TRUNC('week', fecha_creacion) as semana, COUNT(*) as cantidad
+                   FROM leads WHERE fecha_creacion BETWEEN $1 AND $2
+                   GROUP BY semana ORDER BY semana""",
+                fecha_desde, fecha_hasta
+            )
+        else:
+            agrupado = []
 
-    # Valor estimado (asumiendo ticket promedio)
-    ticket_promedio = 250  # MAD
-    ventas_estimadas_llamadas = int(datos_simulados["llamadas_maps"] * 0.3 * ticket_promedio)
-    ventas_estimadas_wa = int(datos_simulados["mensajes_wa"] * 0.15 * ticket_promedio)
-    valor_total = ventas_estimadas_llamadas + ventas_estimadas_wa
+        # Evolución temporal (últimos 12 meses)
+        evolucion = await conn.fetch(
+            """SELECT DATE_TRUNC('month', fecha_creacion) as mes, 
+                      COUNT(*) as nuevos,
+                      COUNT(*) FILTER (WHERE estado = 'cerrado') as cerrados
+               FROM leads WHERE fecha_creacion >= NOW() - INTERVAL '12 months'
+               GROUP BY mes ORDER BY mes"""
+        )
 
-    html = f"""<!DOCTYPE html>
-<html lang="es">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Reporte Mensual - {nombre_negocio}</title>
-<style>
-* {{ margin:0; padding:0; box-sizing:border-box; }}
-body {{ font-family:Arial,sans-serif; background:#0f172a; color:#fff; padding:20px; }}
-.container {{ max-width:500px; margin:0 auto; }}
-.header {{ text-align:center; padding:20px 0; border-bottom:3px solid #00b894; }}
-.header h1 {{ color:#00b894; font-size:1.5rem; }}
-.header h2 {{ color:#94a3b8; font-size:1rem; margin-top:5px; }}
-.kpi-grid {{ display:grid; grid-template-columns:1fr 1fr; gap:10px; margin:20px 0; }}
-.kpi {{ background:#1e293b; padding:15px; border-radius:10px; text-align:center; }}
-.kpi-value {{ font-size:1.8rem; font-weight:bold; color:#00b894; }}
-.kpi-label {{ font-size:0.8rem; color:#94a3b8; margin-top:5px; }}
-.section {{ background:#1e293b; padding:15px; border-radius:10px; margin:15px 0; }}
-.section h3 {{ color:#00b894; margin-bottom:10px; font-size:1rem; }}
-.section p {{ font-size:0.9rem; color:#cbd5e1; line-height:1.6; }}
-.valor-box {{ background:linear-gradient(135deg,#00b894,#00cec9); padding:20px; border-radius:10px; text-align:center; margin:15px 0; }}
-.valor-box h3 {{ color:#fff; font-size:1.2rem; margin-bottom:10px; }}
-.valor-box .big {{ font-size:2.5rem; font-weight:bold; color:#fff; }}
-.footer {{ text-align:center; padding:20px 0; color:#64748b; font-size:0.8rem; border-top:1px solid #334155; margin-top:20px; }}
-</style>
-</head>
-<body>
-<div class="container">
-<div class="header">
-<h1>📊 Reporte Mensual</h1>
-<h2>{nombre_negocio} - {mes}</h2>
-</div>
+    return {
+        "periodo": {"desde": fecha_desde.isoformat(), "hasta": fecha_hasta.isoformat()},
+        "total_leads": len(leads),
+        "leads": [dict(r) for r in leads],
+        "agrupado_por": agrupar,
+        "agrupacion": [dict(r) for r in agrupado],
+        "evolucion_mensual": [dict(r) for r in evolucion]
+    }
 
-<div class="kpi-grid">
-<div class="kpi"><div class="kpi-value">{datos_simulados['busquedas_maps']}</div><div class="kpi-label">Búsquedas Maps</div></div>
-<div class="kpi"><div class="kpi-value">{datos_simulados['llamadas_maps']}</div><div class="kpi-label">Llamadas</div></div>
-<div class="kpi"><div class="kpi-value">{datos_simulados['mensajes_wa']}</div><div class="kpi-label">Mensajes WA</div></div>
-<div class="kpi"><div class="kpi-value">{datos_simulados['respuestas_auto']}</div><div class="kpi-label">Respuestas Auto</div></div>
-</div>
+@router.get("/cotizaciones")
+async def reporte_cotizaciones(
+    request: Request,
+    desde: Optional[str] = None,
+    hasta: Optional[str] = None
+):
+    db = request.app.state.db
+    fecha_desde = datetime.strptime(desde, "%Y-%m-%d") if desde else datetime.now() - timedelta(days=30)
+    fecha_hasta = datetime.strptime(hasta, "%Y-%m-%d") if hasta else datetime.now()
 
-<div class="section">
-<h3>✅ Lo que hicimos este mes</h3>
-<p>• Verificamos su ficha de Google Maps<br>
-• Actualizamos {random.randint(2,5)} fotos de servicios<br>
-• Ajustamos mensaje de bienvenida de WhatsApp<br>
-• Respondimos {datos_simulados['respuestas_auto']} consultas automáticamente</p>
-</div>
+    async with db.acquire() as conn:
+        # Resumen por pack
+        por_pack = await conn.fetch(
+            """SELECT pack, COUNT(*) as cantidad, 
+                      SUM(precio_entrada) as total_entrada,
+                      SUM(precio_mantenimiento) as total_mantenimiento
+               FROM cotizaciones WHERE fecha BETWEEN $1 AND $2
+               GROUP BY pack ORDER BY cantidad DESC""",
+            fecha_desde, fecha_hasta
+        )
 
-<div class="section">
-<h3>📈 Resultados</h3>
-<p>• Su ficha apareció en <strong>{datos_simulados['busquedas_maps']} búsquedas</strong><br>
-• Recibió <strong>{datos_simulados['llamadas_maps']} llamadas</strong> desde Maps<br>
-• <strong>{datos_simulados['mensajes_wa']} mensajes</strong> por WhatsApp<br>
-• Tiempo de respuesta: <strong>{datos_simulados['tiempo_respuesta']} segundos</strong> (antes: 2 horas)</p>
-</div>
+        # Estado de cotizaciones
+        por_estado = await conn.fetch(
+            """SELECT estado, COUNT(*) as cantidad, SUM(precio_final) as valor_total
+               FROM cotizaciones WHERE fecha BETWEEN $1 AND $2
+               GROUP BY estado ORDER BY cantidad DESC""",
+            fecha_desde, fecha_hasta
+        )
 
-<div class="valor-box">
-<h3>💰 Valor Generado Estimado</h3>
-<div class="big">{valor_total:,} MAD</div>
-<p style="margin-top:10px; font-size:0.9rem;">Basado en {datos_simulados['llamadas_maps']} llamadas × 30% conversión + {datos_simulados['mensajes_wa']} mensajes × 15% conversión</p>
-</div>
+        # Ingresos proyectados (mantenimiento mensual de activos)
+        ingresos_mensuales = await conn.fetchval(
+            """SELECT COALESCE(SUM(precio_mantenimiento), 0) 
+               FROM cotizaciones WHERE estado = 'aceptada'"""
+        )
 
-<div class="section">
-<h3>🎯 Próximo mes</h3>
-<p>• Agregar {random.randint(3,8)} fotos nuevas<br>
-• Campaña de reseñas (meta: 50 reseñas)<br>
-• Optimizar catálogo con {random.randint(2,4)} servicios nuevos</p>
-</div>
+        # Top clientes potenciales por valor
+        top_clientes = await conn.fetch(
+            """SELECT nombre_negocio, tipo_negocio, pack, precio_final, estado
+               FROM cotizaciones WHERE fecha BETWEEN $1 AND $2
+               ORDER BY precio_final DESC LIMIT 20""",
+            fecha_desde, fecha_hasta
+        )
 
-<div class="footer">
-<p>Orchestrator ISA | orchestrator.isa@gmail.com<br>WhatsApp: +212 786 120 081</p>
-</div>
-</div>
-</body>
-</html>"""
+    return {
+        "periodo": {"desde": fecha_desde.isoformat(), "hasta": fecha_hasta.isoformat()},
+        "por_pack": [dict(r) for r in por_pack],
+        "por_estado": [dict(r) for r in por_estado],
+        "ingresos_mensuales_proyectados": ingresos_mensuales,
+        "top_clientes_potenciales": [dict(r) for r in top_clientes]
+    }
 
-    return html
+@router.get("/financiero")
+async def reporte_financiero(request: Request, mes: Optional[int] = None, anio: Optional[int] = None):
+    db = request.app.state.db
 
-if __name__ == "__main__":
-    reporte = generar_reporte_mensual("Panaderia Al Hizam", "Junio 2026")
-    print(f"Reporte generado: {len(reporte)} caracteres")
-    print("Guardar como .html y abrir en navegador para ver")
+    # Si no se especifica, usar mes actual
+    if not mes or not anio:
+        hoy = datetime.now()
+        mes = mes or hoy.month
+        anio = anio or hoy.year
+
+    async with db.acquire() as conn:
+        # Cotizaciones aceptadas en el mes
+        cotizaciones_mes = await conn.fetch(
+            """SELECT * FROM cotizaciones 
+               WHERE EXTRACT(MONTH FROM fecha) = $1 AND EXTRACT(YEAR FROM fecha) = $2
+               AND estado = 'aceptada'""",
+            mes, anio
+        )
+
+        # Ingresos por tipo
+        ingresos_entrada = sum(c["precio_entrada"] for c in cotizaciones_mes)
+        ingresos_mantenimiento = await conn.fetchval(
+            """SELECT COALESCE(SUM(precio_mantenimiento), 0) 
+               FROM cotizaciones WHERE estado = 'aceptada'"""
+        )
+
+        # Comparación con mes anterior
+        mes_anterior = mes - 1 if mes > 1 else 12
+        anio_anterior = anio if mes > 1 else anio - 1
+
+        cotizaciones_mes_ant = await conn.fetch(
+            """SELECT * FROM cotizaciones 
+               WHERE EXTRACT(MONTH FROM fecha) = $1 AND EXTRACT(YEAR FROM fecha) = $2
+               AND estado = 'aceptada'""",
+            mes_anterior, anio_anterior
+        )
+
+        ingresos_ant = sum(c["precio_entrada"] for c in cotizaciones_mes_ant)
+        variacion = ((ingresos_entrada - ingresos_ant) / ingresos_ant * 100) if ingresos_ant > 0 else 0
+
+    return {
+        "periodo": {"mes": mes, "anio": anio},
+        "ingresos_entrada": ingresos_entrada,
+        "ingresos_mantenimiento_mensual": ingresos_mantenimiento,
+        "total_mensual_estimado": ingresos_entrada + ingresos_mantenimiento,
+        "cotizaciones_aceptadas": len(cotizaciones_mes),
+        "variacion_mes_anterior_porcentaje": round(variacion, 2),
+        "tendencia": "up" if variacion > 0 else "down" if variacion < 0 else "stable"
+    }
+
+@router.get("/scraping")
+async def reporte_scraping(request: Request, dias: int = 30):
+    db = request.app.state.db
+    import os
+    data_dir = os.getenv("DATA_DIR", ".")
+
+    async with db.acquire() as conn:
+        # Leads provenientes de scraping vs manuales
+        leads_scraping = await conn.fetchval(
+            "SELECT COUNT(*) FROM leads WHERE fuente = 'google_maps'"
+        )
+        leads_manuales = await conn.fetchval(
+            "SELECT COUNT(*) FROM leads WHERE fuente IS NULL OR fuente != 'google_maps'"
+        )
+
+        # Leads scrapeados convertidos
+        leads_scraping_convertidos = await conn.fetchval(
+            """SELECT COUNT(*) FROM leads 
+               WHERE fuente = 'google_maps' AND estado IN ('cerrado', 'mantenimiento')"""
+        )
+
+    # Archivos CSV recientes
+    try:
+        files = sorted(
+            [f for f in os.listdir(data_dir) if f.startswith("leads_") and f.endswith(".csv")],
+            key=lambda x: os.path.getmtime(os.path.join(data_dir, x)),
+            reverse=True
+        )
+        archivos_recientes = files[:10]
+    except:
+        archivos_recientes = []
+
+    return {
+        "leads_desde_scraping": leads_scraping or 0,
+        "leads_manuales": leads_manuales or 0,
+        "leads_scraping_convertidos": leads_scraping_convertidos or 0,
+        "tasa_conversion_scraping": round(leads_scraping_convertidos / leads_scraping, 3) if leads_scraping else 0,
+        "archivos_scraping_recientes": archivos_recientes,
+        "total_archivos_scraping": len(archivos_recientes)
+    }

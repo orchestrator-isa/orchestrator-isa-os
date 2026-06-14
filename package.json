@@ -1,0 +1,26 @@
+{
+  "name": "orchestrator-isa-scraper",
+  "version": "13.2.0",
+  "description": "Scraper de Google Maps para Orchestrator ISA - Marruecos",
+  "main": "scripts/scraper.js",
+  "scripts": {
+    "scrape": "node scripts/scraper.js",
+    "scrape:tetouan": "node scripts/scraper.js --location tetouan",
+    "scrape:tanger": "node scripts/scraper.js --location tanger",
+    "scrape:chefchaouen": "node scripts/scraper.js --location chefchaouen",
+    "scrape:restaurantes": "node scripts/scraper.js --query restaurantes",
+    "scrape:belleza": "node scripts/scraper.js --query salón de belleza",
+    "scrape:tiendas": "node scripts/scraper.js --query tiendas",
+    "scrape:full": "node scripts/scraper.js --query restaurantes --max-results 100 && node scripts/scraper.js --query salón de belleza --max-results 100"
+  },
+  "dependencies": {
+    "puppeteer": "^24.0.0",
+    "commander": "^12.0.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "author": "Orchestrator ISA",
+  "license": "MIT",
+  "keywords": ["scraping", "google-maps", "leads", "morocco", "tetouan"]
+}

@@ -1,147 +1,31 @@
 <!DOCTYPE html>
 <html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Idioma - Orchestrator ISA</title>
-    <link rel="icon" type="image/png" href="/static/icon-192.png">
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Segoe UI', system-ui, sans-serif; background: #0f172a; color: white; min-height: 100vh; }
-        .header { background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); border-bottom: 1px solid #334155; padding: 20px 30px; display: flex; justify-content: space-between; align-items: center; }
-        .header h1 { font-size: 1.5rem; background: linear-gradient(90deg, #00E5FF, #00FF88); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
-        .header-nav a { color: #94a3b8; text-decoration: none; margin-left: 20px; font-size: 0.9rem; transition: color 0.3s; }
-        .header-nav a:hover { color: #00E5FF; }
-        .container { max-width: 1200px; margin: 0 auto; padding: 30px; }
-        .back-link { color: #00E5FF; text-decoration: none; display: inline-flex; align-items: center; gap: 5px; margin-bottom: 20px; }
-        .section-title { font-size: 1.8rem; margin-bottom: 10px; color: #00E5FF; }
-        .section-subtitle { color: #94a3b8; margin-bottom: 30px; }
-        .lang-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; }
-        .lang-card { background: #1e293b; border: 1px solid #334155; border-radius: 12px; padding: 25px; }
-        .lang-card h3 { color: #00FF88; margin-bottom: 15px; display: flex; align-items: center; gap: 10px; }
-        .lang-card p { color: #94a3b8; font-size: 0.9rem; line-height: 1.6; margin-bottom: 15px; }
-        .phrase-box { background: #0f172a; border: 1px solid #334155; border-radius: 8px; padding: 15px; margin-bottom: 10px; }
-        .phrase-label { color: #00E5FF; font-size: 0.8rem; margin-bottom: 5px; }
-        .phrase-text { color: #cbd5e1; font-size: 0.9rem; }
-        .badge { display: inline-block; background: rgba(0, 229, 255, 0.1); color: #00E5FF; padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; margin-right: 5px; }
-        .copy-btn { background: #334155; color: white; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 0.8rem; margin-top: 8px; }
-        .copy-btn:hover { background: #00E5FF; color: #0f172a; }
-    </style>
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Idioma - Orchestrator ISA</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',sans-serif;background:linear-gradient(135deg,#0f172a,#1a1a2e);color:#fff;min-height:100vh;padding:2rem}
+.container{max-width:1200px;margin:0 auto}
+header{background:rgba(0,229,255,0.08);padding:1.5rem;border-radius:16px;margin-bottom:1.5rem;border-left:4px solid #00E5FF}
+h1{color:#00E5FF}
+.nav{display:flex;gap:0.75rem;margin-bottom:2rem;flex-wrap:wrap}
+.nav a{color:#fff;text-decoration:none;padding:0.6rem 1.2rem;background:rgba(0,229,255,0.15);border-radius:8px;border:1px solid rgba(0,229,255,0.2);transition:all .3s}
+.nav a:hover{background:#00E5FF;color:#0f172a}
+.content{background:rgba(30,41,59,0.7);padding:3rem;border-radius:16px;text-align:center;color:#94a3b8}
+</style>
 </head>
 <body>
-    <div class="header">
-        <h1>🚀 ORCHESTRATOR ISA</h1>
-        <div class="header-nav">
-            <a href="/portal">🏠 Inicio</a>
-            <a href="/portal/validador">⚡ Validador</a>
-            <a href="/portal/leads">👥 Leads</a>
-            <a href="/portal/dashboard">📊 Dashboard</a>
-        </div>
-    </div>
-    <div class="container">
-        <a href="/portal" class="back-link">← Volver al Portal</a>
-        <h2 class="section-title">🌍 Solución por Idioma</h2>
-        <p class="section-subtitle">Material multilingüe para clientes en Marruecos: Español, Árabe (Darija), Francés e Inglés</p>
-
-        <div class="lang-grid">
-            <div class="lang-card">
-                <h3>🇪🇸 Español (ES)</h3>
-                <span class="badge">Principal</span>
-                <span class="badge">Ventas</span>
-                <p>Idioma principal para ventas y presentaciones en el norte de Marruecos.</p>
-
-                <div class="phrase-box">
-                    <div class="phrase-label">Apertura</div>
-                    <div class="phrase-text" id="es-1">Hola! Soy [nombre] de Orchestrator ISA. Estoy ayudando a negocios de [sector] a conseguir más clientes por WhatsApp y Google. ¿Tiene 5 minutos?</div>
-                    <button class="copy-btn" onclick="copyText('es-1')">📋 Copiar</button>
-                </div>
-
-                <div class="phrase-box">
-                    <div class="phrase-label">Cierre</div>
-                    <div class="phrase-text" id="es-2">¿Le mando la propuesta por WhatsApp? En 48 horas estará listo. Garantía de 30 días o devolución.</div>
-                    <button class="copy-btn" onclick="copyText('es-2')">📋 Copiar</button>
-                </div>
-            </div>
-
-            <div class="lang-card">
-                <h3>🇲🇦 Árabe Darija (AR)</h3>
-                <span class="badge">Local</span>
-                <span class="badge">Confianza</span>
-                <p>Darija marroquí para generar confianza con clientes locales.</p>
-
-                <div class="phrase-box">
-                    <div class="phrase-label">Apertura</div>
-                    <div class="phrase-text" id="ar-1">السلام عليكم! أنا [الاسم] من Orchestrator ISA. كنّا نساعدو التجار ف [القطاع] باش يجيبو زبائن أكثر من WhatsApp و Google. عندك 5 دقايق؟</div>
-                    <button class="copy-btn" onclick="copyText('ar-1')">📋 Copiar</button>
-                </div>
-
-                <div class="phrase-box">
-                    <div class="phrase-label">Cierre</div>
-                    <div class="phrase-text" id="ar-2">نبعث ليك العرض ف WhatsApp؟ ف 48 ساعة غادي يكون جاهز. ضمان 30 يوم ولا فلوسك رجعو.</div>
-                    <button class="copy-btn" onclick="copyText('ar-2')">📋 Copiar</button>
-                </div>
-            </div>
-
-            <div class="lang-card">
-                <h3>🇫🇷 Francés (FR)</h3>
-                <span class="badge">Oficial</span>
-                <span class="badge">Profesional</span>
-                <p>Francés para clientes profesionales y corporativos.</p>
-
-                <div class="phrase-box">
-                    <div class="phrase-label">Apertura</div>
-                    <div class="phrase-text" id="fr-1">Bonjour! Je suis [nom] de Orchestrator ISA. J'aide les commerces de [secteur] à trouver plus de clients via WhatsApp et Google. Avez-vous 5 minutes?</div>
-                    <button class="copy-btn" onclick="copyText('fr-1')">📋 Copiar</button>
-                </div>
-
-                <div class="phrase-box">
-                    <div class="phrase-label">Cierre</div>
-                    <div class="phrase-text" id="fr-2">Je vous envoie la proposition sur WhatsApp? En 48h c'est prêt. Garantie 30 jours ou remboursement intégral.</div>
-                    <button class="copy-btn" onclick="copyText('fr-2')">📋 Copiar</button>
-                </div>
-            </div>
-
-            <div class="lang-card">
-                <h3>🇬🇧 Inglés (EN)</h3>
-                <span class="badge">Turismo</span>
-                <span class="badge">Internacional</span>
-                <p>Inglés para negocios turísticos e internacionales.</p>
-
-                <div class="phrase-box">
-                    <div class="phrase-label">Apertura</div>
-                    <div class="phrase-text" id="en-1">Hello! I'm [name] from Orchestrator ISA. I help [sector] businesses get more customers through WhatsApp and Google. Do you have 5 minutes?</div>
-                    <button class="copy-btn" onclick="copyText('en-1')">📋 Copiar</button>
-                </div>
-
-                <div class="phrase-box">
-                    <div class="phrase-label">Cierre</div>
-                    <div class="phrase-text" id="en-2">Shall I send you the proposal on WhatsApp? Ready in 48 hours. 30-day guarantee or full refund.</div>
-                    <button class="copy-btn" onclick="copyText('en-2')">📋 Copiar</button>
-                </div>
-            </div>
-        </div>
-
-        <h3 style="color: #00FF88; margin: 30px 0 15px 0;">🤖 Bot Multilingüe</h3>
-        <div class="lang-card">
-            <h3>⚙️ Configuración del Bot</h3>
-            <p>El bot detecta automáticamente el idioma del cliente:</p>
-            <ul style="color: #cbd5e1; line-height: 1.8; margin-left: 20px;">
-                <li><strong>Palabras clave ES:</strong> "hola", "precio", "gracias", "info"</li>
-                <li><strong>Palabras clave AR:</strong> "السلام", "بغيت", "شحال", "مرحبا"</li>
-                <li><strong>Palabras clave FR:</strong> "bonjour", "prix", "merci", "info"</li>
-                <li><strong>Palabras clave EN:</strong> "hello", "price", "thanks", "info"</li>
-            </ul>
-            <p style="margin-top: 15px;">El bot responde en el mismo idioma detectado. Si no detecta, pregunta: "¿En qué idioma prefiere? / بشحال لغة بغيتي؟ / Dans quelle langue?"</p>
-        </div>
-    </div>
-
-    <script>
-        function copyText(id) {
-            const text = document.getElementById(id).innerText;
-            navigator.clipboard.writeText(text).then(() => {
-                alert('Frase copiada al portapapeles');
-            });
-        }
-    </script>
+<div class="container">
+<header><h1>🔧 Idioma</h1><p>Módulo en desarrollo</p></header>
+<nav class="nav">
+<a href="/portal">🏠 Inicio</a>
+<a href="/portal/dashboard">📊 Dashboard</a>
+<a href="/portal/leads">👥 Leads</a>
+</nav>
+<div class="content">
+<h2>🚧 En construcción</h2>
+<p>Este módulo está siendo desarrollado. Vuelve pronto.</p>
+</div>
+</div>
 </body>
 </html>
