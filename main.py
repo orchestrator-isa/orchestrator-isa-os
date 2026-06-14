@@ -457,7 +457,7 @@ async def get_current_user(request: Request) -> Optional[dict]:
     async with pool.acquire() as conn:
         row = await conn.fetchrow(
             """
-            SELECT s.usuario_id, s.expira, u.username, u.nombre_display, u.rol, u.activo
+            SELECT u.id, u.username, u.nombre_display, u.rol, u.activo
             FROM sesiones s
             JOIN usuarios u ON s.usuario_id = u.id
             WHERE s.token = $1 AND s.expira > NOW() AND u.activo = TRUE
