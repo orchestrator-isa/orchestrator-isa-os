@@ -1,32 +1,377 @@
 <!DOCTYPE html>
 <html lang="es">
-<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Validador - Orchestrator ISA</title>
-<style>
-*{margin:0;padding:0;box-sizing:border-box}
-body{font-family:'Segoe UI',sans-serif;background:linear-gradient(135deg,#0f172a,#1a1a2e);color:#fff;min-height:100vh;padding:2rem}
-.container{max-width:1200px;margin:0 auto}
-header{background:rgba(0,229,255,0.08);padding:1.5rem;border-radius:16px;margin-bottom:1.5rem;border-left:4px solid #00E5FF}
-h1{color:#00E5FF}
-.nav{display:flex;gap:0.75rem;margin-bottom:2rem;flex-wrap:wrap}
-.nav a{color:#fff;text-decoration:none;padding:0.6rem 1.2rem;background:rgba(0,229,255,0.15);border-radius:8px;border:1px solid rgba(0,229,255,0.2);transition:all .3s}
-.nav a:hover{background:#00E5FF;color:#0f172a}
-.content{background:rgba(30,41,59,0.7);padding:3rem;border-radius:16px;text-align:center;color:#94a3b8}
-</style>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>⚡ Validador | IA Boost Prufer</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🚀</text></svg>">
+    <style>
+        :root { --bg: #0B1120; --card: #151E32; --cyan: #00E5FF; --verde: #00FF88; --texto: #FFFFFF; --texto-sec: #94A3B8; --alerta: #EF4444; --border: rgba(0, 229, 255, 0.08); }
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--bg); color: var(--texto); min-height: 100vh; line-height: 1.5; }
+        .header { background: var(--card); border-bottom: 1px solid var(--border); padding: 0.75rem 1rem; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; }
+        .header-left { display: flex; align-items: center; gap: 0.5rem; }
+        .header-rocket { font-size: 1.3rem; }
+        .header-brand { font-size: 1rem; font-weight: 700; }
+        .header-brand .prufer { color: var(--cyan); }
+        .btn-salir { background: transparent; border: 1px solid rgba(239, 68, 68, 0.3); color: var(--alerta); padding: 0.3rem 0.6rem; border-radius: 6px; font-size: 0.75rem; cursor: pointer; }
+        .container { max-width: 600px; margin: 0 auto; padding: 1rem; }
+        .section { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 1.25rem; margin-bottom: 1rem; }
+        .section h3 { color: var(--cyan); margin-bottom: 1rem; font-size: 1.1rem; display: flex; align-items: center; gap: 0.5rem; }
+        .form-group { margin-bottom: 1rem; }
+        .form-group label { display: block; font-size: 0.85rem; color: var(--texto-sec); margin-bottom: 0.4rem; font-weight: 500; }
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%; padding: 0.85rem; background: var(--bg); border: 1px solid rgba(148, 163, 184, 0.2);
+            border-radius: 10px; color: var(--texto); font-size: 1rem; transition: all 0.2s;
+        }
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus { outline: none; border-color: var(--cyan); box-shadow: 0 0 0 3px rgba(0, 229, 255, 0.1); }
+        .form-group input::placeholder { color: #475569; }
+        .radio-group { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+        .radio-option {
+            display: flex; align-items: center; gap: 0.3rem; padding: 0.5rem 0.75rem;
+            background: var(--bg); border: 1px solid rgba(148, 163, 184, 0.2);
+            border-radius: 8px; cursor: pointer; font-size: 0.85rem; transition: all 0.2s;
+        }
+        .radio-option:has(input:checked) { border-color: var(--cyan); background: rgba(0, 229, 255, 0.1); color: var(--cyan); }
+        .radio-option input { accent-color: var(--cyan); }
+        .btn-primary {
+            width: 100%; padding: 1rem; background: var(--verde); color: var(--bg);
+            border: none; border-radius: 10px; font-size: 1.1rem; font-weight: 700;
+            cursor: pointer; transition: all 0.2s; margin-top: 0.5rem;
+        }
+        .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 8px 25px rgba(0, 255, 136, 0.3); }
+        .btn-primary:active { transform: translateY(0); }
+        .result-panel { display: none; background: rgba(0, 255, 136, 0.05); border: 1px solid rgba(0, 255, 136, 0.2); border-radius: 12px; padding: 1.25rem; margin-top: 1rem; animation: slideDown 0.3s ease; }
+        .result-panel.active { display: block; }
+        @keyframes slideDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+        .score-display { text-align: center; padding: 1rem; background: rgba(0, 229, 255, 0.1); border-radius: 10px; margin-bottom: 1rem; border: 1px solid rgba(0, 229, 255, 0.2); }
+        .score-number { font-size: 3rem; font-weight: 800; color: var(--cyan); }
+        .score-label { color: var(--texto-sec); font-size: 0.85rem; }
+        .pack-card {
+            background: var(--bg); border: 2px solid rgba(148, 163, 184, 0.15); border-radius: 10px;
+            padding: 1rem; margin-bottom: 0.75rem;
+        }
+        .pack-card.recomendado { border-color: var(--verde); background: rgba(0, 255, 136, 0.03); }
+        .pack-card.recomendado::after { content: '⭐ RECOMENDADO'; position: absolute; top: -8px; right: 8px; background: var(--verde); color: var(--bg); font-size: 0.6rem; font-weight: 700; padding: 0.15rem 0.5rem; border-radius: 4px; }
+        .pack-card { position: relative; }
+        .pack-name { font-weight: 700; font-size: 1rem; margin-bottom: 0.25rem; }
+        .pack-price { font-size: 1.3rem; font-weight: 800; color: var(--cyan); }
+        .pack-price span { font-size: 0.75rem; color: var(--texto-sec); font-weight: 400; }
+        .whatsapp-preview {
+            background: var(--bg); padding: 1rem; border-radius: 8px;
+            font-size: 0.9rem; white-space: pre-wrap; border: 1px solid rgba(37, 211, 102, 0.2);
+            color: var(--texto); max-height: 250px; overflow-y: auto; line-height: 1.6;
+        }
+        .btn-whatsapp {
+            display: block; width: 100%; padding: 0.9rem; background: #25D366; color: #fff;
+            text-decoration: none; border-radius: 10px; text-align: center; font-weight: 700;
+            font-size: 1rem; margin-top: 0.75rem; transition: all 0.2s; border: none; cursor: pointer;
+        }
+        .btn-whatsapp:hover { background: #128C7E; }
+        .btn-copiar {
+            width: 100%; padding: 0.75rem; background: rgba(0, 229, 255, 0.1); color: var(--cyan);
+            border: 1px solid rgba(0, 229, 255, 0.2); border-radius: 8px; cursor: pointer;
+            font-weight: 600; margin-top: 0.5rem; transition: all 0.2s;
+        }
+        .btn-copiar:hover { background: rgba(0, 229, 255, 0.2); }
+        .btn-guardar {
+            width: 100%; padding: 0.75rem; background: var(--cyan); color: var(--bg);
+            border: none; border-radius: 8px; cursor: pointer; font-weight: 700;
+            margin-top: 0.5rem; transition: all 0.2s;
+        }
+        .btn-guardar:hover { background: var(--verde); }
+        .toast {
+            position: fixed; bottom: 1.5rem; left: 50%; transform: translateX(-50%) translateY(100px);
+            background: var(--card); border: 1px solid var(--verde); color: var(--verde);
+            padding: 0.75rem 1.5rem; border-radius: 10px; font-weight: 600; z-index: 1000;
+            opacity: 0; transition: all 0.3s ease; font-size: 0.9rem;
+        }
+        .toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+        .loading { display: none; text-align: center; padding: 1rem; color: var(--cyan); }
+        .loading.active { display: block; }
+        @media (max-width: 480px) {
+            .container { padding: 0.75rem; }
+            .section { padding: 1rem; }
+            .score-number { font-size: 2.5rem; }
+        }
+    </style>
 </head>
 <body>
-<div class="container">
-<header><h1>🔧 Validador</h1><p>Módulo en desarrollo v13.3</p></header>
-<nav class="nav">
-<a href="/portal">🏠 Inicio</a>
-<a href="/portal/dashboard">📊 Dashboard</a>
-<a href="/portal/leads">👥 Leads</a>
-<a href="/portal/cotizador">💰 Cotizador</a>
-</nav>
-<div class="content">
-<h2>🚧 En construcción</h2>
-<p>Este módulo está siendo desarrollado.</p>
-</div>
-</div>
+    <header class="header">
+        <div class="header-left">
+            <span class="header-rocket">🚀</span>
+            <div class="header-brand">IA Boost <span class="prufer">Prufer</span></div>
+        </div>
+        <form method="POST" action="/auth/logout" style="margin:0">
+            <button type="submit" class="btn-salir">Salir</button>
+        </form>
+    </header>
+
+    <div class="container">
+        <!-- DATOS DEL CLIENTE -->
+        <div class="section">
+            <h3>📋 Datos del Cliente</h3>
+            <div class="form-group">
+                <label>Nombre del Negocio *</label>
+                <input type="text" id="negocio" placeholder="Ej: Café Al Hizam" required>
+            </div>
+            <div class="form-group">
+                <label>Tipo de Negocio *</label>
+                <select id="tipo">
+                    <option value="restaurante">🍽️ Restaurante/Café</option>
+                    <option value="clinica">🦷 Clínica Dental</option>
+                    <option value="salon">💇 Salón de Belleza</option>
+                    <option value="consultorio">🩺 Consultorio Médico</option>
+                    <option value="taller">🔧 Taller</option>
+                    <option value="farmacia">💊 Farmacia</option>
+                    <option value="gimnasio">🏋️ Gimnasio</option>
+                    <option value="panaderia">🥐 Panadería</option>
+                    <option value="inmobiliaria">🏠 Inmobiliaria</option>
+                    <option value="otro">📦 Otro</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Nombre del Dueño</label>
+                <input type="text" id="dueno" placeholder="Opcional">
+            </div>
+            <div class="form-group">
+                <label>Teléfono WhatsApp *</label>
+                <input type="tel" id="telefono" placeholder="+212 6XX XXX XXX" required>
+            </div>
+            <div class="form-group">
+                <label>Ciudad</label>
+                <input type="text" id="ciudad" placeholder="Tetuan" value="Tetuan">
+            </div>
+            <div class="form-group">
+                <label>Presupuesto aproximado</label>
+                <select id="presupuesto">
+                    <option value="bajo">Bajo (~250-400 MAD)</option>
+                    <option value="medio" selected>Medio (~400-800 MAD)</option>
+                    <option value="alto">Alto (800+ MAD)</option>
+                    <option value="indiferente">Indiferente / No sabe</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- CHECKLIST -->
+        <div class="section">
+            <h3>✅ Checklist Rápido</h3>
+            <div class="form-group">
+                <label>1. ¿WhatsApp activo para clientes?</label>
+                <div class="radio-group">
+                    <label class="radio-option"><input type="radio" name="wa" value="0"> ❌ No</label>
+                    <label class="radio-option"><input type="radio" name="wa" value="1"> ⚠️ Poco</label>
+                    <label class="radio-option"><input type="radio" name="wa" value="2" checked> ✅ Sí</label>
+                </div>
+            </div>
+            <div class="form-group">
+                <label>2. ¿Aparece en Google Maps?</label>
+                <div class="radio-group">
+                    <label class="radio-option"><input type="radio" name="maps" value="0" checked> ❌ No</label>
+                    <label class="radio-option"><input type="radio" name="maps" value="1"> ⚠️ Incompleto</label>
+                    <label class="radio-option"><input type="radio" name="maps" value="2"> ✅ Sí</label>
+                </div>
+            </div>
+            <div class="form-group">
+                <label>3. ¿+10 consultas/día?</label>
+                <div class="radio-group">
+                    <label class="radio-option"><input type="radio" name="consultas" value="0" checked> ❌ No</label>
+                    <label class="radio-option"><input type="radio" name="consultas" value="2"> ✅ Sí</label>
+                </div>
+            </div>
+            <div class="form-group">
+                <label>4. ¿Competidores digitalizados?</label>
+                <div class="radio-group">
+                    <label class="radio-option"><input type="radio" name="competencia" value="1" checked> ❌ No</label>
+                    <label class="radio-option"><input type="radio" name="competencia" value="2"> ✅ Sí</label>
+                </div>
+            </div>
+            <div class="form-group">
+                <label>5. ¿Dueño usa smartphone activamente?</label>
+                <div class="radio-group">
+                    <label class="radio-option"><input type="radio" name="smartphone" value="0"> ❌ No</label>
+                    <label class="radio-option"><input type="radio" name="smartphone" value="1"> ⚠️ Básico</label>
+                    <label class="radio-option"><input type="radio" name="smartphone" value="2" checked> ✅ Sí</label>
+                </div>
+            </div>
+        </div>
+
+        <button class="btn-primary" onclick="validar()">🔍 Validar y Generar Propuesta</button>
+        <div class="loading" id="loading">⏳ Calculando...</div>
+
+        <!-- RESULTADOS -->
+        <div class="result-panel" id="resultPanel">
+            <div class="score-display">
+                <div class="score-number" id="scoreValue">0/10</div>
+                <div class="score-label">Score de Oportunidad</div>
+            </div>
+
+            <div id="packsContainer"></div>
+
+            <div style="margin-top: 1.5rem;">
+                <label style="color: var(--texto-sec); font-size: 0.9rem; display: block; margin-bottom: 0.5rem;">
+                    📱 Mensaje listo para WhatsApp:
+                </label>
+                <div class="whatsapp-preview" id="whatsappPreview"></div>
+                <button class="btn-copiar" onclick="copiarMensaje()">📋 Copiar Mensaje</button>
+                <a href="#" class="btn-whatsapp" id="whatsappLink" target="_blank">💬 Enviar por WhatsApp</a>
+                <button class="btn-guardar" onclick="guardarLead()">💾 Guardar Lead en CRM</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="toast" class="toast"></div>
+
+    <script>
+        const PACKS = {
+            presencia: { nombre: "📍 Pack Presencia", precio: 250, mantenimiento: 150, color: "#94A3B8", features: ["Google Maps optimizado", "WhatsApp Business básico", "Verificación mensual", "Capacitación 15 min"] },
+            whatsapp_pro: { nombre: "💬 WhatsApp Pro", precio: 400, mantenimiento: 200, color: "#F97316", features: ["Catálogo de productos", "Respuestas automáticas 24/7", "10 respuestas rápidas", "Ajustes mensuales"] },
+            automatizacion: { nombre: "🤖 Automatización", precio: 800, mantenimiento: 350, color: "#00FF88", features: ["Chatbot con IA", "Flujos automáticos", "Optimización continua", "Reportes mensuales"] },
+            completo: { nombre: "⭐ Pack Completo", precio: 1200, mantenimiento: 500, color: "#00E5FF", features: ["Todo lo anterior", "Contenido mensual RRSS", "SEO local", "Reportes de crecimiento"] }
+        };
+
+        let leadData = null;
+        let mensajeGenerado = "";
+
+        function validar() {
+            const negocio = document.getElementById('negocio').value.trim();
+            const telefono = document.getElementById('telefono').value.trim();
+            if (!negocio || !telefono) {
+                mostrarToast('❌ Completa nombre del negocio y teléfono');
+                return;
+            }
+
+            document.getElementById('loading').classList.add('active');
+
+            // Calcular score
+            let score = 0;
+            score += parseInt(document.querySelector('input[name="wa"]:checked').value);
+            score += parseInt(document.querySelector('input[name="maps"]:checked').value);
+            score += parseInt(document.querySelector('input[name="consultas"]:checked').value);
+            score += parseInt(document.querySelector('input[name="competencia"]:checked').value);
+            score += parseInt(document.querySelector('input[name="smartphone"]:checked').value);
+
+            const presupuesto = document.getElementById('presupuesto').value;
+            let packKey, razon;
+
+            if (score >= 8 || (presupuesto === 'alto' && score >= 6)) {
+                packKey = 'completo'; razon = "Alto potencial + presupuesto: máximo impacto";
+            } else if (score >= 5 || presupuesto === 'medio') {
+                packKey = 'whatsapp_pro'; razon = "Buen potencial: empezamos por lo urgente";
+            } else if (score >= 3 || presupuesto === 'bajo') {
+                packKey = 'presencia'; razon = "Entrada accesible: cimientos digitales primero";
+            } else {
+                packKey = 'presencia'; razon = "Comenzamos con lo básico para validar";
+            }
+
+            const pack = PACKS[packKey];
+            const tipo = document.getElementById('tipo').value;
+            const dueno = document.getElementById('dueno').value.trim();
+            const ciudad = document.getElementById('ciudad').value.trim() || 'Tetuan';
+
+            // Generar mensaje
+            mensajeGenerado = generarMensaje(negocio, tipo, dueno, pack, score, razon);
+
+            // Mostrar resultados
+            document.getElementById('scoreValue').textContent = score + '/10';
+            document.getElementById('whatsappPreview').textContent = mensajeGenerado;
+
+            // Link WhatsApp
+            const cleanPhone = telefono.replace(/\s/g, '').replace('+', '');
+            document.getElementById('whatsappLink').href = `https://wa.me/${cleanPhone}?text=${encodeURIComponent(mensajeGenerado)}`;
+
+            // Mostrar packs
+            const container = document.getElementById('packsContainer');
+            container.innerHTML = Object.entries(PACKS).map(([key, p]) => {
+                const isRec = key === packKey;
+                return `<div class="pack-card ${isRec ? 'recomendado' : ''}">
+                    <div class="pack-name" style="color: ${p.color}">${p.nombre}</div>
+                    <div class="pack-price">${p.precio} <span>MAD + ${p.mantenimiento}/mes</span></div>
+                    <ul style="list-style:none; margin-top:0.5rem; font-size:0.85rem; color:var(--texto-sec);">
+                        ${p.features.map(f => `<li style="padding:0.2rem 0; padding-left:1.2rem; position:relative;"><span style="position:absolute; left:0; color:var(--verde);">✓</span>${f}</li>`).join('')}
+                    </ul>
+                    ${isRec ? `<div style="color:var(--verde); font-size:0.8rem; margin-top:0.5rem; font-weight:600;">💡 ${razon}</div>` : ''}
+                </div>`;
+            }).join('');
+
+            // Guardar datos para CRM
+            leadData = { nombre: negocio, telefono, tipo_negocio: tipo, ciudad, notas: `Score: ${score}/10. Pack recomendado: ${pack.nombre}. Presupuesto: ${presupuesto}` };
+
+            document.getElementById('loading').classList.remove('active');
+            document.getElementById('resultPanel').classList.add('active');
+            document.getElementById('resultPanel').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function generarMensaje(negocio, tipo, dueno, pack, score, razon) {
+            const saludo = dueno ? `Hola ${dueno}! 👋` : `Hola! 👋`;
+            const tipos = { restaurante: 'restaurante/café', clinica: 'clínica dental', salon: 'salón de belleza', consultorio: 'consultorio médico', taller: 'taller', farmacia: 'farmacia', gimnasio: 'gimnasio', panaderia: 'panadería', inmobiliaria: 'inmobiliaria', otro: 'negocio' };
+            return `${saludo}
+
+Soy Isa de IA Boost Prufer 🚀
+
+Vi que ${negocio} tiene mucho potencial como ${tipos[tipo] || 'negocio'}. Con un score de ${score}/10 en digitalización, te recomiendo:
+
+${pack.nombre}
+${pack.precio} MAD + ${pack.mantenimiento} MAD/mes
+
+✅ ${pack.features[0]}
+✅ ${pack.features[1]}
+✅ ${pack.features[2]}
+
+🎯 ${razon}
+
+📦 Entrega: 24-72 horas
+🎓 Capacitación 15 min incluida
+🛡️ Garantía 30 días
+
+¿Te gustaría que empecemos hoy? Solo necesito confirmar:
+1. Fotos del local/productos
+2. Lista de servicios con precios
+3. Horarios de atención
+
+¡Quedo atento! 🙏
+
+Isa | IA Boost Prufer
+📱 +212 786 120 081`;
+        }
+
+        async function guardarLead() {
+            if (!leadData) return;
+            try {
+                const res = await fetch('/api/leads', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ ...leadData, fuente: 'validador' })
+                });
+                if (res.ok) {
+                    const data = await res.json();
+                    mostrarToast(`✅ Lead guardado: #${data.id}`);
+                } else {
+                    mostrarToast('❌ Error guardando lead');
+                }
+            } catch (e) {
+                mostrarToast('❌ Error de conexión');
+            }
+        }
+
+        function copiarMensaje() {
+            navigator.clipboard.writeText(mensajeGenerado).then(() => {
+                mostrarToast('📋 ¡Mensaje copiado!');
+            }).catch(() => {
+                const ta = document.createElement('textarea');
+                ta.value = mensajeGenerado;
+                document.body.appendChild(ta); ta.select();
+                document.execCommand('copy'); document.body.removeChild(ta);
+                mostrarToast('📋 ¡Mensaje copiado!');
+            });
+        }
+
+        function mostrarToast(msg) {
+            const toast = document.getElementById('toast');
+            toast.textContent = msg;
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 2500);
+        }
+    </script>
 </body>
 </html>

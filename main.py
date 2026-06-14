@@ -1,7 +1,8 @@
 """
-Orchestrator ISA OS v13.4
+Orchestrator ISA OS v13.4.1 — FIX URGENTE
 FastAPI + asyncpg + Neon PostgreSQL + Jinja2
-Auth simple + Vendedor Venta M0-M7 + Renovaciones
+Auth + Vendedor Venta + Validador + Renovaciones
+DB Migration: ALTER TABLE ADD COLUMN IF NOT EXISTS
 """
 
 import os
@@ -25,9 +26,8 @@ DATABASE_URL = os.getenv("DATABASE_URL", "")
 SECRET_KEY = os.getenv("SECRET_KEY", secrets.token_hex(32))
 PORT = int(os.getenv("PORT", "8000"))
 
-# Cookie config
 COOKIE_NAME = "isa_session"
-SESSION_MAX_AGE = 86400 * 7  # 7 días
+SESSION_MAX_AGE = 86400 * 7
 
 # ─── PYDANTIC MODELS ────────────────────────────────────────────────────
 
@@ -38,11 +38,6 @@ class LeadCreate(BaseModel):
     ciudad: str = "Tetuan"
     notas: str = ""
     fuente: str = "manual"
-    web: str = ""
-    rrss: str = ""
-    whatsapp_business: bool = False
-    rating: float = 0.0
-    resenas: int = 0
 
 class LeadUpdate(BaseModel):
     nombre: Optional[str] = None
@@ -66,108 +61,38 @@ class CotizacionCreate(BaseModel):
     precio_entrada: int
     precio_mantenimiento: int = 0
     notas: str = ""
-    tipo: str = "nueva"  # "nueva" | "renovacion"
+    tipo: str = "nueva"
 
 class UsuarioCreate(BaseModel):
     username: str
     password: str
     nombre_display: str
-    rol: str = "vendedor"  # "admin" | "vendedor"
+    rol: str = "vendedor"
 
 class LoginForm(BaseModel):
     username: str
     password: str
 
 class ProgresoVenta(BaseModel):
-    momento: str  # M0, M1, M2, M3, M4, M5, M6, M7
+    momento: str
     completado: bool = True
     notas: str = ""
 
 class ClasificacionLead(BaseModel):
-    caso: str  # A, B, C, D, E, F, G
+    caso: str
     score: int = Field(..., ge=0, le=10)
     respuestas_auditoria: dict = {}
 
 # ─── CASOS A-G + PACKS + SPEECHES ───────────────────────────────────────
 
 CASOS = {
-    "A": {
-        "nombre": "El Fantasma",
-        "criterio": "Sin web, sin RRSS, sin WA Business",
-        "prioridad": 1,
-        "color": "#EF4444",
-        "emoji": "🔴",
-        "pack_recomendado": "base",
-        "pack_nombre": "Pack Base",
-        "pack_precio": 900,
-        "pitch": "Su competencia ya está en internet y usted no aparece ni en Google Maps. Está perdiendo clientes todos los días.",
-    },
-    "B": {
-        "nombre": "El Influencer Cojo",
-        "criterio": "Solo RRSS, sin web propia",
-        "prioridad": 2,
-        "color": "#F97316",
-        "emoji": "🟠",
-        "pack_recomendado": "base",
-        "pack_nombre": "Pack Base",
-        "pack_precio": 900,
-        "pitch": "Si Facebook le cierra la cuenta mañana, pierde todo. Necesita su propio espacio en internet con dominio propio.",
-    },
-    "C": {
-        "nombre": "El Desactualizado",
-        "criterio": "Web vieja, no responsive, mal hecha",
-        "prioridad": 4,
-        "color": "#EAB308",
-        "emoji": "🟡",
-        "pack_recomendado": "completo",
-        "pack_nombre": "Pack Completo",
-        "pack_precio": 1200,
-        "pitch": "Su web carga en 8 segundos y no se ve en móvil. Google lo penaliza y los clientes se van.",
-    },
-    "D": {
-        "nombre": "El WhatsApp Caótico",
-        "criterio": "WA personal, sin catálogo, sin respuestas automáticas",
-        "prioridad": 3,
-        "color": "#F97316",
-        "emoji": "🟠",
-        "pack_recomendado": "whatsapp_pro",
-        "pack_nombre": "WhatsApp Pro",
-        "pack_precio": 400,
-        "pitch": "Está perdiendo 3 de cada 10 mensajes porque no tiene catálogo ni respuestas automáticas. Los clientes se cansan de esperar.",
-    },
-    "E": {
-        "nombre": "La Mina de Oro",
-        "criterio": "+40 reseñas, sin web, alto tráfico en Maps",
-        "prioridad": 1,
-        "color": "#EF4444",
-        "emoji": "🔴",
-        "pack_recomendado": "conversion",
-        "pack_nombre": "Pack Conversión",
-        "pack_precio": 2500,
-        "pitch": "Tiene 40+ reseñas y clientes buscándolo, pero no tiene web para capturarlos. Es una mina de oro sin herramientas.",
-    },
-    "F": {
-        "nombre": "El Semi-Digital",
-        "criterio": "Todo básico, quiere escalar y automatizar",
-        "prioridad": 5,
-        "color": "#00FF88",
-        "emoji": "🟢",
-        "pack_recomendado": "automatizacion",
-        "pack_nombre": "Automatización",
-        "pack_precio": 800,
-        "pitch": "Tiene buena base. Ahora necesita automatización para no perder tiempo respondiendo lo mismo y escalar sin contratar más gente.",
-    },
-    "G": {
-        "nombre": "El Competidor Digital",
-        "criterio": "Ya tiene todo profesionalmente configurado",
-        "prioridad": 7,
-        "color": "#94A3B8",
-        "emoji": "⚪",
-        "pack_recomendado": None,
-        "pack_nombre": None,
-        "pack_precio": 0,
-        "pitch": "Ya tiene todo bien configurado. ¿Le gustaría una auditoría gratuita para ver si hay oportunidades de mejora?",
-    },
+    "A": {"nombre": "El Fantasma", "criterio": "Sin web, sin RRSS, sin WA Business", "prioridad": 1, "color": "#EF4444", "emoji": "🔴", "pack_recomendado": "base", "pack_nombre": "Pack Base", "pack_precio": 900, "pitch": "Su competencia ya está en internet y usted no aparece ni en Google Maps. Está perdiendo clientes todos los días."},
+    "B": {"nombre": "El Influencer Cojo", "criterio": "Solo RRSS, sin web propia", "prioridad": 2, "color": "#F97316", "emoji": "🟠", "pack_recomendado": "base", "pack_nombre": "Pack Base", "pack_precio": 900, "pitch": "Si Facebook le cierra la cuenta mañana, pierde todo. Necesita su propio espacio en internet con dominio propio."},
+    "C": {"nombre": "El Desactualizado", "criterio": "Web vieja, no responsive, mal hecha", "prioridad": 4, "color": "#EAB308", "emoji": "🟡", "pack_recomendado": "completo", "pack_nombre": "Pack Completo", "pack_precio": 1200, "pitch": "Su web carga en 8 segundos y no se ve en móvil. Google lo penaliza y los clientes se van."},
+    "D": {"nombre": "El WhatsApp Caótico", "criterio": "WA personal, sin catálogo, sin respuestas automáticas", "prioridad": 3, "color": "#F97316", "emoji": "🟠", "pack_recomendado": "whatsapp_pro", "pack_nombre": "WhatsApp Pro", "pack_precio": 400, "pitch": "Está perdiendo 3 de cada 10 mensajes porque no tiene catálogo ni respuestas automáticas. Los clientes se cansan de esperar."},
+    "E": {"nombre": "La Mina de Oro", "criterio": "+40 reseñas, sin web, alto tráfico en Maps", "prioridad": 1, "color": "#EF4444", "emoji": "🔴", "pack_recomendado": "conversion", "pack_nombre": "Pack Conversión", "pack_precio": 2500, "pitch": "Tiene 40+ reseñas y clientes buscándolo, pero no tiene web para capturarlos. Es una mina de oro sin herramientas."},
+    "F": {"nombre": "El Semi-Digital", "criterio": "Todo básico, quiere escalar y automatizar", "prioridad": 5, "color": "#00FF88", "emoji": "🟢", "pack_recomendado": "automatizacion", "pack_nombre": "Automatización", "pack_precio": 800, "pitch": "Tiene buena base. Ahora necesita automatización para no perder tiempo respondiendo lo mismo y escalar sin contratar más gente."},
+    "G": {"nombre": "El Competidor Digital", "criterio": "Ya tiene todo profesionalmente configurado", "prioridad": 7, "color": "#94A3B8", "emoji": "⚪", "pack_recomendado": None, "pack_nombre": None, "pack_precio": 0, "pitch": "Ya tiene todo bien configurado. ¿Le gustaría una auditoría gratuita para ver si hay oportunidades de mejora?"},
 }
 
 PACKS = {
@@ -180,110 +105,17 @@ PACKS = {
     "escala": {"nombre": "Pack Escala", "precio": 8000, "mantenimiento": 500, "color": "#A855F7"},
 }
 
-ESTADOS = [
-    "nuevo", "auditoria", "objecion", "propuesta_enviada",
-    "cerrado", "onboarding", "ejecucion", "entregado",
-    "mantenimiento", "seguimiento", "rechazado"
-]
+ESTADOS = ["nuevo", "auditoria", "objecion", "propuesta_enviada", "cerrado", "onboarding", "ejecucion", "entregado", "mantenimiento", "seguimiento", "rechazado"]
 
 SPEECHES = {
-    "M0": {
-        "titulo": "Preparación",
-        "icono": "📋",
-        "objetivo": "Validar que el lead es potencial antes de contactar",
-        "checklist": [
-            "Verificar nombre del negocio y teléfono",
-            "Confirmar tipo de negocio y ciudad",
-            "Revisar si ya existe en el CRM",
-            "Asignar vendedor responsable",
-        ],
-        "speech": "Lead registrado: {nombre}. Negocio: {tipo_negocio} en {ciudad}. Listo para iniciar contacto.",
-    },
-    "M1": {
-        "titulo": "Apertura",
-        "icono": "👋",
-        "objetivo": "Presentarse y ofrecer auditoría gratuita de 5 min",
-        "speech_template": """¡Hola! Soy {vendedor} de IA Boost Prufer. Me dedico a ayudar a negocios como {nombre} a vender más desde el móvil.
-
-Noté que {observacion}. ¿Le gustaría que le haga una auditoría gratuita de 5 minutos para ver qué está perdiendo?""",
-        "observaciones": {
-            "A": "no aparece en Google Maps cuando busco {tipo_negocio} en esta zona",
-            "B": "solo tiene redes sociales pero no tiene página web propia",
-            "C": "su web no se ve bien en móvil y carga muy lento",
-            "D": "su WhatsApp no tiene catálogo de productos ni respuestas automáticas",
-            "E": "tiene muchas reseñas en Google pero no tiene web para capturar esos clientes",
-            "F": "ya tiene presencia digital básica pero podría automatizar mucho más",
-            "G": "ya tiene todo bien configurado, pero quizás hay oportunidades de mejora",
-        },
-    },
-    "M2": {
-        "titulo": "Objeción de Precio",
-        "icono": "💰",
-        "objetivo": "Desviar la pregunta de precio hacia la auditoría",
-        "speech_desviacion": "Depende de lo que necesite. Por eso le propongo la auditoría gratuita: en 5 minutos le digo exactamente qué tiene bien, qué le está haciendo perder clientes, y cuánto cuesta solucionarlo. No hay compromiso.",
-        "speech_precio": "Desde {precio_minimo} MAD puede empezar. Pero prefiero que vea primero qué necesita, para no cobrarle de más ni de menos.",
-    },
-    "M3": {
-        "titulo": "Auditoría Express",
-        "icono": "🔍",
-        "objetivo": "Hacer 5 preguntas clave y clasificar el caso A-G",
-        "preguntas": [
-            {"id": "usa_whatsapp", "texto": "¿Usa WhatsApp para atender clientes?", "peso": 2},
-            {"id": "google_maps", "texto": "¿Aparece su negocio en Google Maps completo?", "peso": 2},
-            {"id": "consultas_diarias", "texto": "¿Recibe más de 10 consultas al día?", "peso": 2},
-            {"id": "competidores", "texto": "¿Sus competidores tienen presencia digital?", "peso": 2},
-            {"id": "smartphone", "texto": "¿Usa smartphone activamente para el negocio?", "peso": 2},
-        ],
-        "speech_cierre": "Gracias por su tiempo. Según lo que me cuenta, su negocio califica como {caso_nombre}. Le explico por qué:",
-    },
-    "M4": {
-        "titulo": "Diagnóstico",
-        "icono": "📊",
-        "objetivo": "Presentar pérdidas estimadas y comparar con competencia",
-        "speech": """Le cuento: usted está perdiendo aproximadamente {perdida_estimada} clientes al mes porque {razon}.
-
-Sus competidores sí están capturando esos clientes con {solucion_competencia}. Yo le puedo solucionar eso en 48 horas.""",
-        "perdidas": {
-            "A": {"clientes": 15, "razon": "no aparece en Google Maps ni tiene web", "solucion": "Google Business + landing page"},
-            "B": {"clientes": 10, "razon": "depende 100% de redes sociales que puede perder", "solucion": "web propia con dominio"},
-            "C": {"clientes": 8, "razon": "su web no funciona en móvil y Google lo penaliza", "solucion": "web responsive optimizada"},
-            "D": {"clientes": 12, "razon": "no tiene catálogo ni respuestas automáticas", "solucion": "WhatsApp Business con catálogo"},
-            "E": {"clientes": 20, "razon": "tiene tráfico pero no lo convierte", "solucion": "landing persuasiva + funnel"},
-            "F": {"clientes": 5, "razon": "pierde tiempo en tareas repetitivas", "solucion": "automatización con IA"},
-            "G": {"clientes": 0, "razon": "ya está bien posicionado", "solucion": "auditoría gratuita"},
-        },
-    },
-    "M5": {
-        "titulo": "Mostrar Opciones",
-        "icono": "📦",
-        "objetivo": "Presentar packs recomendados según caso",
-        "speech": "Aquí tiene. Estos son los packs que tengo. El que más le conviene según la auditoría es el {pack_nombre} por {pack_precio} MAD.",
-    },
-    "M6": {
-        "titulo": "Manejo de Dudas",
-        "icono": "❓",
-        "objetivo": "Reafirmar valor con ejemplos y comparaciones",
-        "speech": """Mire, esto es lo que hacen en Estados Unidos con presupuestos de 10,000 dólares. Yo le traigo la versión para su negocio y su presupuesto.
-
-No necesita invertir miles. Empezamos en {precio_minimo} MAD y escalamos según resultados.""",
-        "ejemplos": [
-            {"nombre": "Clínica Dental", "url": "grandstreetdental.com", "sector": "salud"},
-            {"nombre": "Café Premium", "url": "onyxcoffeelab.com", "sector": "restaurante"},
-            {"nombre": "Salón Belleza", "url": "sirensalonsf.com", "sector": "belleza"},
-            {"nombre": "Consultorio Médico", "url": "onemedical.com", "sector": "salud"},
-            {"nombre": "Gimnasio", "url": "equinox.com", "sector": "fitness"},
-        ],
-    },
-    "M7": {
-        "titulo": "Cierre",
-        "icono": "✅",
-        "objetivo": "Enviar propuesta y solicitar 50% anticipado",
-        "speech": """Le envío por WhatsApp la propuesta con el precio exacto y lo que incluye.
-
-Si le parece, empezamos mañana. Solo necesito 50% adelantado ({anticipo} MAD) para comenzar y el resto al entregar.
-
-¿Le parece bien?""",
-    },
+    "M0": {"titulo": "Preparación", "icono": "📋", "objetivo": "Validar que el lead es potencial antes de contactar", "checklist": ["Verificar nombre del negocio y teléfono", "Confirmar tipo de negocio y ciudad", "Revisar si ya existe en el CRM", "Asignar vendedor responsable"], "speech": "Lead registrado: {nombre}. Negocio: {tipo_negocio} en {ciudad}. Listo para iniciar contacto."},
+    "M1": {"titulo": "Apertura", "icono": "👋", "objetivo": "Presentarse y ofrecer auditoría gratuita de 5 min", "speech_template": "¡Hola! Soy {vendedor} de IA Boost Prufer. Me dedico a ayudar a negocios como {nombre} a vender más desde el móvil.\n\nNoté que {observacion}. ¿Le gustaría que le haga una auditoría gratuita de 5 minutos para ver qué está perdiendo?", "observaciones": {"A": "no aparece en Google Maps cuando busco {tipo_negocio} en esta zona", "B": "solo tiene redes sociales pero no tiene página web propia", "C": "su web no se ve bien en móvil y carga muy lento", "D": "su WhatsApp no tiene catálogo de productos ni respuestas automáticas", "E": "tiene muchas reseñas en Google pero no tiene web para capturar esos clientes", "F": "ya tiene presencia digital básica pero podría automatizar mucho más", "G": "ya tiene todo bien configurado, pero quizás hay oportunidades de mejora"}},
+    "M2": {"titulo": "Objeción de Precio", "icono": "💰", "objetivo": "Desviar la pregunta de precio hacia la auditoría", "speech_desviacion": "Depende de lo que necesite. Por eso le propongo la auditoría gratuita: en 5 minutos le digo exactamente qué tiene bien, qué le está haciendo perder clientes, y cuánto cuesta solucionarlo. No hay compromiso.", "speech_precio": "Desde {precio_minimo} MAD puede empezar. Pero prefiero que vea primero qué necesita, para no cobrarle de más ni de menos."},
+    "M3": {"titulo": "Auditoría Express", "icono": "🔍", "objetivo": "Hacer 5 preguntas clave y clasificar el caso A-G", "preguntas": [{"id": "usa_whatsapp", "texto": "¿Usa WhatsApp para atender clientes?", "peso": 2}, {"id": "google_maps", "texto": "¿Aparece su negocio en Google Maps completo?", "peso": 2}, {"id": "consultas_diarias", "texto": "¿Recibe más de 10 consultas al día?", "peso": 2}, {"id": "competidores", "texto": "¿Sus competidores tienen presencia digital?", "peso": 2}, {"id": "smartphone", "texto": "¿Usa smartphone activamente para el negocio?", "peso": 2}], "speech_cierre": "Gracias por su tiempo. Según lo que me cuenta, su negocio califica como {caso_nombre}. Le explico por qué:"},
+    "M4": {"titulo": "Diagnóstico", "icono": "📊", "objetivo": "Presentar pérdidas estimadas y comparar con competencia", "speech": "Le cuento: usted está perdiendo aproximadamente {perdida_estimada} clientes al mes porque {razon}.\n\nSus competidores sí están capturando esos clientes con {solucion_competencia}. Yo le puedo solucionar eso en 48 horas.", "perdidas": {"A": {"clientes": 15, "razon": "no aparece en Google Maps ni tiene web", "solucion": "Google Business + landing page"}, "B": {"clientes": 10, "razon": "depende 100% de redes sociales que puede perder", "solucion": "web propia con dominio"}, "C": {"clientes": 8, "razon": "su web no funciona en móvil y Google lo penaliza", "solucion": "web responsive optimizada"}, "D": {"clientes": 12, "razon": "no tiene catálogo ni respuestas automáticas", "solucion": "WhatsApp Business con catálogo"}, "E": {"clientes": 20, "razon": "tiene tráfico pero no lo convierte", "solucion": "landing persuasiva + funnel"}, "F": {"clientes": 5, "razon": "pierde tiempo en tareas repetitivas", "solucion": "automatización con IA"}, "G": {"clientes": 0, "razon": "ya está bien posicionado", "solucion": "auditoría gratuita"}}},
+    "M5": {"titulo": "Mostrar Opciones", "icono": "📦", "objetivo": "Presentar packs recomendados según caso", "speech": "Aquí tiene. Estos son los packs que tengo. El que más le conviene según la auditoría es el {pack_nombre} por {pack_precio} MAD."},
+    "M6": {"titulo": "Manejo de Dudas", "icono": "❓", "objetivo": "Reafirmar valor con ejemplos y comparaciones", "speech": "Mire, esto es lo que hacen en Estados Unidos con presupuestos de 10,000 dólares. Yo le traigo la versión para su negocio y su presupuesto.\n\nNo necesita invertir miles. Empezamos en {precio_minimo} MAD y escalamos según resultados.", "ejemplos": [{"nombre": "Clínica Dental", "url": "grandstreetdental.com", "sector": "salud"}, {"nombre": "Café Premium", "url": "onyxcoffeelab.com", "sector": "restaurante"}, {"nombre": "Salón Belleza", "url": "sirensalonsf.com", "sector": "belleza"}, {"nombre": "Consultorio Médico", "url": "onemedical.com", "sector": "salud"}, {"nombre": "Gimnasio", "url": "equinox.com", "sector": "fitness"}]},
+    "M7": {"titulo": "Cierre", "icono": "✅", "objetivo": "Enviar propuesta y solicitar 50% anticipado", "speech": "Le envío por WhatsApp la propuesta con el precio exacto y lo que incluye.\n\nSi le parece, empezamos mañana. Solo necesito 50% adelantado ({anticipo} MAD) para comenzar y el resto al entregar.\n\n¿Le parece bien?"},
 }
 
 # ─── HELPERS ──────────────────────────────────────────────────────────────
@@ -307,7 +139,7 @@ def get_db_url() -> str:
         url += "?sslmode=require"
     return url
 
-# ─── DB LIFESPAN ─────────────────────────────────────────────────────────
+# ─── DB LIFESPAN CON MIGRACIÓN ───────────────────────────────────────────
 
 pool: Optional[asyncpg.Pool] = None
 
@@ -316,7 +148,7 @@ async def lifespan(app: FastAPI):
     global pool
     pool = await asyncpg.create_pool(get_db_url(), min_size=2, max_size=10)
     async with pool.acquire() as conn:
-        # Tabla leads
+        # 1. Crear tabla leads si no existe (v13.3 compatible)
         await conn.execute("""
             CREATE TABLE IF NOT EXISTS leads (
                 id SERIAL PRIMARY KEY,
@@ -324,28 +156,37 @@ async def lifespan(app: FastAPI):
                 telefono VARCHAR(50) NOT NULL,
                 tipo_negocio VARCHAR(100) DEFAULT 'restaurante',
                 ciudad VARCHAR(100) DEFAULT 'Tetuan',
-                notas TEXT DEFAULT '',
                 estado VARCHAR(50) DEFAULT 'nuevo',
                 score INTEGER DEFAULT 0,
                 pack_recomendado VARCHAR(50) DEFAULT '',
                 caso VARCHAR(10) DEFAULT '',
                 fuente VARCHAR(50) DEFAULT 'manual',
-                web VARCHAR(255) DEFAULT '',
-                rrss VARCHAR(255) DEFAULT '',
-                whatsapp_business BOOLEAN DEFAULT FALSE,
-                rating REAL DEFAULT 0,
-                resenas INTEGER DEFAULT 0,
-                vendedor_id INTEGER DEFAULT NULL,
-                momento_actual VARCHAR(10) DEFAULT 'M0',
-                fecha_inicio_mantenimiento TIMESTAMP DEFAULT NULL,
-                pack_contratado VARCHAR(50) DEFAULT '',
-                precio_mantenimiento_mensual INTEGER DEFAULT 0,
-                proxima_renovacion TIMESTAMP DEFAULT NULL,
                 fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 fecha_actualizacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )
         """)
-        # Tabla lead_historial
+        # 2. MIGRACIÓN: Agregar columnas nuevas si no existen (v13.3 → v13.4)
+        nuevas_columnas = [
+            ("notas", "TEXT DEFAULT ''"),
+            ("web", "VARCHAR(255) DEFAULT ''"),
+            ("rrss", "VARCHAR(255) DEFAULT ''"),
+            ("whatsapp_business", "BOOLEAN DEFAULT FALSE"),
+            ("rating", "REAL DEFAULT 0"),
+            ("resenas", "INTEGER DEFAULT 0"),
+            ("vendedor_id", "INTEGER DEFAULT NULL"),
+            ("momento_actual", "VARCHAR(10) DEFAULT 'M0'"),
+            ("fecha_inicio_mantenimiento", "TIMESTAMP DEFAULT NULL"),
+            ("pack_contratado", "VARCHAR(50) DEFAULT ''"),
+            ("precio_mantenimiento_mensual", "INTEGER DEFAULT 0"),
+            ("proxima_renovacion", "TIMESTAMP DEFAULT NULL"),
+        ]
+        for col_name, col_type in nuevas_columnas:
+            try:
+                await conn.execute(f'ALTER TABLE leads ADD COLUMN IF NOT EXISTS {col_name} {col_type}')
+            except Exception as e:
+                print(f"[MIGRACIÓN] Columna {col_name}: {e}")
+
+        # 3. Tabla lead_historial
         await conn.execute("""
             CREATE TABLE IF NOT EXISTS lead_historial (
                 id SERIAL PRIMARY KEY,
@@ -358,7 +199,7 @@ async def lifespan(app: FastAPI):
                 fecha TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )
         """)
-        # Tabla cotizaciones
+        # 4. Tabla cotizaciones
         await conn.execute("""
             CREATE TABLE IF NOT EXISTS cotizaciones (
                 id SERIAL PRIMARY KEY,
@@ -372,7 +213,7 @@ async def lifespan(app: FastAPI):
                 fecha TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )
         """)
-        # Tabla usuarios
+        # 5. Tabla usuarios
         await conn.execute("""
             CREATE TABLE IF NOT EXISTS usuarios (
                 id SERIAL PRIMARY KEY,
@@ -384,7 +225,7 @@ async def lifespan(app: FastAPI):
                 fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )
         """)
-        # Tabla sesiones
+        # 6. Tabla sesiones
         await conn.execute("""
             CREATE TABLE IF NOT EXISTS sesiones (
                 token VARCHAR(255) PRIMARY KEY,
@@ -393,7 +234,7 @@ async def lifespan(app: FastAPI):
                 fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )
         """)
-        # Tabla servicios
+        # 7. Tabla servicios
         await conn.execute("""
             CREATE TABLE IF NOT EXISTS servicios (
                 id SERIAL PRIMARY KEY,
@@ -404,7 +245,7 @@ async def lifespan(app: FastAPI):
                 activo BOOLEAN DEFAULT TRUE
             )
         """)
-        # Tabla referidos
+        # 8. Tabla referidos
         await conn.execute("""
             CREATE TABLE IF NOT EXISTS referidos (
                 id SERIAL PRIMARY KEY,
@@ -416,15 +257,14 @@ async def lifespan(app: FastAPI):
                 fecha TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )
         """)
-        # Insertar usuario admin por defecto si no existe
+        # 9. Insertar/actualizar admin (hash se actualiza siempre con SECRET_KEY actual)
         admin_hash = hash_password("admin123")
         await conn.execute("""
             INSERT INTO usuarios (username, password_hash, nombre_display, rol)
             VALUES ('admin', $1, 'Administrador', 'admin')
-            ON CONFLICT (username) DO UPDATE SET password_hash = 
-        EXCLUDED.password_hash
+            ON CONFLICT (username) DO UPDATE SET password_hash = EXCLUDED.password_hash
         """, admin_hash)
-        # Insertar packs como servicios si no existen
+        # 10. Insertar packs como servicios
         for codigo, pack in PACKS.items():
             await conn.execute("""
                 INSERT INTO servicios (codigo, nombre, categoria, precio_base)
@@ -436,7 +276,7 @@ async def lifespan(app: FastAPI):
 
 # ─── FASTAPI APP ─────────────────────────────────────────────────────────
 
-app = FastAPI(title="Orchestrator ISA v13.4", lifespan=lifespan)
+app = FastAPI(title="Orchestrator ISA v13.4.1", lifespan=lifespan)
 
 app.add_middleware(
     CORSMiddleware,
@@ -563,12 +403,11 @@ async def crear_lead(data: LeadCreate):
         raise HTTPException(500, "DB no disponible")
     async with pool.acquire() as conn:
         row = await conn.fetchrow(
-            """INSERT INTO leads (nombre, telefono, tipo_negocio, ciudad, notas, fuente, web, rrss, whatsapp_business, rating, resenas)
-               VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
+            """INSERT INTO leads (nombre, telefono, tipo_negocio, ciudad, notas, fuente)
+               VALUES ($1, $2, $3, $4, $5, $6)
                RETURNING *""",
             data.nombre, data.telefono, data.tipo_negocio, data.ciudad,
-            data.notas, data.fuente, data.web, data.rrss,
-            data.whatsapp_business, data.rating, data.resenas
+            data.notas, data.fuente
         )
         await conn.execute(
             """INSERT INTO lead_historial (lead_id, campo, valor_anterior, valor_nuevo, notas)
@@ -624,11 +463,7 @@ async def obtener_lead(lead_id: int):
         cotizaciones = await conn.fetch(
             "SELECT * FROM cotizaciones WHERE lead_id = $1 ORDER BY fecha DESC", lead_id
         )
-        return {
-            "lead": dict(lead),
-            "historial": [dict(h) for h in historial],
-            "cotizaciones": [dict(c) for c in cotizaciones],
-        }
+        return {"lead": dict(lead), "historial": [dict(h) for h in historial], "cotizaciones": [dict(c) for c in cotizaciones]}
 
 @app.patch("/api/leads/{lead_id}")
 async def actualizar_lead(lead_id: int, data: LeadUpdate, user=Depends(require_auth)):
@@ -651,13 +486,12 @@ async def actualizar_lead(lead_id: int, data: LeadUpdate, user=Depends(require_a
             f"UPDATE leads SET {', '.join(updates)}, fecha_actualizacion = CURRENT_TIMESTAMP WHERE id = ${len(params)}",
             *params
         )
-        # Registrar historial
         for field, value in data.model_dump(exclude_unset=True).items():
             if value is not None and field in lead and str(lead[field]) != str(value):
                 await conn.execute(
                     """INSERT INTO lead_historial (lead_id, campo, valor_anterior, valor_nuevo, vendedor_id, notas)
                        VALUES ($1, $2, $3, $4, $5, $6)""",
-                    lead_id, field, str(lead[field]), str(value), user["id"], f"Actualizado desde panel vendedor"
+                    lead_id, field, str(lead[field]), str(value), user["id"], "Actualizado desde panel vendedor"
                 )
         updated = await conn.fetchrow("SELECT * FROM leads WHERE id = $1", lead_id)
         return dict(updated)
@@ -695,11 +529,7 @@ async def clasificar_lead(lead_id: int, data: ClasificacionLead, user=Depends(re
             f"Auditoría completada. Score: {data.score}/10. Caso: {caso_info['nombre']}. Respuestas: {data.respuestas_auditoria}"
         )
         updated = await conn.fetchrow("SELECT * FROM leads WHERE id = $1", lead_id)
-        return {
-            "lead": dict(updated),
-            "caso": caso_info,
-            "pack": PACKS.get(caso_info["pack_recomendado"]) if caso_info["pack_recomendado"] else None,
-        }
+        return {"lead": dict(updated), "caso": caso_info, "pack": PACKS.get(caso_info["pack_recomendado"]) if caso_info["pack_recomendado"] else None}
 
 @app.post("/api/leads/{lead_id}/progreso")
 async def guardar_progreso(lead_id: int, data: ProgresoVenta, user=Depends(require_auth)):
@@ -711,12 +541,10 @@ async def guardar_progreso(lead_id: int, data: ProgresoVenta, user=Depends(requi
         lead = await conn.fetchrow("SELECT * FROM leads WHERE id = $1", lead_id)
         if not lead:
             raise HTTPException(404, "Lead no encontrado")
-        # Actualizar momento actual
         await conn.execute(
             "UPDATE leads SET momento_actual = $1, fecha_actualizacion = CURRENT_TIMESTAMP WHERE id = $2",
             data.momento, lead_id
         )
-        # Guardar en historial
         await conn.execute(
             """INSERT INTO lead_historial (lead_id, campo, valor_anterior, valor_nuevo, vendedor_id, notas)
                VALUES ($1, 'momento', $2, $3, $4, $5)""",
@@ -738,7 +566,6 @@ async def crear_cotizacion(data: CotizacionCreate, user=Depends(require_auth)):
                VALUES ($1, $2, $3, $4, $5, $6) RETURNING *""",
             data.lead_id, data.pack, data.precio_entrada, data.precio_mantenimiento, data.notas, data.tipo
         )
-        # Si es renovación, actualizar lead
         if data.tipo == "renovacion":
             await conn.execute(
                 """UPDATE leads SET proxima_renovacion = proxima_renovacion + INTERVAL '30 days',
@@ -784,7 +611,6 @@ async def generar_renovacion(lead_id: int, user=Depends(require_auth)):
         if not pack or pack not in PACKS:
             raise HTTPException(400, "Pack contratado no válido")
         pack_info = PACKS[pack]
-        # Crear cotización de renovación
         row = await conn.fetchrow(
             """INSERT INTO cotizaciones (lead_id, pack, precio_entrada, precio_mantenimiento, notas, tipo)
                VALUES ($1, $2, 0, $3, $4, 'renovacion') RETURNING *""",
@@ -796,11 +622,7 @@ async def generar_renovacion(lead_id: int, user=Depends(require_auth)):
                VALUES ($1, 'renovacion', NULL, 'generada', $2, $3)""",
             lead_id, user["id"], f"Cotización de renovación generada: {pack_info['nombre']} - {pack_info['mantenimiento']} MAD/mes"
         )
-        return {
-            "cotizacion": dict(row),
-            "pack": pack_info,
-            "lead": dict(lead),
-        }
+        return {"cotizacion": dict(row), "pack": pack_info, "lead": dict(lead)}
 
 # ─── API: DASHBOARD ──────────────────────────────────────────────────────
 
@@ -828,14 +650,10 @@ async def dashboard(user=Depends(require_auth)):
             "SELECT COALESCE(SUM(precio_mantenimiento), 0) FROM cotizaciones WHERE estado = 'aceptada'"
         )
         return {
-            "total_leads": total_leads,
-            "leads_nuevos": leads_nuevos,
-            "leads_auditoria": leads_auditoria,
-            "leads_cerrados": leads_cerrados,
-            "leads_mantenimiento": leads_mantenimiento,
-            "renovaciones_7d": renovaciones_7d,
-            "ingresos_potenciales": ingresos_potenciales,
-            "ingresos_cerrados": ingresos_cerrados,
+            "total_leads": total_leads, "leads_nuevos": leads_nuevos,
+            "leads_auditoria": leads_auditoria, "leads_cerrados": leads_cerrados,
+            "leads_mantenimiento": leads_mantenimiento, "renovaciones_7d": renovaciones_7d,
+            "ingresos_potenciales": ingresos_potenciales, "ingresos_cerrados": ingresos_cerrados,
             "mantenimiento_mensual": mantenimiento_mensual,
         }
 
@@ -859,7 +677,7 @@ async def health():
                 db_status = "connected"
         except Exception:
             db_status = "error"
-    return {"status": "healthy", "db": db_status, "version": "13.4.0"}
+    return {"status": "healthy", "db": db_status, "version": "13.4.1"}
 
 # ─── PORTAL ROUTES (PROTEGIDAS) ──────────────────────────────────────────
 
@@ -917,21 +735,17 @@ async def portal_speeches(request: Request, user=Depends(require_auth)):
 @app.get("/vendedor/venta", response_class=HTMLResponse)
 async def vendedor_venta(request: Request, user=Depends(require_auth)):
     return templates.TemplateResponse("portal_vendedor.html", {
-        "request": request,
-        "user": user,
-        "casos": CASOS,
-        "packs": PACKS,
-        "speeches": SPEECHES,
-        "estados": ESTADOS,
-        "colores": {
-            "fondo": "#0B1120",
-            "card": "#151E32",
-            "cyan": "#00E5FF",
-            "verde": "#00FF88",
-            "texto": "#FFFFFF",
-            "texto_secundario": "#94A3B8",
-            "alerta": "#EF4444",
-        }
+        "request": request, "user": user, "casos": CASOS, "packs": PACKS, "speeches": SPEECHES, "estados": ESTADOS,
+        "colores": {"fondo": "#0B1120", "card": "#151E32", "cyan": "#00E5FF", "verde": "#00FF88", "texto": "#FFFFFF", "texto_secundario": "#94A3B8", "alerta": "#EF4444"}
+    })
+
+# ─── VALIDADOR (MÓVIL, RÁPIDO) ──────────────────────────────────────────
+
+@app.get("/portal/validador", response_class=HTMLResponse)
+async def portal_validador(request: Request, user=Depends(require_auth)):
+    return templates.TemplateResponse("portal_validador.html", {
+        "request": request, "user": user, "packs": PACKS,
+        "colores": {"fondo": "#0B1120", "card": "#151E32", "cyan": "#00E5FF", "verde": "#00FF88"}
     })
 
 # ─── LANDINGS (PÚBLICAS) ───────────────────────────────────────────────
