@@ -1,0 +1,942 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Web Express | Tu sitio profesional en 24h - Marruecos</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --cyan: #00E5FF;
+            --green: #00FF88;
+            --dark: #0f172a;
+            --card: #1e293b;
+            --text: #cbd5e1;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #080C14 0%, #0f172a 50%, #1a1a2e 100%);
+            color: #e2e8f0;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        .container { max-width: 1200px; margin: 0 auto; padding: 0 1.5rem; }
+
+        .glow-bg {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            pointer-events: none;
+            z-index: 0;
+            opacity: 0.4;
+        }
+        .glow-1 {
+            position: absolute;
+            top: -10%; left: 15%;
+            width: 550px; height: 550px;
+            background: radial-gradient(circle, rgba(0,229,255,0.12) 0%, transparent 70%);
+            border-radius: 50%;
+            filter: blur(90px);
+        }
+        .glow-2 {
+            position: absolute;
+            bottom: 5%; right: 5%;
+            width: 450px; height: 450px;
+            background: radial-gradient(circle, rgba(0,255,136,0.08) 0%, transparent 70%);
+            border-radius: 50%;
+            filter: blur(90px);
+        }
+
+        .header {
+            position: relative;
+            z-index: 10;
+            padding: 1.5rem 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .logo {
+            font-size: 1.2rem;
+            font-weight: 900;
+            background: linear-gradient(135deg, var(--cyan), var(--green));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .nav-links a {
+            color: #94a3b8;
+            text-decoration: none;
+            margin-left: 2rem;
+            font-size: 0.9rem;
+            transition: color 0.3s;
+        }
+        .nav-links a:hover { color: var(--cyan); }
+
+        .hero {
+            position: relative;
+            z-index: 10;
+            min-height: 85vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 3rem 0;
+        }
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            background: rgba(0,229,255,0.08);
+            border: 1px solid rgba(0,229,255,0.2);
+            border-radius: 50px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--cyan);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 2rem;
+        }
+        .badge .pulse {
+            width: 8px; height: 8px;
+            background: var(--cyan);
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+        .hero h1 {
+            font-size: clamp(2.5rem, 6vw, 5rem);
+            font-weight: 900;
+            line-height: 1.05;
+            margin-bottom: 1.5rem;
+            color: #fff;
+        }
+        .hero h1 span {
+            background: linear-gradient(135deg, var(--cyan), var(--green));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .hero-sub {
+            font-size: 1.1rem;
+            color: #94a3b8;
+            max-width: 650px;
+            margin: 0 auto 2.5rem;
+            line-height: 1.7;
+        }
+        .hero-sub strong { color: #fff; }
+
+        .features-box {
+            background: rgba(30, 41, 59, 0.5);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.05);
+            border-radius: 20px;
+            padding: 2rem;
+            max-width: 650px;
+            margin: 0 auto 2.5rem;
+            text-align: left;
+        }
+        .feature-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+        .feature-item:last-child { margin-bottom: 0; }
+        .feature-icon {
+            color: var(--cyan);
+            font-size: 1.2rem;
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+        .feature-text {
+            color: #cbd5e1;
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+        .feature-text strong { color: #fff; }
+
+        .price-tag {
+            display: inline-block;
+            background: linear-gradient(135deg, rgba(0,229,255,0.15), rgba(0,255,136,0.1));
+            border: 1px solid rgba(0,229,255,0.2);
+            border-radius: 16px;
+            padding: 1rem 2rem;
+            margin-bottom: 1.5rem;
+        }
+        .price-tag .from { font-size: 0.8rem; color: #94a3b8; }
+        .price-tag .amount {
+            font-size: 2.5rem;
+            font-weight: 900;
+            background: linear-gradient(135deg, var(--cyan), var(--green));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .price-tag .currency { font-size: 0.9rem; color: #64748b; }
+
+        .cta-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            padding: 1.1rem 2.5rem;
+            background: linear-gradient(135deg, var(--green), #059669);
+            color: #000;
+            font-size: 1rem;
+            font-weight: 800;
+            text-decoration: none;
+            border-radius: 14px;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            box-shadow: 0 0 30px rgba(0,255,136,0.2);
+        }
+        .cta-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 40px rgba(0,255,136,0.3);
+        }
+        .cta-note {
+            margin-top: 1rem;
+            font-size: 0.8rem;
+            color: #64748b;
+        }
+
+        .section {
+            position: relative;
+            z-index: 10;
+            padding: 5rem 0;
+        }
+        .section-title {
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--cyan);
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+        .section h2 {
+            font-size: clamp(1.8rem, 4vw, 2.5rem);
+            color: #fff;
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+        .section-desc {
+            color: #94a3b8;
+            text-align: center;
+            max-width: 600px;
+            margin: 0 auto 3rem;
+        }
+
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+        .card {
+            background: rgba(30, 41, 59, 0.4);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.05);
+            border-radius: 20px;
+            padding: 2rem;
+            transition: all 0.3s;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+            border-color: rgba(0,229,255,0.2);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+        }
+        .card-icon {
+            width: 50px; height: 50px;
+            background: rgba(0,229,255,0.1);
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            margin-bottom: 1.25rem;
+        }
+        .card h3 {
+            color: #fff;
+            font-size: 1.1rem;
+            margin-bottom: 0.5rem;
+        }
+        .card p {
+            color: #64748b;
+            font-size: 0.9rem;
+            line-height: 1.6;
+        }
+
+        .info-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4rem;
+            align-items: center;
+        }
+        .info-section .left h2 {
+            text-align: left;
+            margin-bottom: 1rem;
+        }
+        .info-section .left p {
+            color: #94a3b8;
+            line-height: 1.7;
+            margin-bottom: 1rem;
+        }
+        .info-section .left strong { color: #fff; }
+        .highlight-box {
+            background: rgba(0,229,255,0.05);
+            border-left: 4px solid var(--cyan);
+            padding: 1.25rem;
+            border-radius: 0 12px 12px 0;
+            margin-top: 1.5rem;
+        }
+        .highlight-box p {
+            color: #cbd5e1;
+            font-size: 0.9rem;
+            margin: 0;
+        }
+
+        .mini-cards {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        .mini-card {
+            background: rgba(30, 41, 59, 0.4);
+            border: 1px solid rgba(255,255,255,0.05);
+            border-radius: 16px;
+            padding: 1.25rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            transition: all 0.3s;
+        }
+        .mini-card:hover {
+            border-color: rgba(0,229,255,0.2);
+            transform: translateX(5px);
+        }
+        .mini-card-icon {
+            width: 40px; height: 40px;
+            background: rgba(0,229,255,0.1);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            flex-shrink: 0;
+        }
+        .mini-card h4 {
+            color: #fff;
+            font-size: 0.95rem;
+            margin-bottom: 0.2rem;
+        }
+        .mini-card p {
+            color: #64748b;
+            font-size: 0.8rem;
+        }
+
+        .warning-box {
+            background: linear-gradient(90deg, rgba(239,68,68,0.1), rgba(239,68,68,0.02));
+            border: 1px solid rgba(239,68,68,0.15);
+            border-radius: 16px;
+            padding: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+        .warning-box .icon { font-size: 2rem; }
+        .warning-box h4 {
+            color: #f87171;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 0.5rem;
+        }
+        .warning-box p {
+            color: #cbd5e1;
+            font-size: 0.9rem;
+            line-height: 1.6;
+        }
+        .warning-box strong { color: #fff; }
+        .warning-box a {
+            display: inline-block;
+            margin-top: 0.75rem;
+            padding: 0.5rem 1rem;
+            background: rgba(239,68,68,0.1);
+            border: 1px solid rgba(239,68,68,0.2);
+            border-radius: 20px;
+            color: #f87171;
+            font-size: 0.8rem;
+            text-decoration: none;
+            transition: all 0.3s;
+        }
+        .warning-box a:hover {
+            background: rgba(239,68,68,0.2);
+        }
+
+        .workshop-box {
+            background: linear-gradient(180deg, rgba(30,41,59,0.6), rgba(15,23,42,0.8));
+            border: 1px solid rgba(255,255,255,0.05);
+            border-radius: 20px;
+            padding: 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 2rem;
+        }
+        .workshop-box h3 {
+            color: #fff;
+            font-size: 1.3rem;
+            margin-bottom: 0.5rem;
+        }
+        .workshop-box p {
+            color: #94a3b8;
+            font-size: 0.9rem;
+        }
+        .tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-top: 0.75rem;
+        }
+        .tag {
+            background: rgba(255,255,255,0.05);
+            border-radius: 20px;
+            padding: 0.3rem 0.8rem;
+            font-size: 0.75rem;
+            color: var(--cyan);
+        }
+        .workshop-btn {
+            padding: 0.75rem 1.5rem;
+            background: rgba(255,255,255,0.08);
+            border: 1px solid rgba(255,255,255,0.15);
+            border-radius: 12px;
+            color: #fff;
+            font-weight: 600;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            white-space: nowrap;
+        }
+        .workshop-btn:hover {
+            background: rgba(255,255,255,0.15);
+        }
+
+        .cta-final {
+            background: linear-gradient(180deg, transparent, rgba(0,0,0,0.5));
+            text-align: center;
+            padding: 5rem 0;
+        }
+        .cta-box {
+            background: linear-gradient(180deg, rgba(30,41,59,0.8), rgba(15,23,42,0.9));
+            border: 1px solid rgba(255,255,255,0.05);
+            border-radius: 28px;
+            padding: 3rem 2rem;
+            max-width: 550px;
+            margin: 0 auto;
+        }
+        .cta-box h3 {
+            color: #fff;
+            font-size: 1.8rem;
+            margin-bottom: 0.75rem;
+        }
+        .cta-box p {
+            color: #94a3b8;
+            margin-bottom: 1.5rem;
+        }
+        .dual-btns {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+        .dual-btns .btn-wa {
+            padding: 0.9rem;
+            background: linear-gradient(135deg, var(--green), #059669);
+            color: #000;
+            border: none;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 0.95rem;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+        .dual-btns .btn-mail {
+            padding: 0.9rem;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 12px;
+            color: #94a3b8;
+            font-weight: 500;
+            font-size: 0.9rem;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            transition: all 0.3s;
+        }
+        .dual-btns .btn-mail:hover {
+            background: rgba(255,255,255,0.1);
+            color: #fff;
+        }
+
+        footer {
+            text-align: center;
+            padding: 2rem;
+            color: #475569;
+            font-size: 0.8rem;
+            border-top: 1px solid rgba(255,255,255,0.03);
+        }
+        footer .footer-links {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-bottom: 0.5rem;
+        }
+
+        /* Modal */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.8);
+            backdrop-filter: blur(10px);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+        }
+        .modal-overlay.active { display: flex; }
+        .modal {
+            background: linear-gradient(180deg, #1e293b, #0f172a);
+            border: 1px solid rgba(0,229,255,0.2);
+            border-radius: 24px;
+            padding: 2.5rem;
+            max-width: 480px;
+            width: 100%;
+            position: relative;
+        }
+        .modal h2 {
+            color: var(--cyan);
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+            text-align: left;
+        }
+        .modal p {
+            color: #94a3b8;
+            font-size: 0.9rem;
+            margin-bottom: 1.5rem;
+        }
+        .form-group { margin-bottom: 1rem; }
+        .form-group label {
+            display: block;
+            color: #94a3b8;
+            font-size: 0.8rem;
+            margin-bottom: 0.4rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%;
+            padding: 0.9rem 1rem;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 12px;
+            color: #fff;
+            font-size: 1rem;
+            font-family: inherit;
+        }
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+            outline: none;
+            border-color: var(--cyan);
+        }
+        .form-group textarea { min-height: 80px; resize: vertical; }
+        .modal-actions {
+            display: flex;
+            gap: 0.75rem;
+            margin-top: 1.5rem;
+        }
+        .btn-primary {
+            flex: 1;
+            padding: 0.9rem;
+            background: linear-gradient(135deg, var(--green), #059669);
+            color: #000;
+            border: none;
+            border-radius: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            font-size: 0.95rem;
+        }
+        .btn-secondary {
+            flex: 1;
+            padding: 0.9rem;
+            background: rgba(255,255,255,0.05);
+            color: #94a3b8;
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 0.95rem;
+        }
+        .close-modal {
+            position: absolute;
+            top: 1rem; right: 1rem;
+            background: none;
+            border: none;
+            color: #64748b;
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+        .success-msg {
+            display: none;
+            background: rgba(0,255,136,0.1);
+            border: 1px solid rgba(0,255,136,0.3);
+            color: var(--green);
+            padding: 1rem;
+            border-radius: 12px;
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+        .success-msg.active { display: block; }
+
+        @media (max-width: 768px) {
+            .nav-links { display: none; }
+            .info-section { grid-template-columns: 1fr; gap: 2rem; }
+            .workshop-box { flex-direction: column; text-align: center; }
+            .cards-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="glow-bg">
+        <div class="glow-1"></div>
+        <div class="glow-2"></div>
+    </div>
+
+    <div class="container">
+        <header class="header">
+            <div class="logo">🌐 Web Express</div>
+            <nav class="nav-links">
+                <a href="#incluye">Qué incluye</a>
+                <a href="#por-que">Por qué nosotros</a>
+                <a href="#contacto">Contacto</a>
+            </nav>
+        </header>
+    </div>
+
+    <section class="hero">
+        <div class="container">
+            <div class="badge">
+                <span class="pulse"></span>
+                Marruecos · Entrega en 24h
+            </div>
+
+            <h1>Tener tu website<br>nunca fue tan <span>fácil</span></h1>
+
+            <p class="hero-sub">
+                <strong>Sitio web profesional con todo incluido:</strong> diseño persuasivo, SEO inicial, 
+                formulario de contacto, botón de WhatsApp, dominio, hosting y 3 correos empresariales.
+            </p>
+
+            <div class="features-box">
+                <div class="feature-item">
+                    <span class="feature-icon">✓</span>
+                    <p class="feature-text"><strong>Hasta 5 secciones + textos persuasivos</strong> – copy preparado para convertir visitantes.</p>
+                </div>
+                <div class="feature-item">
+                    <span class="feature-icon">✓</span>
+                    <p class="feature-text"><strong>SEO inicial para aparecer en Google</strong> – estructura optimizada y etiquetas clave.</p>
+                </div>
+                <div class="feature-item">
+                    <span class="feature-icon">✓</span>
+                    <p class="feature-text"><strong>Todo incluido: Dominio .com/.ma, Hosting + 3 correos</strong> – Sin costos ocultos.</p>
+                </div>
+                <div class="feature-item">
+                    <span class="feature-icon">✓</span>
+                    <p class="feature-text"><strong>Website multipágina y entrega express</strong> – listo en máximo 24 horas.</p>
+                </div>
+            </div>
+
+            <div class="price-tag">
+                <div class="from">Desde</div>
+                <div class="amount">2,500 <span class="currency">MAD</span></div>
+            </div>
+
+            <button class="cta-btn" onclick="openModal()">
+                💬 Quiero mi web → WhatsApp
+            </button>
+            <p class="cta-note">🚀 Creación en 24 hrs · Pago contra entrega · Soporte incluido</p>
+        </div>
+    </section>
+
+    <section class="section" id="incluye">
+        <div class="container">
+            <div class="section-title">Todo en un solo paquete</div>
+            <h2>Dominio, hosting, correos y diseño profesional</h2>
+            <p class="section-desc">Sin letras chiquitas. Emprende con presencia digital real desde el día 1.</p>
+
+            <div class="cards-grid">
+                <div class="card">
+                    <div class="card-icon">📄</div>
+                    <h3>5 secciones + textos persuasivos</h3>
+                    <p>Inicio, servicios, sobre nosotros, contacto, testimoniales. Copy redactado para generar confianza.</p>
+                </div>
+                <div class="card">
+                    <div class="card-icon">🔍</div>
+                    <h3>SEO inicial + Google</h3>
+                    <p>Metaetiquetas, palabras clave locales, estructura amigable para aparecer en búsquedas.</p>
+                </div>
+                <div class="card">
+                    <div class="card-icon">📧</div>
+                    <h3>3 correos profesionales</h3>
+                    <p>info@tudominio, contacto@, ventas@. Credibilidad absoluta frente a Gmail o Hotmail.</p>
+                </div>
+                <div class="card">
+                    <div class="card-icon">🌐</div>
+                    <h3>Dominio + Hosting incluido</h3>
+                    <p>Registro de dominio .com, .ma o .org, hosting rápido y SSL gratis. Primer año incluido.</p>
+                </div>
+                <div class="card">
+                    <div class="card-icon">📱</div>
+                    <h3>Botón WhatsApp + Formulario</h3>
+                    <p>Conexión directa con clientes. Botón flotante de WhatsApp y formulario funcional.</p>
+                </div>
+                <div class="card">
+                    <div class="card-icon">⚡</div>
+                    <h3>Website Express 24 hrs</h3>
+                    <p>Multipágina, responsive, lista para móvil. Tu negocio online captando clientes en 1 día.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="section" id="por-que">
+        <div class="container">
+            <div class="info-section">
+                <div class="left">
+                    <div class="section-title" style="text-align: left;">La oferta más completa</div>
+                    <h2>No solo una página web, una máquina de captación de clientes</h2>
+                    <p>
+                        La mayoría de pequeños negocios no aparecen en Google y pierden ventas por no tener una web profesional. 
+                        Con nuestro servicio integral, resuelves visibilidad, credibilidad y leads desde el primer día.
+                    </p>
+                    <p>
+                        <strong>Dominio, hosting, correos y diseño persuasivo</strong> incluidos por un único pago. 
+                        Sin necesidad de conocimientos técnicos, nosotros lo creamos por ti.
+                    </p>
+                    <div class="highlight-box">
+                        <p>🎯 Ideal para: negocios locales, freelancers, restaurantes, peluquerías, estudios, clínicas, tiendas físicas que quieren vender más por internet.</p>
+                    </div>
+                </div>
+                <div class="mini-cards">
+                    <div class="mini-card">
+                        <div class="mini-card-icon">🥇</div>
+                        <div>
+                            <h4>Aparece en Google desde el día 1</h4>
+                            <p>Configuración SEO inicial + indexación rápida.</p>
+                        </div>
+                    </div>
+                    <div class="mini-card">
+                        <div class="mini-card-icon">📧</div>
+                        <div>
+                            <h4>3 correos profesionales incluidos</h4>
+                            <p>Comunícate con dominio propio, genera confianza.</p>
+                        </div>
+                    </div>
+                    <div class="mini-card">
+                        <div class="mini-card-icon">⚡</div>
+                        <div>
+                            <h4>Entrega express garantizada</h4>
+                            <p>Website multipágina completamente funcional en menos de un día.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="section">
+        <div class="container">
+            <div class="warning-box">
+                <div class="icon">⚠️</div>
+                <div>
+                    <h4>Los 7 errores que matan tus ventas online</h4>
+                    <p>Sin página web profesional, sin SEO, sin dominio propio, sin correos empresariales, sin sistema de contacto, sin presencia en Google, sin confianza digital. <strong>Nosotros lo solucionamos en 24h.</strong></p>
+                    <a href="#" onclick="openModal(); return false;">📘 Quiero la guía completa →</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="section">
+        <div class="container">
+            <div class="workshop-box">
+                <div>
+                    <h3>🎓 ¿Tu negocio está perdiendo ventas?</h3>
+                    <p>Aprende un método sólido de captación, herramientas de automatización y publicidad efectiva.</p>
+                    <div class="tags">
+                        <span class="tag">✅ Método de clientes</span>
+                        <span class="tag">✅ Automatización</span>
+                        <span class="tag">✅ Publicidad local</span>
+                    </div>
+                </div>
+                <button class="workshop-btn" onclick="openModal()">
+                    📌 TALLER GRATUITO → Cupo limitado
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <section class="cta-final" id="contacto">
+        <div class="container">
+            <div class="cta-box">
+                <h3>¿Listo para tener tu sitio web profesional?</h3>
+                <p>Habla con nosotros, resolvemos dudas y comenzamos tu proyecto express en 24 horas. Dominio, hosting, diseño y SEO inicial desde 2,500 MAD.</p>
+
+                <div class="dual-btns">
+                    <button class="btn-wa" onclick="openModal()">
+                        💬 Iniciar por WhatsApp
+                    </button>
+                    <a href="mailto:contacto@orchestrator-isa.com?subject=Website%20Express" class="btn-mail">
+                        📧 Enviar correo
+                    </a>
+                </div>
+                <p style="margin-top: 1.5rem; font-size: 0.8rem; color: #475569;">
+                    🔒 Pago contra entrega · 1 año de dominio y hosting incluido · Soporte técnico
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <div class="footer-links">
+            <span>© 2026 Web Express — Orchestrator ISA</span>
+            <span>🚀 Desarrollo en 24 hrs · Sitio multipágina profesional</span>
+            <span>📧 contacto@orchestrator-isa.com</span>
+        </div>
+    </footer>
+
+    <!-- Modal -->
+    <div class="modal-overlay" id="modalOverlay">
+        <div class="modal">
+            <button class="close-modal" onclick="closeModal()">×</button>
+            <h2>🌐 Quiero mi web profesional</h2>
+            <p>Déjanos tus datos y te contactamos en menos de 24h con una propuesta personalizada.</p>
+
+            <div class="success-msg" id="successMsg">
+                ✅ ¡Solicitud enviada! Te contactaremos pronto.
+            </div>
+
+            <form id="webForm">
+                <div class="form-group">
+                    <label>Nombre del negocio</label>
+                    <input type="text" name="nombre" required placeholder="Ej: Café Al Hizam">
+                </div>
+                <div class="form-group">
+                    <label>Tipo de negocio</label>
+                    <input type="text" name="tipo_negocio" required placeholder="Ej: Restaurante, Peluquería...">
+                </div>
+                <div class="form-group">
+                    <label>Teléfono / WhatsApp</label>
+                    <input type="tel" name="telefono" required placeholder="+212 6 XX XX XX XX">
+                </div>
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" name="email" placeholder="tu@email.com">
+                </div>
+                <div class="form-group">
+                    <label>Ciudad</label>
+                    <select name="ciudad">
+                        <option value="tetouan">Tetuán</option>
+                        <option value="tanger">Tánger</option>
+                        <option value="chefchaouen">Chaouen</option>
+                        <option value="casablanca">Casablanca</option>
+                        <option value="rabat">Rabat</option>
+                        <option value="marrakech">Marrakech</option>
+                        <option value="otra">Otra</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>¿Qué pack te interesa?</label>
+                    <select name="pack_recomendado">
+                        <option value="Presencia Digital">Presencia Digital (2,500 MAD)</option>
+                        <option value="WhatsApp Pro">WhatsApp Pro (4,000 MAD)</option>
+                        <option value="Automatización">Automatización (8,000 MAD)</option>
+                        <option value="Pack Completo">Pack Completo (12,000 MAD)</option>
+                        <option value="Base">Base - Google + WhatsApp (2,900 MAD)</option>
+                        <option value="Conversión">Conversión - Landing + WhatsApp Avanzado (7,500 MAD)</option>
+                        <option value="Escala">Escala - Web Completa (24,000 MAD)</option>
+                        <option value="">No sé, asesórame</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Mensaje (opcional)</label>
+                    <textarea name="notas" placeholder="Cuéntanos qué necesitas..."></textarea>
+                </div>
+
+                <div class="modal-actions">
+                    <button type="submit" class="btn-primary">💾 Enviar solicitud</button>
+                    <button type="button" class="btn-secondary" onclick="closeModal()">Cancelar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        function openModal() {
+            document.getElementById('modalOverlay').classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+        function closeModal() {
+            document.getElementById('modalOverlay').classList.remove('active');
+            document.body.style.overflow = '';
+            document.getElementById('successMsg').classList.remove('active');
+        }
+
+        document.getElementById('modalOverlay').addEventListener('click', (e) => {
+            if (e.target === document.getElementById('modalOverlay')) closeModal();
+        });
+
+        document.getElementById('webForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            const data = Object.fromEntries(formData);
+            data.score = 7;
+            data.estado = 'prospeccion';
+            data.fuente = 'landing_webexpress';
+
+            try {
+                const response = await fetch('/api/leads', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+
+                if (response.ok) {
+                    document.getElementById('successMsg').classList.add('active');
+                    e.target.reset();
+                    setTimeout(() => {
+                        closeModal();
+                    }, 2000);
+                } else {
+                    alert('Error al enviar. Intenta de nuevo.');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error de conexión. Verifica tu conexión.');
+            }
+        });
+    </script>
+</body>
+</html>

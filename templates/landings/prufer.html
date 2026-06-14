@@ -1,0 +1,644 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IA Boost Prufer - Multiplica tu Expertise No-Code</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --cyan: #00E5FF;
+            --green: #00FF88;
+            --dark: #0f172a;
+            --card: #1e293b;
+            --text: #cbd5e1;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #080C14 0%, #0f172a 50%, #1a1a2e 100%);
+            color: #e2e8f0;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        .container { max-width: 1200px; margin: 0 auto; padding: 0 1.5rem; }
+
+        /* Glows de fondo */
+        .glow-bg {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            pointer-events: none;
+            z-index: 0;
+            opacity: 0.4;
+        }
+        .glow-1 {
+            position: absolute;
+            top: -10%; left: 20%;
+            width: 500px; height: 500px;
+            background: radial-gradient(circle, rgba(0,229,255,0.15) 0%, transparent 70%);
+            border-radius: 50%;
+            filter: blur(80px);
+        }
+        .glow-2 {
+            position: absolute;
+            bottom: 10%; right: 10%;
+            width: 400px; height: 400px;
+            background: radial-gradient(circle, rgba(0,255,136,0.1) 0%, transparent 70%);
+            border-radius: 50%;
+            filter: blur(80px);
+        }
+
+        /* Header */
+        .header {
+            position: relative;
+            z-index: 10;
+            padding: 1.5rem 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .logo {
+            font-size: 1.2rem;
+            font-weight: 900;
+            background: linear-gradient(135deg, var(--cyan), var(--green));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .nav-links a {
+            color: #94a3b8;
+            text-decoration: none;
+            margin-left: 2rem;
+            font-size: 0.9rem;
+            transition: color 0.3s;
+        }
+        .nav-links a:hover { color: var(--cyan); }
+
+        /* Hero */
+        .hero {
+            position: relative;
+            z-index: 10;
+            min-height: 90vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 4rem 0;
+        }
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            background: rgba(0,229,255,0.08);
+            border: 1px solid rgba(0,229,255,0.2);
+            border-radius: 50px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--cyan);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 2rem;
+        }
+        .badge .pulse {
+            width: 8px; height: 8px;
+            background: var(--cyan);
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+        .hero h1 {
+            font-size: clamp(2.5rem, 6vw, 5rem);
+            font-weight: 900;
+            line-height: 1.05;
+            margin-bottom: 1.5rem;
+            color: #fff;
+        }
+        .hero h1 span {
+            background: linear-gradient(135deg, var(--cyan), var(--green));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .hero-sub {
+            font-size: 1.1rem;
+            color: #94a3b8;
+            max-width: 600px;
+            margin: 0 auto 2.5rem;
+            line-height: 1.7;
+        }
+        .hero-sub strong { color: #fff; }
+
+        /* Benefits box */
+        .benefits-box {
+            background: rgba(30, 41, 59, 0.5);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.05);
+            border-radius: 20px;
+            padding: 2rem;
+            max-width: 600px;
+            margin: 0 auto 2.5rem;
+            text-align: left;
+        }
+        .benefit-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+            margin-bottom: 1.25rem;
+        }
+        .benefit-item:last-child { margin-bottom: 0; }
+        .benefit-icon {
+            font-size: 1.3rem;
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+        .benefit-text {
+            color: #cbd5e1;
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+        .benefit-text strong { color: #fff; }
+
+        /* CTA */
+        .cta-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            padding: 1.1rem 2.5rem;
+            background: linear-gradient(135deg, var(--cyan), #0891b2);
+            color: #000;
+            font-size: 1rem;
+            font-weight: 800;
+            text-decoration: none;
+            border-radius: 14px;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            box-shadow: 0 0 30px rgba(0,229,255,0.2);
+        }
+        .cta-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 40px rgba(0,229,255,0.3);
+        }
+        .cta-note {
+            margin-top: 1rem;
+            font-size: 0.8rem;
+            color: #64748b;
+        }
+
+        /* Form modal */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.8);
+            backdrop-filter: blur(10px);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+        }
+        .modal-overlay.active { display: flex; }
+        .modal {
+            background: linear-gradient(180deg, #1e293b, #0f172a);
+            border: 1px solid rgba(0,229,255,0.2);
+            border-radius: 24px;
+            padding: 2.5rem;
+            max-width: 480px;
+            width: 100%;
+            position: relative;
+        }
+        .modal h2 {
+            color: var(--cyan);
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+        .modal p {
+            color: #94a3b8;
+            font-size: 0.9rem;
+            margin-bottom: 1.5rem;
+        }
+        .form-group { margin-bottom: 1rem; }
+        .form-group label {
+            display: block;
+            color: #94a3b8;
+            font-size: 0.8rem;
+            margin-bottom: 0.4rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%;
+            padding: 0.9rem 1rem;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 12px;
+            color: #fff;
+            font-size: 1rem;
+            font-family: inherit;
+        }
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+            outline: none;
+            border-color: var(--cyan);
+        }
+        .form-group textarea { min-height: 80px; resize: vertical; }
+        .modal-actions {
+            display: flex;
+            gap: 0.75rem;
+            margin-top: 1.5rem;
+        }
+        .btn-primary {
+            flex: 1;
+            padding: 0.9rem;
+            background: linear-gradient(135deg, var(--cyan), #0891b2);
+            color: #000;
+            border: none;
+            border-radius: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            font-size: 0.95rem;
+        }
+        .btn-secondary {
+            flex: 1;
+            padding: 0.9rem;
+            background: rgba(255,255,255,0.05);
+            color: #94a3b8;
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 0.95rem;
+        }
+        .close-modal {
+            position: absolute;
+            top: 1rem; right: 1rem;
+            background: none;
+            border: none;
+            color: #64748b;
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        /* Sections */
+        .section {
+            position: relative;
+            z-index: 10;
+            padding: 5rem 0;
+        }
+        .section-title {
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--cyan);
+            margin-bottom: 1rem;
+        }
+        .section h2 {
+            font-size: clamp(1.8rem, 4vw, 2.5rem);
+            color: #fff;
+            margin-bottom: 1rem;
+        }
+        .section p {
+            color: #94a3b8;
+            line-height: 1.7;
+            max-width: 600px;
+        }
+
+        /* Cards grid */
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin-top: 3rem;
+        }
+        .card {
+            background: rgba(30, 41, 59, 0.4);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.05);
+            border-radius: 20px;
+            padding: 2rem;
+            transition: all 0.3s;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+            border-color: rgba(0,229,255,0.2);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+        }
+        .card-icon {
+            width: 50px; height: 50px;
+            background: rgba(0,229,255,0.1);
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            margin-bottom: 1.25rem;
+        }
+        .card h3 {
+            color: #fff;
+            font-size: 1.1rem;
+            margin-bottom: 0.5rem;
+        }
+        .card p {
+            color: #64748b;
+            font-size: 0.9rem;
+            line-height: 1.6;
+        }
+
+        /* CTA Final */
+        .cta-final {
+            background: linear-gradient(180deg, transparent, rgba(0,0,0,0.5));
+            text-align: center;
+            padding: 5rem 0;
+        }
+        .cta-box {
+            background: linear-gradient(180deg, rgba(30,41,59,0.8), rgba(15,23,42,0.9));
+            border: 1px solid rgba(255,255,255,0.05);
+            border-radius: 28px;
+            padding: 3rem 2rem;
+            max-width: 500px;
+            margin: 0 auto;
+        }
+        .cta-box h3 {
+            color: #fff;
+            font-size: 1.8rem;
+            margin-bottom: 0.75rem;
+        }
+        .cta-box p {
+            color: #94a3b8;
+            margin-bottom: 1.5rem;
+        }
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 2rem;
+            color: #475569;
+            font-size: 0.8rem;
+            border-top: 1px solid rgba(255,255,255,0.03);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .nav-links { display: none; }
+            .hero h1 { font-size: 2.2rem; }
+            .benefits-box { padding: 1.5rem; }
+            .cards-grid { grid-template-columns: 1fr; }
+        }
+
+        /* Success message */
+        .success-msg {
+            display: none;
+            background: rgba(0,255,136,0.1);
+            border: 1px solid rgba(0,255,136,0.3);
+            color: var(--green);
+            padding: 1rem;
+            border-radius: 12px;
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+        .success-msg.active { display: block; }
+    </style>
+</head>
+<body>
+    <div class="glow-bg">
+        <div class="glow-1"></div>
+        <div class="glow-2"></div>
+    </div>
+
+    <div class="container">
+        <header class="header">
+            <div class="logo">🚀 IA Boost Prufer</div>
+            <nav class="nav-links">
+                <a href="#como-funciona">Cómo funciona</a>
+                <a href="#beneficios">Beneficios</a>
+                <a href="#contacto">Contacto</a>
+            </nav>
+        </header>
+    </div>
+
+    <section class="hero">
+        <div class="container">
+            <div class="badge">
+                <span class="pulse"></span>
+                Alianza Estratégica • Marruecos
+            </div>
+
+            <h1>Tu visión técnica<br>multiplicada <span>por 10</span></h1>
+
+            <p class="hero-sub">
+                Tengo los prototipos listos y <strong>3 leads calientes</strong> esperando. 
+                Busco un partner técnico para dominar el mercado de automatizaciones locales en Marruecos.
+            </p>
+
+            <div class="benefits-box">
+                <div class="benefit-item">
+                    <span class="benefit-icon">✅</span>
+                    <p class="benefit-text"><strong>Diseñar flujos IA escalables:</strong> Estructura arquitecturas ágiles combinando herramientas no-code + IA.</p>
+                </div>
+                <div class="benefit-item">
+                    <span class="benefit-icon">✅</span>
+                    <p class="benefit-text"><strong>Cerrar PYMEs locales:</strong> Peluquerías, panaderías y negocios de barrio (setup fijo).</p>
+                </div>
+                <div class="benefit-item">
+                    <span class="benefit-icon">✅</span>
+                    <p class="benefit-text"><strong>Ganar por cliente:</strong> Nos dividimos el beneficio de forma justa (tu 2/3 por el delivery, yo pongo los leads).</p>
+                </div>
+            </div>
+
+            <button class="cta-btn" onclick="openModal()">
+                ¿Hablamos 15 minutos? →
+            </button>
+            <p class="cta-note">Sin Java ni Python: solo conectamos apps no-code. Fast & lean.</p>
+        </div>
+    </section>
+
+    <section class="section" id="como-funciona">
+        <div class="container">
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; align-items: center;">
+                <div>
+                    <div class="section-title">La Operativa</div>
+                    <h2>Por qué este sistema funciona en el mercado real</h2>
+                    <p style="margin-bottom: 1rem;">
+                        Las pequeñas empresas necesitan digitalizarse urgentemente, pero no tienen presupuesto ni tiempo para software a medida.
+                    </p>
+                    <p>
+                        A través de <strong style="color: #fff;">IA Boost Prufer</strong>, implementamos asistentes de reservas automáticos y flujos de atención al cliente en tiempo récord, generando valor inmediato.
+                    </p>
+                </div>
+                <div class="cards-grid" style="margin-top: 0;">
+                    <div class="card">
+                        <div class="card-icon">🔥</div>
+                        <h3>3 Leads Calientes</h3>
+                        <p>Clientes locales que ya mostraron interés real en optimizar sus procesos.</p>
+                    </div>
+                    <div class="card">
+                        <div class="card-icon">⚡</div>
+                        <h3>Prototipos Listos</h3>
+                        <p>Estructura base lista para replicar y personalizar por negocio.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="section" id="beneficios">
+        <div class="container">
+            <div class="section-title">Lo que construimos</div>
+            <h2>Servicios que dominamos juntos</h2>
+
+            <div class="cards-grid">
+                <div class="card">
+                    <div class="card-icon">🤖</div>
+                    <h3>Chatbot WhatsApp</h3>
+                    <p>Bot de pedidos, reservas y atención automática. Sin depender de estar pegado al teléfono.</p>
+                </div>
+                <div class="card">
+                    <div class="card-icon">📍</div>
+                    <h3>Google Business</h3>
+                    <p>Perfil optimizado en Maps. Fotos, horarios, reseñas y visibilidad local.</p>
+                </div>
+                <div class="card">
+                    <div class="card-icon">🌐</div>
+                    <h3>Landing Pages</h3>
+                    <p>Páginas de aterrizaje persuasivas con formulario y botón de WhatsApp directo.</p>
+                </div>
+                <div class="card">
+                    <div class="card-icon">⚙️</div>
+                    <h3>Automatizaciones</h3>
+                    <p>Flujos de seguimiento, recordatorios y reportes automáticos para el negocio.</p>
+                </div>
+                <div class="card">
+                    <div class="card-icon">📊</div>
+                    <h3>Panel de Control</h3>
+                    <p>Dashboard con métricas reales: leads, conversiones, ingresos mensuales.</p>
+                </div>
+                <div class="card">
+                    <div class="card-icon">🚀</div>
+                    <h3>Escalado Digital</h3>
+                    <p>Web completa, multiubicación, contenido mensual y estrategia de crecimiento.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="cta-final" id="contacto">
+        <div class="container">
+            <div class="cta-box">
+                <h3>Tomemos un café virtual</h3>
+                <p>Si dominas integraciones lógicas y quieres monetizar tu conocimiento sin picar código tradicional, hablemos hoy.</p>
+                <button class="cta-btn" onclick="openModal()" style="width: 100%;">
+                    AGENDAR REUNIÓN DE 15 MINUTOS
+                </button>
+                <p style="margin-top: 1rem; font-size: 0.8rem; color: #475569;">Plazas de partnership limitadas a 1 colaborador técnico.</p>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <p>© 2026 IA Boost Prufer • Orchestrator ISA • Built for builders</p>
+    </footer>
+
+    <!-- Modal Form -->
+    <div class="modal-overlay" id="modalOverlay">
+        <div class="modal">
+            <button class="close-modal" onclick="closeModal()">×</button>
+            <h2>🚀 Quiero ser partner</h2>
+            <p>Déjame tus datos y te contacto en menos de 24h.</p>
+
+            <div class="success-msg" id="successMsg">
+                ✅ ¡Mensaje enviado! Te contactaremos pronto.
+            </div>
+
+            <form id="partnerForm">
+                <div class="form-group">
+                    <label>Tu nombre</label>
+                    <input type="text" name="nombre" required placeholder="Ej: Karim">
+                </div>
+                <div class="form-group">
+                    <label>Teléfono / WhatsApp</label>
+                    <input type="tel" name="telefono" required placeholder="+212 6 XX XX XX XX">
+                </div>
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" name="email" placeholder="tu@email.com">
+                </div>
+                <div class="form-group">
+                    <label>¿Qué herramientas dominas?</label>
+                    <select name="tipo_negocio">
+                        <option value="no-code general">No-code general</option>
+                        <option value="zapier">Zapier</option>
+                        <option value="make">Make (Integromat)</option>
+                        <option value="n8n">n8n</option>
+                        <option value="whatsapp api">WhatsApp API</option>
+                        <option value="otro">Otro</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Mensaje (opcional)</label>
+                    <textarea name="notas" placeholder="Cuéntame brevemente tu experiencia..."></textarea>
+                </div>
+
+                <div class="modal-actions">
+                    <button type="submit" class="btn-primary">💾 Enviar solicitud</button>
+                    <button type="button" class="btn-secondary" onclick="closeModal()">Cancelar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        function openModal() {
+            document.getElementById('modalOverlay').classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+        function closeModal() {
+            document.getElementById('modalOverlay').classList.remove('active');
+            document.body.style.overflow = '';
+            document.getElementById('successMsg').classList.remove('active');
+        }
+
+        document.getElementById('modalOverlay').addEventListener('click', (e) => {
+            if (e.target === document.getElementById('modalOverlay')) closeModal();
+        });
+
+        document.getElementById('partnerForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            const data = Object.fromEntries(formData);
+            data.score = 8;
+            data.estado = 'prospeccion';
+            data.fuente = 'landing_prufer';
+            data.pack_recomendado = 'Pack Completo';
+            data.ciudad = 'tetouan';
+
+            try {
+                const response = await fetch('/api/leads', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+
+                if (response.ok) {
+                    document.getElementById('successMsg').classList.add('active');
+                    e.target.reset();
+                    setTimeout(() => {
+                        closeModal();
+                    }, 2000);
+                } else {
+                    alert('Error al enviar. Intenta de nuevo.');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error de conexión. Verifica tu conexión.');
+            }
+        });
+    </script>
+</body>
+</html>
