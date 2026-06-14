@@ -2,7 +2,6 @@ from fastapi import APIRouter, HTTPException, Request
 from pydantic import BaseModel, Field
 from typing import Optional, List
 from datetime import datetime, timedelta
-import secrets
 import hashlib
 
 router = APIRouter(prefix="/api/referidos", tags=["referidos"])
@@ -25,11 +24,13 @@ COMISIONES = {
     "presencia": 50,
     "whatsapp_pro": 100,
     "automatizacion": 200,
-    "completo": 300
+    "completo": 300,
+    "base": 75,
+    "conversion": 150,
+    "escala": 400
 }
 
 def generar_codigo_referido(telefono: str) -> str:
-    """Genera un código único de referido basado en el teléfono."""
     hash_base = hashlib.sha256(telefono.encode()).hexdigest()[:8]
     return f"ISA-{hash_base.upper()}"
 
@@ -39,7 +40,6 @@ async def crear_referido(data: ReferidoCreate, request: Request):
     codigo = generar_codigo_referido(data.telefono_referidor)
 
     async with db.acquire() as conn:
-        # Verificar si ya existe referido con ese teléfono
         existing = await conn.fetchval(
             "SELECT id FROM referidos WHERE telefono_referido = $1",
             data.telefono_referido
@@ -127,7 +127,6 @@ async def estadisticas_referidos(request: Request):
         pagados = await conn.fetchval("SELECT COUNT(*) FROM referidos WHERE estado = 'pagado'")
         comision_total = await conn.fetchval("SELECT COALESCE(SUM(comision_pagada), 0) FROM referidos")
 
-        # Top referidores
         top = await conn.fetch(
             """SELECT nombre_referidor, telefono_referidor, COUNT(*) as total, SUM(comision_pagada) as comision
                FROM referidos GROUP BY nombre_referidor, telefono_referidor ORDER BY total DESC LIMIT 10"""

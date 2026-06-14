@@ -1,6 +1,6 @@
 {
   "name": "orchestrator-isa-scraper",
-  "version": "13.2.0",
+  "version": "13.3.0",
   "description": "Scraper de Google Maps para Orchestrator ISA - Marruecos",
   "main": "scripts/scraper.js",
   "scripts": {

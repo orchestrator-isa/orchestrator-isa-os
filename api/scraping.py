@@ -14,19 +14,6 @@ class ScrapingJob(BaseModel):
     max_results: int = Field(50, ge=10, le=200)
     categoria: Optional[str] = None
 
-class ScrapingStatus(BaseModel):
-    job_id: str
-    estado: str  # pendiente, ejecutando, completado, error
-    location: str
-    query: str
-    resultados: Optional[int] = None
-    archivo_csv: Optional[str] = None
-    archivo_json: Optional[str] = None
-    error: Optional[str] = None
-    fecha_inicio: datetime
-    fecha_fin: Optional[datetime] = None
-
-# Almacenamiento en memoria de jobs (en producción usar Redis o DB)
 jobs = {}
 
 def generar_job_id() -> str:
@@ -50,7 +37,6 @@ async def ejecutar_scraping(job: ScrapingJob, background_tasks: BackgroundTasks,
         "fecha_fin": None
     }
 
-    # Ejecutar en background
     background_tasks.add_task(
         _ejecutar_scraper,
         job_id=job_id,
@@ -71,10 +57,8 @@ async def _ejecutar_scraper(job_id: str, location: str, query: str, max_results:
     jobs[job_id]["estado"] = "ejecutando"
 
     try:
-        # Asegurar directorio de datos
         os.makedirs(data_dir, exist_ok=True)
 
-        # Ejecutar scraper Node.js
         result = subprocess.run(
             [
                 "node", "scripts/scraper.js",
@@ -86,7 +70,7 @@ async def _ejecutar_scraper(job_id: str, location: str, query: str, max_results:
             ],
             capture_output=True,
             text=True,
-            timeout=300  # 5 minutos máximo
+            timeout=300
         )
 
         if result.returncode != 0:
@@ -95,20 +79,21 @@ async def _ejecutar_scraper(job_id: str, location: str, query: str, max_results:
             jobs[job_id]["fecha_fin"] = datetime.now()
             return
 
-        # Buscar archivos generados
-        timestamp = datetime.now().strftime("%Y%m%d")
-        csv_files = [f for f in os.listdir(data_dir) if f.startswith(f"leads_{query}_{location}_") and f.endswith(".csv")]
-        json_files = [f for f in os.listdir(data_dir) if f.startswith(f"leads_{query}_{location}_") and f.endswith(".json")]
+        csv_files = sorted(
+            [f for f in os.listdir(data_dir) if f.startswith(f"leads_{query}_{location}_") and f.endswith(".csv")],
+            key=lambda x: os.path.getmtime(os.path.join(data_dir, x)),
+            reverse=True
+        )
+        json_files = sorted(
+            [f for f in os.listdir(data_dir) if f.startswith(f"leads_{query}_{location}_") and f.endswith(".json")],
+            key=lambda x: os.path.getmtime(os.path.join(data_dir, x)),
+            reverse=True
+        )
 
         if csv_files:
-            csv_files.sort(key=lambda x: os.path.getmtime(os.path.join(data_dir, x)), reverse=True)
             jobs[job_id]["archivo_csv"] = csv_files[0]
-
         if json_files:
-            json_files.sort(key=lambda x: os.path.getmtime(os.path.join(data_dir, x)), reverse=True)
             jobs[job_id]["archivo_json"] = json_files[0]
-
-            # Contar resultados
             try:
                 with open(os.path.join(data_dir, json_files[0]), 'r') as f:
                     data = json.load(f)
@@ -153,7 +138,6 @@ async def obtener_resultados(job_id: str):
 
     data_dir = os.getenv("DATA_DIR", "./data")
 
-    # Leer JSON si existe
     if job.get("archivo_json"):
         json_path = os.path.join(data_dir, job["archivo_json"])
         try:
@@ -196,7 +180,6 @@ async def eliminar_archivo(nombre: str):
     data_dir = os.getenv("DATA_DIR", "./data")
     filepath = os.path.join(data_dir, nombre)
 
-    # Seguridad: verificar que está en el directorio de datos
     if not os.path.abspath(filepath).startswith(os.path.abspath(data_dir)):
         raise HTTPException(status_code=403, detail="Ruta no permitida")
 
