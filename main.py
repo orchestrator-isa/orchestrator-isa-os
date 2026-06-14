@@ -1,8 +1,7 @@
 """
-Orchestrator ISA OS v13.4.1 — FIX URGENTE
+Orchestrator ISA OS v13.4.2 — FIX DEFINITIVO
 FastAPI + asyncpg + Neon PostgreSQL + Jinja2
-Auth + Vendedor Venta + Validador + Renovaciones
-DB Migration: ALTER TABLE ADD COLUMN IF NOT EXISTS
+DB Migration completa + Cache invalidation
 """
 
 import os
@@ -139,7 +138,7 @@ def get_db_url() -> str:
         url += "?sslmode=require"
     return url
 
-# ─── DB LIFESPAN CON MIGRACIÓN ───────────────────────────────────────────
+# ─── DB LIFESPAN CON MIGRACIÓN COMPLETA ─────────────────────────────────
 
 pool: Optional[asyncpg.Pool] = None
 
@@ -165,8 +164,8 @@ async def lifespan(app: FastAPI):
                 fecha_actualizacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )
         """)
-        # 2. MIGRACIÓN: Agregar columnas nuevas si no existen (v13.3 → v13.4)
-        nuevas_columnas = [
+        # 2. MIGRACIÓN leads: Agregar columnas nuevas si no existen
+        leads_cols = [
             ("notas", "TEXT DEFAULT ''"),
             ("web", "VARCHAR(255) DEFAULT ''"),
             ("rrss", "VARCHAR(255) DEFAULT ''"),
@@ -180,11 +179,11 @@ async def lifespan(app: FastAPI):
             ("precio_mantenimiento_mensual", "INTEGER DEFAULT 0"),
             ("proxima_renovacion", "TIMESTAMP DEFAULT NULL"),
         ]
-        for col_name, col_type in nuevas_columnas:
+        for col_name, col_type in leads_cols:
             try:
                 await conn.execute(f'ALTER TABLE leads ADD COLUMN IF NOT EXISTS {col_name} {col_type}')
             except Exception as e:
-                print(f"[MIGRACIÓN] Columna {col_name}: {e}")
+                print(f"[MIGRACIÓN leads] {col_name}: {e}")
 
         # 3. Tabla lead_historial
         await conn.execute("""
@@ -195,10 +194,15 @@ async def lifespan(app: FastAPI):
                 valor_anterior TEXT,
                 valor_nuevo TEXT,
                 vendedor_id INTEGER,
-                notas TEXT DEFAULT '',
                 fecha TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )
         """)
+        # 3.1 MIGRACIÓN lead_historial: Agregar notas si no existe
+        try:
+            await conn.execute("ALTER TABLE lead_historial ADD COLUMN IF NOT EXISTS notas TEXT DEFAULT ''")
+        except Exception as e:
+            print(f"[MIGRACIÓN lead_historial] notas: {e}")
+
         # 4. Tabla cotizaciones
         await conn.execute("""
             CREATE TABLE IF NOT EXISTS cotizaciones (
@@ -209,10 +213,15 @@ async def lifespan(app: FastAPI):
                 precio_mantenimiento INTEGER DEFAULT 0,
                 estado VARCHAR(50) DEFAULT 'pendiente',
                 notas TEXT DEFAULT '',
-                tipo VARCHAR(20) DEFAULT 'nueva',
                 fecha TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )
         """)
+        # 4.1 MIGRACIÓN cotizaciones: Agregar tipo si no existe
+        try:
+            await conn.execute("ALTER TABLE cotizaciones ADD COLUMN IF NOT EXISTS tipo VARCHAR(20) DEFAULT 'nueva'")
+        except Exception as e:
+            print(f"[MIGRACIÓN cotizaciones] tipo: {e}")
+
         # 5. Tabla usuarios
         await conn.execute("""
             CREATE TABLE IF NOT EXISTS usuarios (
@@ -257,7 +266,7 @@ async def lifespan(app: FastAPI):
                 fecha TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )
         """)
-        # 9. Insertar/actualizar admin (hash se actualiza siempre con SECRET_KEY actual)
+        # 9. Insertar/actualizar admin
         admin_hash = hash_password("admin123")
         await conn.execute("""
             INSERT INTO usuarios (username, password_hash, nombre_display, rol)
@@ -271,12 +280,20 @@ async def lifespan(app: FastAPI):
                 VALUES ($1, $2, 'pack', $3)
                 ON CONFLICT (codigo) DO NOTHING
             """, codigo, pack["nombre"], pack["precio"])
+
+        # 11. LIMPIAR CACHE DE STATEMENTS (fix InvalidCachedStatementError)
+        try:
+            await conn.execute("DISCARD ALL")
+            print("[CACHE] Statements cache limpiado")
+        except Exception as e:
+            print(f"[CACHE] No se pudo limpiar: {e}")
+
     yield
     await pool.close()
 
 # ─── FASTAPI APP ─────────────────────────────────────────────────────────
 
-app = FastAPI(title="Orchestrator ISA v13.4.1", lifespan=lifespan)
+app = FastAPI(title="Orchestrator ISA v13.4.2", lifespan=lifespan)
 
 app.add_middleware(
     CORSMiddleware,
@@ -327,7 +344,7 @@ async def require_admin(request: Request):
 async def login_page(request: Request):
     user = await get_current_user(request)
     if user:
-        return RedirectResponse(url="/vendedor/venta", status_code=302)
+        return RedirectResponse(url="/portal", status_code=302)
     return templates.TemplateResponse("login.html", {
         "request": request,
         "error": None,
@@ -355,7 +372,7 @@ async def auth_login(request: Request, username: str = Form(...), password: str 
             "INSERT INTO sesiones (token, usuario_id, expira) VALUES ($1, $2, $3)",
             token, row["id"], expira
         )
-    response = RedirectResponse(url="/vendedor/venta", status_code=302)
+    response = RedirectResponse(url="/portal", status_code=302)
     response.set_cookie(COOKIE_NAME, token, max_age=SESSION_MAX_AGE, httponly=True, samesite="lax")
     return response
 
@@ -677,7 +694,7 @@ async def health():
                 db_status = "connected"
         except Exception:
             db_status = "error"
-    return {"status": "healthy", "db": db_status, "version": "13.4.1"}
+    return {"status": "healthy", "db": db_status, "version": "13.4.2"}
 
 # ─── PORTAL ROUTES (PROTEGIDAS) ──────────────────────────────────────────
 
