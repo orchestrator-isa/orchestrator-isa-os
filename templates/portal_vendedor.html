@@ -4,665 +4,106 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>🚀 Vendedor — Flujo de Venta | IA Boost Prufer</title>
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🚀</text></svg>">
     <style>
-        :root {
-            --bg: #0B1120;
-            --card: #151E32;
-            --cyan: #00E5FF;
-            --verde: #00FF88;
-            --texto: #FFFFFF;
-            --texto-sec: #94A3B8;
-            --alerta: #EF4444;
-            --border: rgba(0, 229, 255, 0.08);
-        }
+        :root { --bg: #0B1120; --card: #151E32; --cyan: #00E5FF; --verde: #00FF88; --texto: #FFFFFF; --texto-sec: #94A3B8; --alerta: #EF4444; --border: rgba(0, 229, 255, 0.08); }
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body {
-            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-            background: var(--bg);
-            color: var(--texto);
-            min-height: 100vh;
-            line-height: 1.5;
-        }
-        /* ── HEADER ── */
-        .header {
-            background: var(--card);
-            border-bottom: 1px solid var(--border);
-            padding: 0.75rem 1.5rem;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            position: sticky;
-            top: 0;
-            z-index: 100;
-        }
-        .header-left {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-        }
-        .header-rocket {
-            font-size: 1.5rem;
-        }
-        .header-brand {
-            font-size: 1.1rem;
-            font-weight: 700;
-        }
+        body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--bg); color: var(--texto); min-height: 100vh; line-height: 1.5; }
+        .header { background: var(--card); border-bottom: 1px solid var(--border); padding: 0.75rem 1.5rem; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; }
+        .header-left { display: flex; align-items: center; gap: 0.75rem; }
+        .header-rocket { font-size: 1.5rem; }
+        .header-brand { font-size: 1.1rem; font-weight: 700; }
         .header-brand .prufer { color: var(--cyan); }
-        .header-right {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-        }
-        .user-badge {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            font-size: 0.85rem;
-            color: var(--texto-sec);
-        }
-        .user-badge .rol {
-            background: rgba(0, 229, 255, 0.1);
-            color: var(--cyan);
-            padding: 0.15rem 0.5rem;
-            border-radius: 4px;
-            font-size: 0.7rem;
-            text-transform: uppercase;
-            font-weight: 600;
-        }
-        .btn-logout {
-            background: transparent;
-            border: 1px solid rgba(239, 68, 68, 0.3);
-            color: var(--alerta);
-            padding: 0.4rem 0.8rem;
-            border-radius: 6px;
-            font-size: 0.8rem;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-        .btn-logout:hover {
-            background: rgba(239, 68, 68, 0.1);
-        }
-        /* ── MAIN LAYOUT ── */
-        .main-container {
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 1.5rem;
-        }
-        /* ── LEAD SELECTOR ── */
-        .lead-selector-bar {
-            background: var(--card);
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            padding: 1rem 1.5rem;
-            margin-bottom: 1.5rem;
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            flex-wrap: wrap;
-        }
-        .lead-selector-bar label {
-            font-size: 0.85rem;
-            color: var(--texto-sec);
-            font-weight: 500;
-        }
-        .lead-select {
-            flex: 1;
-            min-width: 250px;
-            padding: 0.6rem 1rem;
-            background: var(--bg);
-            border: 1px solid rgba(148, 163, 184, 0.2);
-            border-radius: 8px;
-            color: var(--texto);
-            font-size: 0.95rem;
-            cursor: pointer;
-        }
-        .lead-select:focus {
-            outline: none;
-            border-color: var(--cyan);
-        }
-        .btn-nuevo-lead {
-            background: var(--verde);
-            color: var(--bg);
-            border: none;
-            padding: 0.6rem 1.2rem;
-            border-radius: 8px;
-            font-weight: 600;
-            font-size: 0.9rem;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-        .btn-nuevo-lead:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 4px 15px rgba(0, 255, 136, 0.3);
-        }
-        /* ── LEAD INFO CARD ── */
-        .lead-info-card {
-            background: var(--card);
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            padding: 1.25rem 1.5rem;
-            margin-bottom: 1.5rem;
-            display: none;
-        }
+        .header-right { display: flex; align-items: center; gap: 1rem; }
+        .user-badge { display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; color: var(--texto-sec); }
+        .user-badge .rol { background: rgba(0, 229, 255, 0.1); color: var(--cyan); padding: 0.15rem 0.5rem; border-radius: 4px; font-size: 0.7rem; text-transform: uppercase; font-weight: 600; }
+        .btn-logout { background: transparent; border: 1px solid rgba(239, 68, 68, 0.3); color: var(--alerta); padding: 0.4rem 0.8rem; border-radius: 6px; font-size: 0.8rem; cursor: pointer; }
+        .main-container { max-width: 1400px; margin: 0 auto; padding: 1.5rem; }
+        .lead-selector-bar { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 1rem 1.5rem; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; }
+        .lead-selector-bar label { font-size: 0.85rem; color: var(--texto-sec); font-weight: 500; }
+        .lead-select { flex: 1; min-width: 250px; padding: 0.6rem 1rem; background: var(--bg); border: 1px solid rgba(148, 163, 184, 0.2); border-radius: 8px; color: var(--texto); font-size: 0.95rem; }
+        .btn-nuevo-lead { background: var(--verde); color: var(--bg); border: none; padding: 0.6rem 1.2rem; border-radius: 8px; font-weight: 600; font-size: 0.9rem; cursor: pointer; }
+        .lead-info-card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 1.25rem 1.5rem; margin-bottom: 1.5rem; display: none; }
         .lead-info-card.active { display: block; }
-        .lead-info-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            flex-wrap: wrap;
-            gap: 0.75rem;
-            margin-bottom: 0.75rem;
-        }
-        .lead-info-title {
-            font-size: 1.2rem;
-            font-weight: 700;
-        }
-        .lead-info-title span {
-            color: var(--texto-sec);
-            font-weight: 400;
-            font-size: 0.9rem;
-        }
-        .lead-badges {
-            display: flex;
-            gap: 0.5rem;
-            flex-wrap: wrap;
-        }
-        .badge {
-            padding: 0.3rem 0.7rem;
-            border-radius: 20px;
-            font-size: 0.75rem;
-            font-weight: 600;
-        }
+        .lead-info-header { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.75rem; margin-bottom: 0.75rem; }
+        .lead-info-title { font-size: 1.2rem; font-weight: 700; }
+        .lead-badges { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+        .badge { padding: 0.3rem 0.7rem; border-radius: 20px; font-size: 0.75rem; font-weight: 600; }
         .badge-caso { background: rgba(239, 68, 68, 0.15); color: var(--alerta); border: 1px solid rgba(239, 68, 68, 0.2); }
         .badge-score { background: rgba(0, 229, 255, 0.1); color: var(--cyan); border: 1px solid rgba(0, 229, 255, 0.2); }
         .badge-pack { background: rgba(0, 255, 136, 0.1); color: var(--verde); border: 1px solid rgba(0, 255, 136, 0.2); }
         .badge-estado { background: rgba(234, 179, 8, 0.1); color: #EAB308; border: 1px solid rgba(234, 179, 8, 0.2); }
-        .lead-info-details {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-            gap: 0.75rem;
-            font-size: 0.85rem;
-            color: var(--texto-sec);
-        }
+        .lead-info-details { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 0.75rem; font-size: 0.85rem; color: var(--texto-sec); }
         .lead-info-details strong { color: var(--texto); }
-        /* ── DIAGRAMA ── */
-        .diagrama-section {
-            margin-bottom: 1.5rem;
-        }
-        .diagrama-title {
-            font-size: 0.9rem;
-            color: var(--texto-sec);
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            margin-bottom: 1rem;
-            text-align: center;
-        }
-        .flow-diagram {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 0.5rem;
-            position: relative;
-            padding: 1rem 0;
-        }
-        .moment-node {
-            width: 90px;
-            height: 90px;
-            border-radius: 50%;
-            background: var(--card);
-            border: 2px solid rgba(148, 163, 184, 0.2);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            position: relative;
-            z-index: 2;
-        }
-        .moment-node:hover {
-            transform: scale(1.08);
-            border-color: var(--cyan);
-            box-shadow: 0 0 20px rgba(0, 229, 255, 0.2);
-        }
-        .moment-node.active {
-            background: var(--cyan);
-            border-color: var(--cyan);
-            color: var(--bg);
-            transform: scale(1.12);
-            box-shadow: 0 0 30px rgba(0, 229, 255, 0.4);
-        }
-        .moment-node.completado {
-            border-color: var(--verde);
-            background: rgba(0, 255, 136, 0.08);
-        }
+        .no-lead { text-align: center; padding: 4rem 2rem; color: var(--texto-sec); }
+        .no-lead-icon { font-size: 4rem; margin-bottom: 1rem; opacity: 0.5; }
+        .diagrama-section { margin-bottom: 1.5rem; }
+        .diagrama-title { font-size: 0.9rem; color: var(--texto-sec); text-transform: uppercase; letter-spacing: 2px; margin-bottom: 1rem; text-align: center; }
+        .flow-diagram { display: flex; justify-content: center; align-items: center; flex-wrap: wrap; gap: 0.5rem; padding: 1rem 0; }
+        .moment-node { width: 90px; height: 90px; border-radius: 50%; background: var(--card); border: 2px solid rgba(148, 163, 184, 0.2); display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; transition: all 0.3s; position: relative; z-index: 2; }
+        .moment-node:hover { transform: scale(1.08); border-color: var(--cyan); box-shadow: 0 0 20px rgba(0, 229, 255, 0.2); }
+        .moment-node.active { background: var(--cyan); border-color: var(--cyan); color: var(--bg); transform: scale(1.12); box-shadow: 0 0 30px rgba(0, 229, 255, 0.4); }
+        .moment-node.completado { border-color: var(--verde); background: rgba(0, 255, 136, 0.08); }
         .moment-node.completado .moment-icon { color: var(--verde); }
-        .moment-node.bloqueado {
-            opacity: 0.4;
-            cursor: not-allowed;
-        }
-        .moment-icon {
-            font-size: 1.4rem;
-            margin-bottom: 0.1rem;
-        }
-        .moment-label {
-            font-size: 0.65rem;
-            font-weight: 700;
-            text-align: center;
-            line-height: 1.1;
-        }
-        .moment-number {
-            font-size: 0.6rem;
-            opacity: 0.7;
-            margin-top: 0.1rem;
-        }
-        .arrow-connector {
-            width: 30px;
-            height: 2px;
-            background: rgba(148, 163, 184, 0.3);
-            position: relative;
-        }
-        .arrow-connector::after {
-            content: '▶';
-            position: absolute;
-            right: -8px;
-            top: -7px;
-            color: rgba(148, 163, 184, 0.5);
-            font-size: 0.7rem;
-        }
-        .arrow-connector.completado {
-            background: var(--verde);
-        }
-        .arrow-connector.completado::after {
-            color: var(--verde);
-        }
-        /* ── DETAIL PANEL ── */
-        .detail-panel {
-            background: var(--card);
-            border: 1px solid var(--border);
-            border-radius: 16px;
-            padding: 1.5rem;
-            margin-top: 1rem;
-            display: none;
-            animation: slideDown 0.35s ease;
-        }
+        .moment-node.bloqueado { opacity: 0.4; cursor: not-allowed; }
+        .moment-icon { font-size: 1.4rem; margin-bottom: 0.1rem; }
+        .moment-label { font-size: 0.65rem; font-weight: 700; text-align: center; line-height: 1.1; }
+        .moment-number { font-size: 0.6rem; opacity: 0.7; margin-top: 0.1rem; }
+        .arrow-connector { width: 30px; height: 2px; background: rgba(148, 163, 184, 0.3); position: relative; }
+        .arrow-connector::after { content: '▶'; position: absolute; right: -8px; top: -7px; color: rgba(148, 163, 184, 0.5); font-size: 0.7rem; }
+        .arrow-connector.completado { background: var(--verde); }
+        .arrow-connector.completado::after { color: var(--verde); }
+        .detail-panel { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 1.5rem; margin-top: 1rem; display: none; animation: slideDown 0.35s ease; }
         .detail-panel.active { display: block; }
-        @keyframes slideDown {
-            from { opacity: 0; transform: translateY(-15px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        .detail-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1.25rem;
-            padding-bottom: 0.75rem;
-            border-bottom: 1px solid var(--border);
-        }
-        .detail-title {
-            font-size: 1.3rem;
-            color: var(--cyan);
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-        .btn-cerrar-panel {
-            background: rgba(239, 68, 68, 0.1);
-            border: 1px solid rgba(239, 68, 68, 0.2);
-            color: var(--alerta);
-            padding: 0.4rem 0.8rem;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 0.8rem;
-            transition: all 0.2s;
-        }
-        .btn-cerrar-panel:hover {
-            background: rgba(239, 68, 68, 0.2);
-        }
-        .detail-content {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 1rem;
-        }
-        @media (min-width: 768px) {
-            .detail-content { grid-template-columns: repeat(2, 1fr); }
-        }
-        .detail-section {
-            background: var(--bg);
-            padding: 1.25rem;
-            border-radius: 10px;
-            border-left: 3px solid var(--cyan);
-        }
-        .detail-section h3 {
-            color: var(--cyan);
-            margin-bottom: 0.75rem;
-            font-size: 1rem;
-            display: flex;
-            align-items: center;
-            gap: 0.4rem;
-        }
-        .detail-section ul {
-            list-style: none;
-            padding: 0;
-        }
-        .detail-section li {
-            padding: 0.4rem 0;
-            padding-left: 1.4rem;
-            position: relative;
-            font-size: 0.9rem;
-            color: var(--texto-sec);
-        }
-        .detail-section li::before {
-            content: '✓';
-            position: absolute;
-            left: 0;
-            color: var(--verde);
-            font-weight: bold;
-        }
-        .speech-box {
-            background: rgba(0, 229, 255, 0.05);
-            padding: 1rem;
-            border-radius: 8px;
-            border-left: 3px solid var(--cyan);
-            font-style: italic;
-            color: var(--texto);
-            line-height: 1.6;
-            white-space: pre-line;
-            font-size: 0.9rem;
-        }
-        .speech-box-label {
-            font-weight: 700;
-            color: var(--cyan);
-            font-style: normal;
-            display: block;
-            margin-bottom: 0.5rem;
-        }
-        /* ── BOTONES ACCIÓN ── */
-        .action-buttons {
-            display: flex;
-            gap: 0.6rem;
-            flex-wrap: wrap;
-            margin-top: 1rem;
-        }
-        .btn-action {
-            padding: 0.6rem 1rem;
-            border-radius: 8px;
-            font-size: 0.85rem;
-            font-weight: 600;
-            cursor: pointer;
-            border: none;
-            display: inline-flex;
-            align-items: center;
-            gap: 0.4rem;
-            transition: all 0.2s;
-        }
-        .btn-copiar {
-            background: rgba(0, 229, 255, 0.1);
-            color: var(--cyan);
-            border: 1px solid rgba(0, 229, 255, 0.2);
-        }
-        .btn-copiar:hover {
-            background: rgba(0, 229, 255, 0.2);
-        }
-        .btn-whatsapp {
-            background: #25D366;
-            color: #fff;
-        }
-        .btn-whatsapp:hover {
-            background: #128C7E;
-            transform: translateY(-1px);
-        }
-        .btn-primary {
-            background: var(--verde);
-            color: var(--bg);
-        }
-        .btn-primary:hover {
-            box-shadow: 0 4px 15px rgba(0, 255, 136, 0.3);
-            transform: translateY(-1px);
-        }
-        .btn-secondary {
-            background: rgba(148, 163, 184, 0.1);
-            color: var(--texto-sec);
-            border: 1px solid rgba(148, 163, 184, 0.2);
-        }
-        .btn-secondary:hover {
-            background: rgba(148, 163, 184, 0.2);
-        }
-        /* ── FORMULARIO AUDITORÍA ── */
-        .audit-form {
-            display: flex;
-            flex-direction: column;
-            gap: 0.75rem;
-        }
-        .audit-question {
-            background: var(--bg);
-            padding: 1rem;
-            border-radius: 8px;
-            border: 1px solid rgba(148, 163, 184, 0.1);
-        }
-        .audit-question p {
-            font-size: 0.9rem;
-            margin-bottom: 0.5rem;
-            color: var(--texto);
-        }
-        .audit-options {
-            display: flex;
-            gap: 0.5rem;
-            flex-wrap: wrap;
-        }
-        .audit-options label {
-            display: flex;
-            align-items: center;
-            gap: 0.3rem;
-            padding: 0.4rem 0.8rem;
-            background: var(--card);
-            border: 1px solid rgba(148, 163, 184, 0.2);
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 0.8rem;
-            transition: all 0.2s;
-        }
-        .audit-options label:hover {
-            border-color: var(--cyan);
-        }
-        .audit-options input[type="radio"] {
-            accent-color: var(--cyan);
-        }
-        .audit-options label:has(input:checked) {
-            border-color: var(--cyan);
-            background: rgba(0, 229, 255, 0.1);
-            color: var(--cyan);
-        }
-        .audit-result {
-            background: var(--bg);
-            padding: 1.25rem;
-            border-radius: 10px;
-            border: 1px solid var(--verde);
-            margin-top: 1rem;
-            display: none;
-        }
+        @keyframes slideDown { from { opacity: 0; transform: translateY(-15px); } to { opacity: 1; transform: translateY(0); } }
+        .detail-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; padding-bottom: 0.75rem; border-bottom: 1px solid var(--border); }
+        .detail-title { font-size: 1.3rem; color: var(--cyan); display: flex; align-items: center; gap: 0.5rem; }
+        .btn-cerrar-panel { background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.2); color: var(--alerta); padding: 0.4rem 0.8rem; border-radius: 6px; cursor: pointer; font-size: 0.8rem; }
+        .detail-content { display: grid; grid-template-columns: 1fr; gap: 1rem; }
+        @media (min-width: 768px) { .detail-content { grid-template-columns: repeat(2, 1fr); } }
+        .detail-section { background: var(--bg); padding: 1.25rem; border-radius: 10px; border-left: 3px solid var(--cyan); }
+        .detail-section h3 { color: var(--cyan); margin-bottom: 0.75rem; font-size: 1rem; }
+        .detail-section ul { list-style: none; padding: 0; }
+        .detail-section li { padding: 0.4rem 0; padding-left: 1.4rem; position: relative; font-size: 0.9rem; color: var(--texto-sec); }
+        .detail-section li::before { content: '✓'; position: absolute; left: 0; color: var(--verde); font-weight: bold; }
+        .speech-box { background: rgba(0, 229, 255, 0.05); padding: 1rem; border-radius: 8px; border-left: 3px solid var(--cyan); font-style: italic; color: var(--texto); line-height: 1.6; white-space: pre-line; font-size: 0.9rem; }
+        .speech-box-label { font-weight: 700; color: var(--cyan); font-style: normal; display: block; margin-bottom: 0.5rem; }
+        .action-buttons { display: flex; gap: 0.6rem; flex-wrap: wrap; margin-top: 1rem; }
+        .btn-action { padding: 0.6rem 1rem; border-radius: 8px; font-size: 0.85rem; font-weight: 600; cursor: pointer; border: none; display: inline-flex; align-items: center; gap: 0.4rem; }
+        .btn-copiar { background: rgba(0, 229, 255, 0.1); color: var(--cyan); border: 1px solid rgba(0, 229, 255, 0.2); }
+        .btn-whatsapp { background: #25D366; color: #fff; }
+        .btn-primary { background: var(--verde); color: var(--bg); }
+        .btn-secondary { background: rgba(148, 163, 184, 0.1); color: var(--texto-sec); border: 1px solid rgba(148, 163, 184, 0.2); }
+        .nav-buttons { display: flex; justify-content: space-between; align-items: center; margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid var(--border); }
+        .audit-form { display: flex; flex-direction: column; gap: 0.75rem; }
+        .audit-question { background: var(--bg); padding: 1rem; border-radius: 8px; border: 1px solid rgba(148, 163, 184, 0.1); }
+        .audit-question p { font-size: 0.9rem; margin-bottom: 0.5rem; color: var(--texto); }
+        .audit-options { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+        .audit-options label { display: flex; align-items: center; gap: 0.3rem; padding: 0.4rem 0.8rem; background: var(--card); border: 1px solid rgba(148, 163, 184, 0.2); border-radius: 6px; cursor: pointer; font-size: 0.8rem; }
+        .audit-options label:has(input:checked) { border-color: var(--cyan); background: rgba(0, 229, 255, 0.1); color: var(--cyan); }
+        .audit-result { background: var(--bg); padding: 1.25rem; border-radius: 10px; border: 1px solid var(--verde); margin-top: 1rem; display: none; }
         .audit-result.active { display: block; }
-        .audit-result h4 {
-            color: var(--verde);
-            margin-bottom: 0.5rem;
-        }
-        /* ── PACKS GRID ── */
-        .packs-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-            gap: 1rem;
-            margin-top: 0.5rem;
-        }
-        .pack-card {
-            background: var(--bg);
-            border: 2px solid rgba(148, 163, 184, 0.15);
-            border-radius: 10px;
-            padding: 1rem;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-        .pack-card:hover {
-            border-color: var(--cyan);
-            transform: translateY(-2px);
-        }
-        .pack-card.recomendado {
-            border-color: var(--verde);
-            background: rgba(0, 255, 136, 0.03);
-        }
-        .pack-card.recomendado::after {
-            content: '⭐ RECOMENDADO';
-            position: absolute;
-            top: -8px;
-            right: 8px;
-            background: var(--verde);
-            color: var(--bg);
-            font-size: 0.6rem;
-            font-weight: 700;
-            padding: 0.15rem 0.5rem;
-            border-radius: 4px;
-        }
-        .pack-card { position: relative; }
-        .pack-name {
-            font-weight: 700;
-            font-size: 0.95rem;
-            margin-bottom: 0.25rem;
-        }
-        .pack-price {
-            font-size: 1.3rem;
-            font-weight: 800;
-            color: var(--cyan);
-        }
-        .pack-price span {
-            font-size: 0.75rem;
-            color: var(--texto-sec);
-            font-weight: 400;
-        }
-        /* ── NAVIGACIÓN ── */
-        .nav-buttons {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-top: 1.5rem;
-            padding-top: 1rem;
-            border-top: 1px solid var(--border);
-        }
-        /* ── EJEMPLOS INSPIRACIÓN ── */
-        .ejemplos-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-            gap: 0.75rem;
-        }
-        .ejemplo-card {
-            background: var(--bg);
-            padding: 0.75rem;
-            border-radius: 8px;
-            border: 1px solid rgba(148, 163, 184, 0.1);
-            text-align: center;
-        }
-        .ejemplo-card a {
-            color: var(--cyan);
-            font-size: 0.8rem;
-            text-decoration: none;
-        }
-        .ejemplo-card a:hover { text-decoration: underline; }
-        /* ── PROPUESTA CIERRE ── */
-        .propuesta-box {
-            background: rgba(0, 255, 136, 0.05);
-            border: 1px solid rgba(0, 255, 136, 0.2);
-            border-radius: 10px;
-            padding: 1.25rem;
-        }
-        .propuesta-box h4 {
-            color: var(--verde);
-            margin-bottom: 0.75rem;
-        }
-        .propuesta-item {
-            display: flex;
-            justify-content: space-between;
-            padding: 0.5rem 0;
-            border-bottom: 1px solid rgba(148, 163, 184, 0.1);
-            font-size: 0.9rem;
-        }
-        .propuesta-item.total {
-            font-weight: 700;
-            color: var(--verde);
-            font-size: 1.1rem;
-            border-bottom: none;
-            margin-top: 0.5rem;
-            padding-top: 0.5rem;
-            border-top: 1px solid rgba(0, 255, 136, 0.2);
-        }
-        /* ── TOAST ── */
-        .toast {
-            position: fixed;
-            bottom: 2rem;
-            right: 2rem;
-            background: var(--card);
-            border: 1px solid var(--verde);
-            color: var(--verde);
-            padding: 1rem 1.5rem;
-            border-radius: 10px;
-            font-weight: 600;
-            z-index: 1000;
-            transform: translateY(100px);
-            opacity: 0;
-            transition: all 0.3s ease;
-        }
-        .toast.show {
-            transform: translateY(0);
-            opacity: 1;
-        }
-        /* ── RESPONSIVE ── */
+        .packs-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; }
+        .pack-card { background: var(--bg); border: 2px solid rgba(148, 163, 184, 0.15); border-radius: 10px; padding: 1rem; cursor: pointer; position: relative; }
+        .pack-card.recomendado { border-color: var(--verde); background: rgba(0, 255, 136, 0.03); }
+        .pack-card.recomendado::after { content: '⭐ RECOMENDADO'; position: absolute; top: -8px; right: 8px; background: var(--verde); color: var(--bg); font-size: 0.6rem; font-weight: 700; padding: 0.15rem 0.5rem; border-radius: 4px; }
+        .pack-name { font-weight: 700; font-size: 0.95rem; margin-bottom: 0.25rem; }
+        .pack-price { font-size: 1.3rem; font-weight: 800; color: var(--cyan); }
+        .toast { position: fixed; bottom: 2rem; right: 2rem; background: var(--card); border: 1px solid var(--verde); color: var(--verde); padding: 1rem 1.5rem; border-radius: 10px; font-weight: 600; z-index: 1000; transform: translateY(100px); opacity: 0; transition: all 0.3s; }
+        .toast.show { transform: translateY(0); opacity: 1; }
         @media (max-width: 768px) {
-            .flow-diagram {
-                flex-direction: column;
-                gap: 0.75rem;
-            }
-            .arrow-connector {
-                width: 2px;
-                height: 20px;
-            }
-            .arrow-connector::after {
-                content: '▼';
-                right: -5px;
-                top: auto;
-                bottom: -8px;
-            }
-            .moment-node {
-                width: 80px;
-                height: 80px;
-            }
-            .header-brand { font-size: 0.9rem; }
+            .flow-diagram { flex-direction: column; gap: 0.75rem; }
+            .arrow-connector { width: 2px; height: 20px; }
+            .arrow-connector::after { content: '▼'; right: -5px; top: auto; bottom: -8px; }
+            .moment-node { width: 80px; height: 80px; }
             .lead-selector-bar { flex-direction: column; align-items: stretch; }
-            .lead-select { min-width: auto; }
-        }
-        /* ── NO LEAD SELECTED ── */
-        .no-lead {
-            text-align: center;
-            padding: 4rem 2rem;
-            color: var(--texto-sec);
-        }
-        .no-lead-icon {
-            font-size: 4rem;
-            margin-bottom: 1rem;
-            opacity: 0.5;
-        }
-        .no-lead h2 {
-            color: var(--texto);
-            margin-bottom: 0.5rem;
         }
     </style>
 </head>
 <body>
-    <!-- HEADER -->
     <header class="header">
         <div class="header-left">
             <span class="header-rocket">🚀</span>
-            <div class="header-brand">
-                IA Boost <span class="prufer">Prufer</span>
-            </div>
+            <div class="header-brand">IA Boost <span class="prufer">Prufer</span></div>
         </div>
         <div class="header-right">
             <div class="user-badge">
@@ -675,9 +116,7 @@
         </div>
     </header>
 
-    <!-- MAIN -->
     <div class="main-container">
-        <!-- SELECTOR DE LEAD -->
         <div class="lead-selector-bar">
             <label for="leadSelect">🎯 Lead activo:</label>
             <select id="leadSelect" class="lead-select" onchange="cargarLead(this.value)">
@@ -686,7 +125,6 @@
             <button class="btn-nuevo-lead" onclick="window.location.href='/portal/leads'">+ Nuevo Lead</button>
         </div>
 
-        <!-- INFO CARD DEL LEAD -->
         <div id="leadInfoCard" class="lead-info-card">
             <div class="lead-info-header">
                 <div class="lead-info-title">
@@ -708,30 +146,23 @@
             </div>
         </div>
 
-        <!-- NO LEAD SELECTED -->
         <div id="noLeadMessage" class="no-lead">
             <div class="no-lead-icon">🎯</div>
             <h2>Selecciona un lead para iniciar</h2>
             <p>Elige un lead desde el selector arriba o crea uno nuevo para comenzar el flujo de venta M0→M7.</p>
         </div>
 
-        <!-- DIAGRAMA M0-M7 -->
         <div id="diagramaSection" class="diagrama-section" style="display:none">
             <div class="diagrama-title">Flujo de Venta Interactivo</div>
-            <div class="flow-diagram" id="flowDiagram">
-                <!-- Se genera dinámicamente -->
-            </div>
+            <div class="flow-diagram" id="flowDiagram"></div>
         </div>
 
-        <!-- PANEL DE DETALLES -->
         <div id="detailPanel" class="detail-panel">
             <div class="detail-header">
                 <h2 class="detail-title" id="detailTitle">—</h2>
                 <button class="btn-cerrar-panel" onclick="cerrarPanel()">✕ Cerrar</button>
             </div>
-            <div class="detail-content" id="detailContent">
-                <!-- Se genera dinámicamente -->
-            </div>
+            <div class="detail-content" id="detailContent"></div>
             <div class="nav-buttons" id="navButtons">
                 <button class="btn-action btn-secondary" id="btnAnterior" onclick="momentoAnterior()">⬅️ Anterior</button>
                 <button class="btn-action btn-primary" id="btnSiguiente" onclick="momentoSiguiente()">Siguiente ➡️</button>
@@ -739,27 +170,19 @@
         </div>
     </div>
 
-    <!-- TOAST -->
     <div id="toast" class="toast">¡Copiado al portapapeles!</div>
 
     <script>
-        // ─── DATOS ───
         const CASOS = {{ casos | tojson }};
         const PACKS = {{ packs | tojson }};
         const SPEECHES = {{ speeches | tojson }};
-        const ESTADOS = {{ estados | tojson }};
         const USER = {{ user | tojson }};
-
         let leadActual = null;
         let momentoActivo = 'M0';
         let momentosCompletados = [];
 
-        // ─── INICIALIZACIÓN ───
-        document.addEventListener('DOMContentLoaded', () => {
-            cargarLeads();
-        });
+        document.addEventListener('DOMContentLoaded', () => cargarLeads());
 
-        // ─── CARGAR LEADS ───
         async function cargarLeads() {
             try {
                 const res = await fetch('/api/leads?limit=200');
@@ -773,12 +196,9 @@
                     if (l.caso) option.textContent += ` [${l.caso}]`;
                     select.appendChild(option);
                 });
-            } catch (e) {
-                console.error('Error cargando leads:', e);
-            }
+            } catch (e) { console.error('Error cargando leads:', e); }
         }
 
-        // ─── CARGAR LEAD ESPECÍFICO ───
         async function cargarLead(leadId) {
             if (!leadId) {
                 document.getElementById('leadInfoCard').classList.remove('active');
@@ -792,23 +212,16 @@
                 const res = await fetch(`/api/leads/${leadId}`);
                 const data = await res.json();
                 leadActual = data.lead;
-                momentosCompletados = data.historial
-                    .filter(h => h.campo === 'momento')
-                    .map(h => h.valor_nuevo);
+                momentosCompletados = data.historial.filter(h => h.campo === 'momento').map(h => h.valor_nuevo);
                 momentoActivo = leadActual.momento_actual || 'M0';
-
                 renderizarLeadInfo();
                 renderizarDiagrama();
-
                 document.getElementById('leadInfoCard').classList.add('active');
                 document.getElementById('noLeadMessage').style.display = 'none';
                 document.getElementById('diagramaSection').style.display = 'block';
-            } catch (e) {
-                console.error('Error cargando lead:', e);
-            }
+            } catch (e) { console.error('Error cargando lead:', e); }
         }
 
-        // ─── RENDERIZAR INFO DEL LEAD ───
         function renderizarLeadInfo() {
             const l = leadActual;
             document.getElementById('leadNombreNegocio').textContent = l.nombre;
@@ -817,7 +230,6 @@
             document.getElementById('leadCiudad').textContent = l.ciudad;
             document.getElementById('leadNotas').textContent = l.notas || 'Sin notas';
             document.getElementById('leadFecha').textContent = new Date(l.fecha_creacion).toLocaleDateString('es-ES');
-
             const caso = l.caso ? CASOS[l.caso] : null;
             const badgeCaso = document.getElementById('badgeCaso');
             if (caso) {
@@ -826,374 +238,138 @@
                 badgeCaso.style.borderColor = caso.color;
                 badgeCaso.style.color = caso.color;
                 badgeCaso.style.background = caso.color + '15';
-            } else {
-                badgeCaso.style.display = 'none';
-            }
-
+            } else { badgeCaso.style.display = 'none'; }
             const badgeScore = document.getElementById('badgeScore');
-            if (l.score > 0) {
-                badgeScore.textContent = `⭐ Score: ${l.score}/10`;
-                badgeScore.style.display = 'inline-block';
-            } else {
-                badgeScore.style.display = 'none';
-            }
-
+            if (l.score > 0) { badgeScore.textContent = `⭐ Score: ${l.score}/10`; badgeScore.style.display = 'inline-block'; }
+            else { badgeScore.style.display = 'none'; }
             const pack = l.pack_recomendado ? PACKS[l.pack_recomendado] : null;
             const badgePack = document.getElementById('badgePack');
-            if (pack) {
-                badgePack.textContent = `📦 ${pack.nombre}`;
-                badgePack.style.display = 'inline-block';
-            } else {
-                badgePack.style.display = 'none';
-            }
-
+            if (pack) { badgePack.textContent = `📦 ${pack.nombre}`; badgePack.style.display = 'inline-block'; }
+            else { badgePack.style.display = 'none'; }
             document.getElementById('badgeEstado').textContent = l.estado.toUpperCase();
         }
 
-        // ─── RENDERIZAR DIAGRAMA ───
         function renderizarDiagrama() {
             const container = document.getElementById('flowDiagram');
             container.innerHTML = '';
             const momentos = ['M0','M1','M2','M3','M4','M5','M6','M7'];
-
             momentos.forEach((m, i) => {
                 const info = SPEECHES[m];
                 const node = document.createElement('div');
                 node.className = 'moment-node';
                 node.dataset.momento = m;
                 node.onclick = () => mostrarMomento(m);
-
-                if (momentosCompletados.includes(m)) {
-                    node.classList.add('completado');
-                }
-                if (m === momentoActivo) {
-                    node.classList.add('active');
-                }
-                // Bloquear momentos futuros si no se completó el anterior
+                if (momentosCompletados.includes(m)) node.classList.add('completado');
+                if (m === momentoActivo) node.classList.add('active');
                 const idx = momentos.indexOf(momentoActivo);
-                if (i > idx + 1) {
-                    node.classList.add('bloqueado');
-                    node.onclick = null;
-                }
-
-                node.innerHTML = `
-                    <div class="moment-icon">${info.icono}</div>
-                    <div class="moment-label">${info.titulo}</div>
-                    <div class="moment-number">${m}</div>
-                `;
+                if (i > idx + 1) { node.classList.add('bloqueado'); node.onclick = null; }
+                node.innerHTML = `<div class="moment-icon">${info.icono}</div><div class="moment-label">${info.titulo}</div><div class="moment-number">${m}</div>`;
                 container.appendChild(node);
-
                 if (i < momentos.length - 1) {
                     const arrow = document.createElement('div');
                     arrow.className = 'arrow-connector';
-                    if (momentosCompletados.includes(m)) {
-                        arrow.classList.add('completado');
-                    }
+                    if (momentosCompletados.includes(m)) arrow.classList.add('completado');
                     container.appendChild(arrow);
                 }
             });
         }
 
-        // ─── MOSTRAR MOMENTO ───
         function mostrarMomento(momento) {
             if (!leadActual) return;
             const info = SPEECHES[momento];
             const panel = document.getElementById('detailPanel');
             const title = document.getElementById('detailTitle');
             const content = document.getElementById('detailContent');
-
             title.innerHTML = `${info.icono} ${momento}: ${info.titulo}`;
             content.innerHTML = generarContenidoMomento(momento);
             panel.classList.add('active');
             panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-
-            // Actualizar nav buttons
             const momentos = ['M0','M1','M2','M3','M4','M5','M6','M7'];
             const idx = momentos.indexOf(momento);
             document.getElementById('btnAnterior').style.display = idx === 0 ? 'none' : 'inline-flex';
             document.getElementById('btnSiguiente').style.display = idx === 7 ? 'none' : 'inline-flex';
         }
 
-        // ─── GENERAR CONTENIDO POR MOMENTO ───
         function generarContenidoMomento(momento) {
             const info = SPEECHES[momento];
             const l = leadActual;
             const caso = l.caso ? CASOS[l.caso] : null;
             let html = '';
-
             switch(momento) {
                 case 'M0':
-                    html = `
-                        <div class="detail-section" style="grid-column: 1 / -1;">
-                            <h3>🎯 ${info.objetivo}</h3>
-                            <ul>
-                                ${info.checklist.map(item => `<li>${item}</li>`).join('')}
-                            </ul>
-                            <div class="speech-box">
-                                <span class="speech-box-label">💬 Speech:</span>
-                                ${info.speech.replace('{nombre}', l.nombre).replace('{tipo_negocio}', l.tipo_negocio).replace('{ciudad}', l.ciudad)}
-                            </div>
-                            <div class="action-buttons">
-                                <button class="btn-action btn-copiar" onclick="copiarSpeech('${momento}')">📋 Copiar speech</button>
-                                <button class="btn-action btn-whatsapp" onclick="enviarWA('${momento}')">📤 Enviar por WhatsApp</button>
-                                <button class="btn-action btn-primary" onclick="completarMomento('${momento}', 'Preparación completada')">✅ Confirmar y continuar</button>
-                            </div>
-                        </div>
-                    `;
+                    html = `<div class="detail-section" style="grid-column: 1 / -1;"><h3>🎯 ${info.objetivo}</h3><ul>${info.checklist.map(item => `<li>${item}</li>`).join('')}</ul><div class="speech-box"><span class="speech-box-label">💬 Speech:</span>${info.speech.replace('{nombre}', l.nombre).replace('{tipo_negocio}', l.tipo_negocio).replace('{ciudad}', l.ciudad)}</div><div class="action-buttons"><button class="btn-action btn-copiar" onclick="copiarSpeech('${momento}')">📋 Copiar speech</button><button class="btn-action btn-whatsapp" onclick="enviarWA('${momento}')">📤 Enviar por WhatsApp</button><button class="btn-action btn-primary" onclick="completarMomento('${momento}', 'Preparación completada')">✅ Confirmar y continuar</button></div></div>`;
                     break;
-
                 case 'M1':
                     const observacion = caso ? info.observaciones[l.caso] : info.observaciones['A'];
-                    const speechM1 = info.speech_template
-                        .replace('{vendedor}', USER.nombre_display)
-                        .replace('{nombre}', l.nombre)
-                        .replace('{observacion}', observacion.replace('{tipo_negocio}', l.tipo_negocio));
-                    html = `
-                        <div class="detail-section" style="grid-column: 1 / -1;">
-                            <h3>🎯 ${info.objetivo}</h3>
-                            <div class="speech-box">
-                                <span class="speech-box-label">💬 Speech de Apertura:</span>
-                                ${speechM1}
-                            </div>
-                            <div class="action-buttons">
-                                <button class="btn-action btn-copiar" onclick="copiarTexto(\`${speechM1.replace(/`/g, '\`')}\`)">📋 Copiar mensaje</button>
-                                <button class="btn-action btn-whatsapp" onclick="abrirWA(\`${speechM1.replace(/`/g, '\`')}\`)">📤 Enviar por WhatsApp</button>
-                                <button class="btn-action btn-primary" onclick="completarMomento('${momento}', 'Apertura realizada')">✅ Ya contacté al cliente</button>
-                            </div>
-                        </div>
-                    `;
+                    const speechM1 = info.speech_template.replace('{vendedor}', USER.nombre_display).replace('{nombre}', l.nombre).replace('{observacion}', observacion.replace('{tipo_negocio}', l.tipo_negocio));
+                    html = `<div class="detail-section" style="grid-column: 1 / -1;"><h3>🎯 ${info.objetivo}</h3><div class="speech-box"><span class="speech-box-label">💬 Speech de Apertura:</span>${speechM1}</div><div class="action-buttons"><button class="btn-action btn-copiar" onclick="copiarTexto(this.dataset.text)" data-text="${speechM1.replace(/"/g, '&quot;')}">📋 Copiar mensaje</button><button class="btn-action btn-whatsapp" onclick="abrirWA(this.dataset.text)" data-text="${speechM1.replace(/"/g, '&quot;')}">📤 Enviar por WhatsApp</button><button class="btn-action btn-primary" onclick="completarMomento('${momento}', 'Apertura realizada')">✅ Ya contacté al cliente</button></div></div>`;
                     break;
-
                 case 'M2':
                     const precioMin = caso ? caso.pack_precio : 250;
-                    html = `
-                        <div class="detail-section" style="grid-column: 1 / -1;">
-                            <h3>🎯 ${info.objetivo}</h3>
-                            <div class="speech-box">
-                                <span class="speech-box-label">💬 Desviación de precio:</span>
-                                ${info.speech_desviacion}
-                            </div>
-                            <div class="speech-box" style="margin-top: 0.75rem;">
-                                <span class="speech-box-label">💬 Si insiste en precio:</span>
-                                ${info.speech_precio.replace('{precio_minimo}', precioMin)}
-                            </div>
-                            <div class="action-buttons">
-                                <button class="btn-action btn-copiar" onclick="copiarTexto(\`${info.speech_desviacion.replace(/`/g, '\`')}\`)">📋 Copiar desviación</button>
-                                <button class="btn-action btn-copiar" onclick="copiarTexto(\`${info.speech_precio.replace('{precio_minimo}', precioMin).replace(/`/g, '\`')}\`)">📋 Copiar precio</button>
-                                <button class="btn-action btn-primary" onclick="completarMomento('${momento}', 'Objeción de precio manejada')">✅ Continuar a Auditoría</button>
-                            </div>
-                        </div>
-                    `;
+                    html = `<div class="detail-section" style="grid-column: 1 / -1;"><h3>🎯 ${info.objetivo}</h3><div class="speech-box"><span class="speech-box-label">💬 Desviación de precio:</span>${info.speech_desviacion}</div><div class="speech-box" style="margin-top: 0.75rem;"><span class="speech-box-label">💬 Si insiste en precio:</span>${info.speech_precio.replace('{precio_minimo}', precioMin)}</div><div class="action-buttons"><button class="btn-action btn-copiar" onclick="copiarTexto('${info.speech_desviacion.replace(/'/g, "\\'")}')">📋 Copiar desviación</button><button class="btn-action btn-primary" onclick="completarMomento('${momento}', 'Objeción de precio manejada')">✅ Continuar a Auditoría</button></div></div>`;
                     break;
-
                 case 'M3':
-                    html = `
-                        <div class="detail-section" style="grid-column: 1 / -1;">
-                            <h3>🎯 ${info.objetivo}</h3>
-                            <p style="color: var(--texto-sec); margin-bottom: 1rem; font-size: 0.9rem;">Responde las 5 preguntas para clasificar automáticamente el caso y calcular el score.</p>
-                            <div class="audit-form" id="auditForm">
-                                ${info.preguntas.map((p, i) => `
-                                    <div class="audit-question">
-                                        <p><strong>${i+1}.</strong> ${p.texto}</p>
-                                        <div class="audit-options">
-                                            <label><input type="radio" name="q${i}" value="2" onchange="calcularAuditoria()"> Sí activo (+2)</label>
-                                            <label><input type="radio" name="q${i}" value="1" onchange="calcularAuditoria()"> Sí básico (+1)</label>
-                                            <label><input type="radio" name="q${i}" value="0" onchange="calcularAuditoria()"> No (0)</label>
-                                        </div>
-                                    </div>
-                                `).join('')}
-                            </div>
-                            <div class="audit-result" id="auditResult">
-                                <h4>📊 Resultado de la Auditoría</h4>
-                                <p id="auditScore">—</p>
-                                <p id="auditCaso">—</p>
-                                <p id="auditPack">—</p>
-                                <div class="action-buttons" style="margin-top: 0.75rem;">
-                                    <button class="btn-action btn-primary" onclick="guardarAuditoria()">💾 Guardar clasificación</button>
-                                </div>
-                            </div>
-                        </div>
-                    `;
+                    html = `<div class="detail-section" style="grid-column: 1 / -1;"><h3>🎯 ${info.objetivo}</h3><p style="color: var(--texto-sec); margin-bottom: 1rem; font-size: 0.9rem;">Responde las 5 preguntas para clasificar automáticamente el caso y calcular el score.</p><div class="audit-form" id="auditForm">${info.preguntas.map((p, i) => `<div class="audit-question"><p><strong>${i+1}.</strong> ${p.texto}</p><div class="audit-options"><label><input type="radio" name="q${i}" value="2" onchange="calcularAuditoria()"> Sí activo (+2)</label><label><input type="radio" name="q${i}" value="1" onchange="calcularAuditoria()"> Sí básico (+1)</label><label><input type="radio" name="q${i}" value="0" onchange="calcularAuditoria()"> No (0)</label></div></div>`).join('')}</div><div class="audit-result" id="auditResult"><h4>📊 Resultado de la Auditoría</h4><p id="auditScore">—</p><p id="auditCaso">—</p><p id="auditPack">—</p><div class="action-buttons" style="margin-top: 0.75rem;"><button class="btn-action btn-primary" onclick="guardarAuditoria()">💾 Guardar clasificación</button></div></div></div>`;
                     break;
-
                 case 'M4':
                     const perdida = caso ? info.perdidas[l.caso] : info.perdidas['A'];
-                    const speechM4 = info.speech
-                        .replace('{perdida_estimada}', perdida.clientes)
-                        .replace('{razon}', perdida.razon)
-                        .replace('{solucion_competencia}', perdida.solucion);
-                    html = `
-                        <div class="detail-section" style="grid-column: 1 / -1;">
-                            <h3>🎯 ${info.objetivo}</h3>
-                            <div class="speech-box">
-                                <span class="speech-box-label">💬 Diagnóstico:</span>
-                                ${speechM4}
-                            </div>
-                            <div class="action-buttons">
-                                <button class="btn-action btn-copiar" onclick="copiarTexto(\`${speechM4.replace(/`/g, '\`')}\`)">📋 Copiar diagnóstico</button>
-                                <button class="btn-action btn-whatsapp" onclick="abrirWA(\`${speechM4.replace(/`/g, '\`')}\`)">📤 Enviar por WhatsApp</button>
-                                <button class="btn-action btn-primary" onclick="completarMomento('${momento}', 'Diagnóstico presentado')">✅ Continuar a Opciones</button>
-                            </div>
-                        </div>
-                    `;
+                    const speechM4 = info.speech.replace('{perdida_estimada}', perdida.clientes).replace('{razon}', perdida.razon).replace('{solucion_competencia}', perdida.solucion);
+                    html = `<div class="detail-section" style="grid-column: 1 / -1;"><h3>🎯 ${info.objetivo}</h3><div class="speech-box"><span class="speech-box-label">💬 Diagnóstico:</span>${speechM4}</div><div class="action-buttons"><button class="btn-action btn-copiar" onclick="copiarTexto('${speechM4.replace(/'/g, "\\'")}')">📋 Copiar diagnóstico</button><button class="btn-action btn-whatsapp" onclick="abrirWA('${speechM4.replace(/'/g, "\\'")}')">📤 Enviar por WhatsApp</button><button class="btn-action btn-primary" onclick="completarMomento('${momento}', 'Diagnóstico presentado')">✅ Continuar a Opciones</button></div></div>`;
                     break;
-
                 case 'M5':
                     const packRec = caso ? caso.pack_recomendado : null;
-                    html = `
-                        <div class="detail-section" style="grid-column: 1 / -1;">
-                            <h3>🎯 ${info.objetivo}</h3>
-                            <p style="color: var(--texto-sec); margin-bottom: 0.75rem; font-size: 0.9rem;">
-                                ${caso ? `Según la auditoría, el caso es <strong style="color:${caso.color}">${caso.nombre}</strong>.` : 'Primero completa la auditoría (M3).'}
-                            </p>
-                            <div class="packs-grid">
-                                ${Object.entries(PACKS).map(([key, pack]) => {
-                                    const isRec = key === packRec;
-                                    return `
-                                        <div class="pack-card ${isRec ? 'recomendado' : ''}" onclick="seleccionarPack('${key}')">
-                                            <div class="pack-name" style="color: ${pack.color}">${pack.nombre}</div>
-                                            <div class="pack-price">${pack.precio} <span>MAD</span></div>
-                                            <div style="font-size: 0.75rem; color: var(--texto-sec); margin-top: 0.25rem;">+ ${pack.mantenimiento} MAD/mes</div>
-                                        </div>
-                                    `;
-                                }).join('')}
-                            </div>
-                            <div class="action-buttons" style="margin-top: 1rem;">
-                                <button class="btn-action btn-primary" onclick="completarMomento('${momento}', 'Opciones mostradas')">✅ Cliente vio opciones</button>
-                            </div>
-                        </div>
-                    `;
+                    html = `<div class="detail-section" style="grid-column: 1 / -1;"><h3>🎯 ${info.objetivo}</h3><p style="color: var(--texto-sec); margin-bottom: 0.75rem; font-size: 0.9rem;">${caso ? `Según la auditoría, el caso es <strong style="color:${caso.color}">${caso.nombre}</strong>.` : 'Primero completa la auditoría (M3).'}</p><div class="packs-grid">${Object.entries(PACKS).map(([key, pack]) => { const isRec = key === packRec; return `<div class="pack-card ${isRec ? 'recomendado' : ''}" onclick="seleccionarPack('${key}')"><div class="pack-name" style="color: ${pack.color}">${pack.nombre}</div><div class="pack-price">${pack.precio} <span>MAD</span></div><div style="font-size: 0.75rem; color: var(--texto-sec); margin-top: 0.25rem;">+ ${pack.mantenimiento} MAD/mes</div></div>`; }).join('')}</div><div class="action-buttons" style="margin-top: 1rem;"><button class="btn-action btn-primary" onclick="completarMomento('${momento}', 'Opciones mostradas')">✅ Cliente vio opciones</button></div></div>`;
                     break;
-
                 case 'M6':
-                    html = `
-                        <div class="detail-section">
-                            <h3>🎯 ${info.objetivo}</h3>
-                            <div class="speech-box">
-                                <span class="speech-box-label">💬 Comparación:</span>
-                                ${info.speech.replace('{precio_minimo}', caso ? caso.pack_precio : 250)}
-                            </div>
-                        </div>
-                        <div class="detail-section">
-                            <h3>🌐 Ejemplos de Inspiración</h3>
-                            <div class="ejemplos-grid">
-                                ${info.ejemplos.map(e => `
-                                    <div class="ejemplo-card">
-                                        <div style="font-weight: 600; font-size: 0.85rem; margin-bottom: 0.25rem;">${e.nombre}</div>
-                                        <a href="https://${e.url}" target="_blank">${e.url}</a>
-                                    </div>
-                                `).join('')}
-                            </div>
-                        </div>
-                        <div class="detail-section" style="grid-column: 1 / -1;">
-                            <div class="action-buttons">
-                                <button class="btn-action btn-primary" onclick="completarMomento('${momento}', 'Dudas manejadas')">✅ Continuar al Cierre</button>
-                            </div>
-                        </div>
-                    `;
+                    html = `<div class="detail-section"><h3>🎯 ${info.objetivo}</h3><div class="speech-box"><span class="speech-box-label">💬 Comparación:</span>${info.speech.replace('{precio_minimo}', caso ? caso.pack_precio : 250)}</div></div><div class="detail-section"><h3>🌐 Ejemplos de Inspiración</h3><div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 0.75rem;">${info.ejemplos.map(e => `<div style="background: var(--bg); padding: 0.75rem; border-radius: 8px; border: 1px solid rgba(148, 163, 184, 0.1); text-align: center;"><div style="font-weight: 600; font-size: 0.85rem; margin-bottom: 0.25rem;">${e.nombre}</div><a href="https://${e.url}" target="_blank" style="color: var(--cyan); font-size: 0.8rem;">${e.url}</a></div>`).join('')}</div></div><div class="detail-section" style="grid-column: 1 / -1;"><div class="action-buttons"><button class="btn-action btn-primary" onclick="completarMomento('${momento}', 'Dudas manejadas')">✅ Continuar al Cierre</button></div></div>`;
                     break;
-
                 case 'M7':
                     const packSel = caso ? PACKS[caso.pack_recomendado] : null;
                     const anticipo = packSel ? Math.round(packSel.precio * 0.5) : 0;
-                    html = `
-                        <div class="detail-section" style="grid-column: 1 / -1;">
-                            <h3>🎯 ${info.objetivo}</h3>
-                            <div class="speech-box">
-                                <span class="speech-box-label">💬 Script de Cierre:</span>
-                                ${info.speech.replace('{anticipo}', anticipo)}
-                            </div>
-                            ${packSel ? `
-                            <div class="propuesta-box" style="margin-top: 1rem;">
-                                <h4>📄 Propuesta para ${l.nombre}</h4>
-                                <div class="propuesta-item">
-                                    <span>Pack</span>
-                                    <span>${packSel.nombre}</span>
-                                </div>
-                                <div class="propuesta-item">
-                                    <span>Precio entrada</span>
-                                    <span>${packSel.precio} MAD</span>
-                                </div>
-                                <div class="propuesta-item">
-                                    <span>Mantenimiento mensual</span>
-                                    <span>${packSel.mantenimiento} MAD/mes</span>
-                                </div>
-                                <div class="propuesta-item">
-                                    <span>50% anticipo</span>
-                                    <span style="color: var(--verde); font-weight: 700;">${anticipo} MAD</span>
-                                </div>
-                                <div class="propuesta-item total">
-                                    <span>TOTAL A PAGAR</span>
-                                    <span>${packSel.precio} MAD</span>
-                                </div>
-                            </div>
-                            ` : ''}
-                            <div class="action-buttons" style="margin-top: 1rem;">
-                                <button class="btn-action btn-copiar" onclick="copiarTexto(\`${info.speech.replace('{anticipo}', anticipo).replace(/`/g, '\`')}\`)">📋 Copiar script</button>
-                                <button class="btn-action btn-whatsapp" onclick="abrirWA(\`${info.speech.replace('{anticipo}', anticipo).replace(/`/g, '\`')}\`)">📤 Enviar propuesta por WA</button>
-                                <button class="btn-action btn-primary" onclick="generarCotizacion()">📄 Generar cotización formal</button>
-                                <button class="btn-action btn-primary" style="background: var(--verde);" onclick="cerrarVenta()">✅ ¡VENTA CERRADA!</button>
-                            </div>
-                        </div>
-                    `;
+                    html = `<div class="detail-section" style="grid-column: 1 / -1;"><h3>🎯 ${info.objetivo}</h3><div class="speech-box"><span class="speech-box-label">💬 Script de Cierre:</span>${info.speech.replace('{anticipo}', anticipo)}</div>${packSel ? `<div style="background: rgba(0, 255, 136, 0.05); border: 1px solid rgba(0, 255, 136, 0.2); border-radius: 10px; padding: 1.25rem; margin-top: 1rem;"><h4 style="color: var(--verde); margin-bottom: 0.75rem;">📄 Propuesta para ${l.nombre}</h4><div style="display: flex; justify-content: space-between; padding: 0.5rem 0; border-bottom: 1px solid rgba(148, 163, 184, 0.1); font-size: 0.9rem;"><span>Pack</span><span>${packSel.nombre}</span></div><div style="display: flex; justify-content: space-between; padding: 0.5rem 0; border-bottom: 1px solid rgba(148, 163, 184, 0.1); font-size: 0.9rem;"><span>Precio entrada</span><span>${packSel.precio} MAD</span></div><div style="display: flex; justify-content: space-between; padding: 0.5rem 0; border-bottom: 1px solid rgba(148, 163, 184, 0.1); font-size: 0.9rem;"><span>Mantenimiento mensual</span><span>${packSel.mantenimiento} MAD/mes</span></div><div style="display: flex; justify-content: space-between; padding: 0.5rem 0; border-bottom: 1px solid rgba(148, 163, 184, 0.1); font-size: 0.9rem;"><span>50% anticipo</span><span style="color: var(--verde); font-weight: 700;">${anticipo} MAD</span></div><div style="display: flex; justify-content: space-between; font-weight: 700; color: var(--verde); font-size: 1.1rem; margin-top: 0.5rem; padding-top: 0.5rem; border-top: 1px solid rgba(0, 255, 136, 0.2);"><span>TOTAL A PAGAR</span><span>${packSel.precio} MAD</span></div></div>` : ''}<div class="action-buttons" style="margin-top: 1rem;"><button class="btn-action btn-copiar" onclick="copiarTexto('${info.speech.replace('{anticipo}', anticipo).replace(/'/g, "\\'")}')">📋 Copiar script</button><button class="btn-action btn-whatsapp" onclick="abrirWA('${info.speech.replace('{anticipo}', anticipo).replace(/'/g, "\\'")}')">📤 Enviar propuesta por WA</button><button class="btn-action btn-primary" onclick="generarCotizacion()">📄 Generar cotización formal</button><button class="btn-action btn-primary" style="background: var(--verde);" onclick="cerrarVenta()">✅ ¡VENTA CERRADA!</button></div></div>`;
                     break;
             }
             return html;
         }
 
-        // ─── CÁLCULO AUDITORÍA ───
         function calcularAuditoria() {
             const preguntas = SPEECHES['M3'].preguntas;
             let score = 0;
             let todasRespondidas = true;
             const respuestas = {};
-
             preguntas.forEach((p, i) => {
                 const selected = document.querySelector(`input[name="q${i}"]:checked`);
-                if (selected) {
-                    score += parseInt(selected.value);
-                    respuestas[p.id] = parseInt(selected.value);
-                } else {
-                    todasRespondidas = false;
-                }
+                if (selected) { score += parseInt(selected.value); respuestas[p.id] = parseInt(selected.value); }
+                else { todasRespondidas = false; }
             });
-
             if (todasRespondidas) {
-                // Clasificar caso
                 let caso = 'A';
                 if (score >= 9) caso = 'F';
                 else if (score >= 7) caso = 'E';
                 else if (score >= 5) caso = 'C';
                 else if (score >= 3) caso = 'D';
                 else if (score >= 1) caso = 'B';
-
                 const casoInfo = CASOS[caso];
                 const packInfo = casoInfo.pack_recomendado ? PACKS[casoInfo.pack_recomendado] : null;
-
                 document.getElementById('auditScore').innerHTML = `<strong>Score:</strong> ${score}/10`;
                 document.getElementById('auditCaso').innerHTML = `<strong>Caso:</strong> <span style="color:${casoInfo.color}">${casoInfo.emoji} ${casoInfo.nombre}</span>`;
-                document.getElementById('auditPack').innerHTML = packInfo
-                    ? `<strong>Pack recomendado:</strong> ${packInfo.nombre} — ${packInfo.precio} MAD`
-                    : '<strong>No es cliente potencial</strong>';
-
-                document.getElementById('auditResult').dataset.score = score;
-                document.getElementById('auditResult').dataset.caso = caso;
-                document.getElementById('auditResult').dataset.respuestas = JSON.stringify(respuestas);
-                document.getElementById('auditResult').classList.add('active');
+                document.getElementById('auditPack').innerHTML = packInfo ? `<strong>Pack recomendado:</strong> ${packInfo.nombre} — ${packInfo.precio} MAD` : '<strong>No es cliente potencial</strong>';
+                const result = document.getElementById('auditResult');
+                result.dataset.score = score;
+                result.dataset.caso = caso;
+                result.dataset.respuestas = JSON.stringify(respuestas);
+                result.classList.add('active');
             }
         }
 
-        // ─── GUARDAR AUDITORÍA ───
         async function guardarAuditoria() {
             const result = document.getElementById('auditResult');
             const score = parseInt(result.dataset.score);
             const caso = result.dataset.caso;
             const respuestas = JSON.parse(result.dataset.respuestas);
-
             try {
                 const res = await fetch(`/api/leads/${leadActual.id}/clasificar`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    method: 'POST', headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ caso, score, respuestas_auditoria: respuestas })
                 });
                 const data = await res.json();
@@ -1203,60 +379,31 @@
                     mostrarToast('✅ Auditoría guardada correctamente');
                     completarMomento('M3', `Auditoría: Caso ${caso}, Score ${score}/10`);
                 }
-            } catch (e) {
-                console.error(e);
-                mostrarToast('❌ Error guardando auditoría');
-            }
+            } catch (e) { mostrarToast('❌ Error guardando auditoría'); }
         }
 
-        // ─── COMPLETAR MOMENTO ───
         async function completarMomento(momento, notas) {
             try {
                 const res = await fetch(`/api/leads/${leadActual.id}/progreso`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    method: 'POST', headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ momento, completado: true, notas })
                 });
                 if (res.ok) {
-                    if (!momentosCompletados.includes(momento)) {
-                        momentosCompletados.push(momento);
-                    }
-                    // Avanzar al siguiente
+                    if (!momentosCompletados.includes(momento)) momentosCompletados.push(momento);
                     const momentos = ['M0','M1','M2','M3','M4','M5','M6','M7'];
                     const idx = momentos.indexOf(momento);
-                    if (idx < 7) {
-                        momentoActivo = momentos[idx + 1];
-                    }
+                    if (idx < 7) momentoActivo = momentos[idx + 1];
                     renderizarDiagrama();
                     mostrarToast(`✅ ${momento} completado`);
-                    if (idx < 7) {
-                        mostrarMomento(momentos[idx + 1]);
-                    }
+                    if (idx < 7) mostrarMomento(momentos[idx + 1]);
                 }
-            } catch (e) {
-                console.error(e);
-            }
+            } catch (e) { console.error(e); }
         }
 
-        // ─── NAVEGACIÓN ───
-        function momentoAnterior() {
-            const momentos = ['M0','M1','M2','M3','M4','M5','M6','M7'];
-            const idx = momentos.indexOf(momentoActivo);
-            if (idx > 0) mostrarMomento(momentos[idx - 1]);
-        }
-        function momentoSiguiente() {
-            const momentos = ['M0','M1','M2','M3','M4','M5','M6','M7'];
-            const idx = momentos.indexOf(momentoActivo);
-            if (idx < 7) mostrarMomento(momentos[idx + 1]);
-        }
+        function momentoAnterior() { const momentos = ['M0','M1','M2','M3','M4','M5','M6','M7']; const idx = momentos.indexOf(momentoActivo); if (idx > 0) mostrarMomento(momentos[idx - 1]); }
+        function momentoSiguiente() { const momentos = ['M0','M1','M2','M3','M4','M5','M6','M7']; const idx = momentos.indexOf(momentoActivo); if (idx < 7) mostrarMomento(momentos[idx + 1]); }
+        function cerrarPanel() { document.getElementById('detailPanel').classList.remove('active'); document.querySelectorAll('.moment-node').forEach(n => n.classList.remove('active')); }
 
-        // ─── CERRAR PANEL ───
-        function cerrarPanel() {
-            document.getElementById('detailPanel').classList.remove('active');
-            document.querySelectorAll('.moment-node').forEach(n => n.classList.remove('active'));
-        }
-
-        // ─── COPIAR / WHATSAPP ───
         function copiarSpeech(momento) {
             const info = SPEECHES[momento];
             const l = leadActual;
@@ -1266,29 +413,14 @@
         }
 
         async function copiarTexto(texto) {
-            try {
-                await navigator.clipboard.writeText(texto);
-                mostrarToast('📋 ¡Copiado al portapapeles!');
-            } catch (e) {
-                // Fallback
-                const ta = document.createElement('textarea');
-                ta.value = texto;
-                document.body.appendChild(ta);
-                ta.select();
-                document.execCommand('copy');
-                document.body.removeChild(ta);
-                mostrarToast('📋 ¡Copiado al portapapeles!');
-            }
+            try { await navigator.clipboard.writeText(texto); mostrarToast('📋 ¡Copiado al portapapeles!'); }
+            catch (e) { const ta = document.createElement('textarea'); ta.value = texto; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta); mostrarToast('📋 ¡Copiado al portapapeles!'); }
         }
 
         function abrirWA(texto) {
-            if (!leadActual || !leadActual.telefono) {
-                mostrarToast('❌ No hay teléfono del lead');
-                return;
-            }
+            if (!leadActual || !leadActual.telefono) { mostrarToast('❌ No hay teléfono del lead'); return; }
             const phone = leadActual.telefono.replace(/\D/g, '');
-            const url = `https://wa.me/${phone}?text=${encodeURIComponent(texto)}`;
-            window.open(url, '_blank');
+            window.open(`https://wa.me/${phone}?text=${encodeURIComponent(texto)}`, '_blank');
         }
 
         function enviarWA(momento) {
@@ -1299,62 +431,36 @@
             abrirWA(text);
         }
 
-        // ─── GENERAR COTIZACIÓN ───
         async function generarCotizacion() {
-            if (!leadActual || !leadActual.caso) {
-                mostrarToast('❌ Primero completa la auditoría (M3)');
-                return;
-            }
+            if (!leadActual || !leadActual.caso) { mostrarToast('❌ Primero completa la auditoría (M3)'); return; }
             const caso = CASOS[leadActual.caso];
             const pack = PACKS[caso.pack_recomendado];
             try {
                 const res = await fetch('/api/cotizar', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        lead_id: leadActual.id,
-                        pack: caso.pack_recomendado,
-                        precio_entrada: pack.precio,
-                        precio_mantenimiento: pack.mantenimiento,
-                        notas: `Generada desde flujo M7 — Caso ${leadActual.caso}`
-                    })
+                    method: 'POST', headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ lead_id: leadActual.id, pack: caso.pack_recomendado, precio_entrada: pack.precio, precio_mantenimiento: pack.mantenimiento, notas: `Generada desde flujo M7 — Caso ${leadActual.caso}` })
                 });
-                if (res.ok) {
-                    mostrarToast('📄 ¡Cotización generada!');
-                }
-            } catch (e) {
-                mostrarToast('❌ Error generando cotización');
-            }
+                if (res.ok) mostrarToast('📄 ¡Cotización generada!');
+n            } catch (e) { mostrarToast('❌ Error generando cotización'); }
         }
 
-        // ─── CERRAR VENTA ───
         async function cerrarVenta() {
             try {
                 const res = await fetch(`/api/leads/${leadActual.id}`, {
-                    method: 'PATCH',
-                    headers: { 'Content-Type': 'application/json' },
+                    method: 'PATCH', headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ estado: 'cerrado' })
                 });
                 if (res.ok) {
                     mostrarToast('🎉 ¡VENTA CERRADA!');
                     leadActual.estado = 'cerrado';
                     renderizarLeadInfo();
-                    setTimeout(() => {
-                        cargarLeads();
-                        document.getElementById('leadSelect').value = '';
-                        cargarLead('');
-                    }, 2000);
+                    setTimeout(() => { cargarLeads(); document.getElementById('leadSelect').value = ''; cargarLead(''); }, 2000);
                 }
-            } catch (e) {
-                mostrarToast('❌ Error cerrando venta');
-            }
+            } catch (e) { mostrarToast('❌ Error cerrando venta'); }
         }
 
-        function seleccionarPack(packKey) {
-            mostrarToast(`📦 Pack seleccionado: ${PACKS[packKey].nombre}`);
-        }
+        function seleccionarPack(packKey) { mostrarToast(`📦 Pack seleccionado: ${PACKS[packKey].nombre}`); }
 
-        // ─── TOAST ───
         function mostrarToast(mensaje) {
             const toast = document.getElementById('toast');
             toast.textContent = mensaje;
