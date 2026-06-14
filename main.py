@@ -421,7 +421,8 @@ async def lifespan(app: FastAPI):
         await conn.execute("""
             INSERT INTO usuarios (username, password_hash, nombre_display, rol)
             VALUES ('admin', $1, 'Administrador', 'admin')
-            ON CONFLICT (username) DO NOTHING
+            ON CONFLICT (username) DO UPDATE SET password_hash = 
+        EXCLUDED.password_hash
         """, admin_hash)
         # Insertar packs como servicios si no existen
         for codigo, pack in PACKS.items():
