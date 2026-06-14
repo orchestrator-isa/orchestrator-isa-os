@@ -16,126 +16,46 @@
             justify-content: center;
             color: #fff;
         }
-        .login-container {
-            width: 100%;
-            max-width: 420px;
-            padding: 2rem;
-        }
-        .logo-section {
-            text-align: center;
-            margin-bottom: 2.5rem;
-        }
-        .logo-rocket {
-            font-size: 4rem;
-            margin-bottom: 0.5rem;
-            display: block;
-            animation: float 3s ease-in-out infinite;
-        }
-        @keyframes float {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-10px); }
-        }
-        .logo-text {
-            font-size: 1.8rem;
-            font-weight: 800;
-            letter-spacing: -0.5px;
-        }
+        .login-container { width: 100%; max-width: 420px; padding: 2rem; }
+        .logo-section { text-align: center; margin-bottom: 2.5rem; }
+        .logo-rocket { font-size: 4rem; margin-bottom: 0.5rem; display: block; animation: float 3s ease-in-out infinite; }
+        @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+        .logo-text { font-size: 1.8rem; font-weight: 800; letter-spacing: -0.5px; }
         .logo-text .ia { color: #fff; }
         .logo-text .boost { color: #fff; }
         .logo-text .prufer { color: #00E5FF; }
-        .tagline {
-            color: #94A3B8;
-            font-size: 0.85rem;
-            letter-spacing: 4px;
-            text-transform: uppercase;
-            margin-top: 0.5rem;
-        }
+        .tagline { color: #94A3B8; font-size: 0.85rem; letter-spacing: 4px; text-transform: uppercase; margin-top: 0.5rem; }
         .login-card {
-            background: #151E32;
-            border: 1px solid rgba(0, 229, 255, 0.1);
-            border-radius: 16px;
-            padding: 2rem;
+            background: #151E32; border: 1px solid rgba(0, 229, 255, 0.1);
+            border-radius: 16px; padding: 2rem;
             box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
         }
-        .login-card h2 {
-            font-size: 1.3rem;
-            margin-bottom: 1.5rem;
-            color: #00E5FF;
-        }
-        .form-group {
-            margin-bottom: 1.2rem;
-        }
-        .form-group label {
-            display: block;
-            font-size: 0.85rem;
-            color: #94A3B8;
-            margin-bottom: 0.4rem;
-            font-weight: 500;
-        }
+        .login-card h2 { font-size: 1.3rem; margin-bottom: 1.5rem; color: #00E5FF; }
+        .form-group { margin-bottom: 1.2rem; }
+        .form-group label { display: block; font-size: 0.85rem; color: #94A3B8; margin-bottom: 0.4rem; font-weight: 500; }
         .form-group input {
-            width: 100%;
-            padding: 0.85rem 1rem;
-            background: #0B1120;
-            border: 1px solid rgba(148, 163, 184, 0.2);
-            border-radius: 10px;
-            color: #fff;
-            font-size: 1rem;
-            transition: all 0.2s;
+            width: 100%; padding: 0.85rem 1rem; background: #0B1120;
+            border: 1px solid rgba(148, 163, 184, 0.2); border-radius: 10px;
+            color: #fff; font-size: 1rem; transition: all 0.2s;
         }
-        .form-group input:focus {
-            outline: none;
-            border-color: #00E5FF;
-            box-shadow: 0 0 0 3px rgba(0, 229, 255, 0.1);
-        }
-        .form-group input::placeholder {
-            color: #475569;
-        }
+        .form-group input:focus { outline: none; border-color: #00E5FF; box-shadow: 0 0 0 3px rgba(0, 229, 255, 0.1); }
+        .form-group input::placeholder { color: #475569; }
         .btn-login {
-            width: 100%;
-            padding: 0.9rem;
-            background: #00E5FF;
-            color: #0B1120;
-            border: none;
-            border-radius: 10px;
-            font-size: 1rem;
-            font-weight: 700;
-            cursor: pointer;
-            transition: all 0.2s;
-            margin-top: 0.5rem;
+            width: 100%; padding: 0.9rem; background: #00E5FF; color: #0B1120;
+            border: none; border-radius: 10px; font-size: 1rem; font-weight: 700;
+            cursor: pointer; transition: all 0.2s; margin-top: 0.5rem;
         }
-        .btn-login:hover {
-            background: #00FF88;
-            transform: translateY(-1px);
-            box-shadow: 0 8px 25px rgba(0, 255, 136, 0.3);
-        }
+        .btn-login:hover { background: #00FF88; transform: translateY(-1px); box-shadow: 0 8px 25px rgba(0, 255, 136, 0.3); }
         .error-msg {
-            background: rgba(239, 68, 68, 0.1);
-            border: 1px solid rgba(239, 68, 68, 0.3);
-            color: #EF4444;
-            padding: 0.8rem 1rem;
-            border-radius: 8px;
-            font-size: 0.9rem;
-            margin-bottom: 1rem;
-            display: {% if error %}block{% else %}none{% endif %};
+            background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3);
+            color: #EF4444; padding: 0.8rem 1rem; border-radius: 8px;
+            font-size: 0.9rem; margin-bottom: 1rem;
         }
-        .version {
-            text-align: center;
-            color: #475569;
-            font-size: 0.75rem;
-            margin-top: 1.5rem;
-        }
-        .glow {
-            position: absolute;
-            width: 300px;
-            height: 300px;
-            background: radial-gradient(circle, rgba(0, 229, 255, 0.08) 0%, transparent 70%);
-            border-radius: 50%;
-            pointer-events: none;
-        }
-        .glow-1 { top: -100px; left: -100px; }
+        .version { text-align: center; color: #475569; font-size: 0.75rem; margin-top: 1.5rem; }
+        .glow { position: absolute; width: 300px; height: 300px; border-radius: 50%; pointer-events: none; }
+        .glow-1 { top: -100px; left: -100px; background: radial-gradient(circle, rgba(0, 229, 255, 0.08) 0%, transparent 70%); }
         .glow-2 { bottom: -100px; right: -100px; background: radial-gradient(circle, rgba(0, 255, 136, 0.06) 0%, transparent 70%); }
     </style>
-<base target="_blank">
 </head>
 <body>
     <div class="glow glow-1"></div>
