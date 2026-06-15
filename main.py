@@ -20,11 +20,6 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 import asyncpg
 
-# ============================================================
-# IMPORTAR ROUTER DE LEADS (después de las importaciones básicas)
-# ============================================================
-from leads_router_v3 import router as leads_router
-
 # ─── CONFIG ─────────────────────────────────────────────────────────────
 DATABASE_URL = os.getenv("DATABASE_URL", "")
 SECRET_KEY = os.getenv("SECRET_KEY", secrets.token_hex(32))
@@ -32,6 +27,11 @@ PORT = int(os.getenv("PORT", "8000"))
 
 COOKIE_NAME = "isa_session"
 SESSION_MAX_AGE = 86400 * 7
+
+# ============================================================
+# IMPORTAR ROUTER DE LEADS (DESPUÉS DE LAS CONFIGS)
+# ============================================================
+from leads_router_v3 import router as leads_router
 
 # ─── PYDANTIC MODELS ────────────────────────────────────────────────────
 
