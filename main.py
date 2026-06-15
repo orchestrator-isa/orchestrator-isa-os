@@ -19,9 +19,12 @@ from fastapi.templating import Jinja2Templates
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 import asyncpg
+
+# ============================================================
+# IMPORTAR ROUTER DE LEADS (después de las importaciones básicas)
+# ============================================================
 from leads_router_v3 import router as leads_router
 
-app.include_router(leads_router)
 # ─── CONFIG ─────────────────────────────────────────────────────────────
 DATABASE_URL = os.getenv("DATABASE_URL", "")
 SECRET_KEY = os.getenv("SECRET_KEY", secrets.token_hex(32))
@@ -283,6 +286,50 @@ async def lifespan(app: FastAPI):
                 ON CONFLICT (codigo) DO NOTHING
             """, codigo, pack["nombre"], pack["precio"])
 
+        # 11. Crear tabla leads_scrap (para leads de Outscraper)
+        await conn.execute("""
+            CREATE TABLE IF NOT EXISTS leads_scrap (
+                id SERIAL PRIMARY KEY,
+                nombre_negocio VARCHAR(255) NOT NULL,
+                telefono VARCHAR(50),
+                whatsapp BOOLEAN DEFAULT FALSE,
+                email VARCHAR(255),
+                tiene_web BOOLEAN DEFAULT FALSE,
+                website_url TEXT,
+                tiene_facebook BOOLEAN DEFAULT FALSE,
+                facebook_url TEXT,
+                tiene_instagram BOOLEAN DEFAULT FALSE,
+                instagram_url TEXT,
+                direccion TEXT,
+                ciudad VARCHAR(100) DEFAULT 'Tetouan',
+                latitud DECIMAL(10, 7),
+                longitud DECIMAL(10, 7),
+                place_id VARCHAR(255) UNIQUE,
+                google_id VARCHAR(255),
+                google_maps_url TEXT,
+                rating DECIMAL(3, 2),
+                num_reviews INTEGER DEFAULT 0,
+                categoria VARCHAR(100),
+                subtipos TEXT,
+                estado_negocio VARCHAR(50) DEFAULT 'OPERATIONAL',
+                caso_negocio VARCHAR(1),
+                notas_scraping TEXT,
+                estrategia_venta VARCHAR(50),
+                pack_recomendado VARCHAR(50),
+                precio_recomendado INTEGER,
+                score INTEGER DEFAULT 0,
+                score_detalle JSONB DEFAULT '{}',
+                estado VARCHAR(20) DEFAULT 'nuevo',
+                fuente VARCHAR(50) DEFAULT 'outscraper',
+                raw_data JSONB DEFAULT '{}',
+                ultimo_contacto TIMESTAMP,
+                mensaje_enviado TEXT,
+                respuesta_recibida TEXT,
+                created_at TIMESTAMP DEFAULT NOW(),
+                updated_at TIMESTAMP DEFAULT NOW()
+            )
+        """)
+
         # 11. LIMPIAR CACHE DE STATEMENTS (fix InvalidCachedStatementError)
         try:
             await conn.execute("DISCARD ALL")
@@ -297,6 +344,11 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(title="Orchestrator ISA v13.4.2", lifespan=lifespan)
 
+# ============================================================
+# REGISTRAR ROUTER DE LEADS (DESPUÉS DE CREAR app)
+# ============================================================
+app.include_router(leads_router)
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -307,7 +359,7 @@ app.add_middleware(
 
 app.mount("/static", StaticFiles(directory="static"), name="static")
 templates = Jinja2Templates(directory="templates")
-app.include_router(leads_router)
+
 # ─── AUTH DEPENDENCIES ───────────────────────────────────────────────────
 
 async def get_current_user(request: Request) -> Optional[dict]:
@@ -414,7 +466,7 @@ async def listar_usuarios(user=Depends(require_admin)):
         rows = await conn.fetch("SELECT id, username, nombre_display, rol, activo FROM usuarios ORDER BY id")
         return [dict(r) for r in rows]
 
-# ─── API: LEADS ──────────────────────────────────────────────────────────
+# ─── API: LEADS (tabla original) ──────────────────────────────────────────
 
 @app.post("/api/leads")
 async def crear_lead(data: LeadCreate):
