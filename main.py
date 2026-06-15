@@ -19,7 +19,9 @@ from fastapi.templating import Jinja2Templates
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 import asyncpg
+from leads_router_v3 import router as leads_router
 
+app.include_router(leads_router)
 # ─── CONFIG ─────────────────────────────────────────────────────────────
 DATABASE_URL = os.getenv("DATABASE_URL", "")
 SECRET_KEY = os.getenv("SECRET_KEY", secrets.token_hex(32))
@@ -305,7 +307,7 @@ app.add_middleware(
 
 app.mount("/static", StaticFiles(directory="static"), name="static")
 templates = Jinja2Templates(directory="templates")
-
+app.include_router(leads_router)
 # ─── AUTH DEPENDENCIES ───────────────────────────────────────────────────
 
 async def get_current_user(request: Request) -> Optional[dict]:
